@@ -1,1 +1,1 @@
-backend: yarn ts-start
+web: yarn install && yarn build && yarn ts-start
