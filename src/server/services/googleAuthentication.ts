@@ -44,7 +44,8 @@ class GoogleAuthentication {
         // generate a url that asks permissions for Blogger and Google Calendar scopes
         const scopes = [
             'https://www.googleapis.com/auth/blogger',
-            'https://www.googleapis.com/auth/calendar'
+            'https://www.googleapis.com/auth/calendar',
+            //'https://coopify-dev.herokuapp.com',
         ]
         const url = this.authenticator.generateAuthUrl({
             // 'online' (default) or 'offline' (gets refresh_token)
@@ -57,12 +58,12 @@ class GoogleAuthentication {
     }
 
     /**
-     * 
+     * method to exchange code by token
      */
-    public ExchangeCodeForToken(code: string) {
+    public async ExchangeCodeForToken(code: string) {
         // This will provide an object with the access_token and refresh_token.
         // Save these somewhere safe so they can be used at a later time.
-        const {tokens} = this.authenticator.getToken(code)
+        const {tokens} = await this.authenticator.getToken(code)
         this.authenticator.setCredentials(tokens);
     }
 }

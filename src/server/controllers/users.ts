@@ -77,7 +77,8 @@ export async function googleAPIExchangeCodeForTokenAsync(request: Request, respo
     try {
         //No se si el code va en el body o en el header y ademas ver si hay que hacer alguna validacion
         //Por ejemplo si el code es vacio
-        const code = request.body.code
+        //const code = request.body.code
+        const code = request.header.arguments.code
         googleAuth.ExchangeCodeForToken(code)
     } catch (error) {
         logger.error(error)
