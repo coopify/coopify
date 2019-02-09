@@ -2,7 +2,7 @@ import { compare, genSalt, hash } from 'bcrypt-nodejs'
 import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
 import { UserInterface } from '../interfaces'
-import { logger, redisCache, facebook } from '../services'
+import { logger, redisCache, facebook, googleAuth } from '../services'
 import { User, userDTO } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { isValidEmail } from '../../../lib/validations'
@@ -61,6 +61,30 @@ export async function signupAsync(request: Request, response: Response, next: Ne
         handleError(error, response)
     }
 }
+//Agus
+export async function googleAPIURLAsync(request: Request, response: Response, next: NextFunction) {
+    try {
+        const url = googleAuth.generateAuthURI()
+        response.status(200).json({ url })
+        response.send()
+    } catch (error) {
+        logger.error(error)
+        response.status(400).json(new ErrorPayload(400, error))
+    }
+}
+
+export async function googleAPIExchangeCodeForTokenAsync(request: Request, response: Response, next: NextFunction) {
+    try {
+        //No se si el code va en el body o en el header y ademas ver si hay que hacer alguna validacion
+        //Por ejemplo si el code es vacio
+        const code = request.body.code
+        googleAuth.ExchangeCodeForToken(code)
+    } catch (error) {
+        logger.error(error)
+        response.status(400).json(new ErrorPayload(400, error))
+    }
+}
+//fin AGus
 
 export async function generateTokenAsync(request: Request, response: Response, next: NextFunction) {
     const user: User = response.locals.user

@@ -1,3 +1,4 @@
+import { GoogleConfigs } from "./googleAuthentication";
 import { LoggerConfigs } from './wLogger'
 import { ApnConfigs } from './apn'
 import { ServerConfigs } from './server'
@@ -11,6 +12,7 @@ const server = new ServerConfigs()
 const redis = new RedisConfigs()
 const rdb = new RDBConfigs()
 const facebook = new FacebookConfigs()
+const googleConfis = new GoogleConfigs()
 
 export function validateAll() {
     return [
@@ -20,7 +22,8 @@ export function validateAll() {
         rdb.validate(),
         redis.validate(),
         facebook.validate(),
+        googleConfis.validate(),
       ].filter((x) => x.hasErrors)
 }
 
-export { wLogger, apn, server, redis, rdb, facebook }
+export { wLogger, apn, server, redis, rdb, facebook, googleConfis }

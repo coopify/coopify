@@ -1,3 +1,4 @@
+import { googleAuth } from "./googleAuthentication";
 import { logger } from './wLogger'
 import { redisCache, ClientParams } from './redisCache'
 import { rdb, IOptions as RDBOptions } from './rdb'
@@ -19,7 +20,11 @@ export  function initExternalServices() {
     }
 
     redisCache.init(redisOpt)
-
+    googleAuth.initAsync({
+        apiKey: config.googleConfis.clientSecret,
+        clientId: config.googleConfis.clientId,
+        redirectURI: config.googleConfis.redirectURL,
+    })
     /*
         Initializing relational Database Connection
         Sequelize used as ORM
@@ -43,4 +48,4 @@ export function initWLogger() {
     logger.init(logLevel)
 }
 
-export { logger, redisCache, rdb, facebook }
+export { logger, redisCache, rdb, facebook, googleAuth }
