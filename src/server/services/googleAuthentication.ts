@@ -1,6 +1,5 @@
 import { google } from 'googleapis'
 import { logger } from './wLogger'
-import { seqModels } from '../models'
 
 export interface IOptions {
     clientId: string
@@ -8,13 +7,6 @@ export interface IOptions {
     redirectURI: string  
 }
 
-/*
-    This class was created to work with Sequelize as ORM, you can find more information
-    regarding Sequelize here:
-        http://docs.sequelizejs.com
-
-    TODO: find documentation for Typescript
-*/
 class GoogleAuthentication {
     public authenticator
     public isConnected: boolean
@@ -25,11 +17,10 @@ class GoogleAuthentication {
 
     public async initAsync(options: IOptions) {
         try {
-            
             this.authenticator = new google.auth.OAuth2(
                 options.clientId,
                 options.apiKey,
-                options.redirectURI
+                options.redirectURI,
             )
             this.isConnected = true
         } catch (error) {
@@ -43,10 +34,8 @@ class GoogleAuthentication {
     public generateAuthURI(): string {
         // generate a url that asks permissions for Blogger and Google Calendar scopes
         const scopes = [
-            'https://www.googleapis.com/auth/plus.login',
-            'https://www.googleapis.com/auth/plus.me',
-            'https://www.googleapis.com/auth/userinfo.email',
-            'https://www.googleapis.com/auth/userinfo.profile'
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/userinfo.email'
         ]
         const url = this.authenticator.generateAuthUrl({
             // 'online' (default) or 'offline' (gets refresh_token)
@@ -65,20 +54,37 @@ class GoogleAuthentication {
         // This will provide an object with the access_token and refresh_token.
         // Save these somewhere safe so they can be used at a later time.
         try {
-            const {tokens} = await this.authenticator.getToken(code)
-            this.authenticator.setCredentials(tokens)
-            const info = await google.plus('v1').people.get({ userId: 'id' })
-            logger.info(`INFO = ${JSON.stringify(info)}`)
-        return tokens
+            const response = await this.authenticator.getToken(code)
+            
+            return response.tokens
         } catch (error) {
-            logger.error(`INFO = ${JSON.stringify(error)} / ${error}`) 
+            logger.error(`ERROR => ${error}`) 
         }
-        
     }
 
-    // public async GetData(tokens){
-    //     this.authenticator.
-    // }
+    public async getUserData(authToken: string, refreshToken: string): Promise<{ email: string, name: string }> {
+        try {
+            this.authenticator.setCredentials({
+                refresh_token: refreshToken,
+                access_token: authToken,
+            })
+            const info = await google.people("v1").people.get({ 
+                resourceName: 'people/me',
+                auth: this.authenticator,
+                personFields: 'names,emailAddresses'
+            })
+            return this.processResponse(info)
+        } catch (error) {
+            logger.error(`ERROR => ${error}`)
+            throw error
+        }
+    }
+
+    private processResponse(info: any): { email: string, name: string } {
+        const name = info.data.names[0].displayname
+        const email = info.data.emailAddresses[0].value
+        return { email, name }
+    }
 }
 
 export const googleAuth: GoogleAuthentication = new GoogleAuthentication()

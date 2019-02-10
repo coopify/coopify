@@ -7,7 +7,7 @@ const userRoutes = Router()
 userRoutes.get('/facebookURL', usersController.getFacebookAuthURLAsync)
 userRoutes.get('/googleauthurl', usersController.googleAPIURLAsync)
 
-userRoutes.post('/exchangecodefortoken', usersController.googleAPIExchangeCodeForTokenAsync)
+userRoutes.post('/exchangecodefortoken', usersController.googleAPIExchangeCodeForTokenAsync, usersController.generateTokenAsync)
 
 userRoutes.post('/signup', usersController.signupAsync, usersController.generateTokenAsync)
 userRoutes.post('/facebook/signup', usersController.exchangeFacebookCodeAsync, usersController.generateTokenAsync)

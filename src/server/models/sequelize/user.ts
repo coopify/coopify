@@ -71,17 +71,16 @@ class User extends Model<User> {
 
     @Column(DataType.STRING)
     public FBRefreshToken
-}
 
-function toDTO(user: User | null): object | null {
-    if (!user) { throw new Error(`Failed to DTO User: ${JSON.stringify(user)}`) }
-    return {
-        id: user.id,
-        email: user.email,
-        pictureURL: user.pictureURL,
-        resetToken: user.resetToken,
-        isVerified: user.isVerified,
+    public toDTO() {
+        return {
+            id: this.id,
+            email: this.email,
+            pictureURL: this.pictureURL,
+            resetToken: this.resetToken,
+            isVerified: this.isVerified,
+        }
     }
 }
 
-export { IAttributes, User, toDTO }
+export { IAttributes, User }
