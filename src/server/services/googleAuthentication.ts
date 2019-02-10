@@ -43,9 +43,10 @@ class GoogleAuthentication {
     public generateAuthURI(): string {
         // generate a url that asks permissions for Blogger and Google Calendar scopes
         const scopes = [
-            'https://www.googleapis.com/auth/blogger',
-            'https://www.googleapis.com/auth/calendar',
-            //'https://coopify-dev.herokuapp.com',
+            'https://www.googleapis.com/auth/plus.login',
+            'https://www.googleapis.com/auth/plus.me',
+            'https://www.googleapis.com/auth/userinfo.email',
+            'https://www.googleapis.com/auth/userinfo.profile'
         ]
         const url = this.authenticator.generateAuthUrl({
             // 'online' (default) or 'offline' (gets refresh_token)
@@ -63,9 +64,21 @@ class GoogleAuthentication {
     public async ExchangeCodeForToken(code: string) {
         // This will provide an object with the access_token and refresh_token.
         // Save these somewhere safe so they can be used at a later time.
-        const {tokens} = await this.authenticator.getToken(code)
-        this.authenticator.setCredentials(tokens);
+        try {
+            const {tokens} = await this.authenticator.getToken(code)
+            this.authenticator.setCredentials(tokens)
+            const info = await google.plus('v1').people.get({ userId: 'id' })
+            logger.info(`INFO = ${JSON.stringify(info)}`)
+        return tokens
+        } catch (error) {
+            logger.error(`INFO = ${JSON.stringify(error)} / ${error}`) 
+        }
+        
     }
+
+    // public async GetData(tokens){
+    //     this.authenticator.
+    // }
 }
 
 export const googleAuth: GoogleAuthentication = new GoogleAuthentication()

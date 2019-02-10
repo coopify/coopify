@@ -75,17 +75,20 @@ export async function googleAPIURLAsync(request: Request, response: Response, ne
 
 export async function googleAPIExchangeCodeForTokenAsync(request: Request, response: Response, next: NextFunction) {
     try {
-        //No se si el code va en el body o en el header y ademas ver si hay que hacer alguna validacion
-        //Por ejemplo si el code es vacio
-        //const code = request.body.code
-        const code = request.header.arguments.code
-        googleAuth.ExchangeCodeForToken(code)
+        const code = request.query.code
+        const result = await googleAuth.ExchangeCodeForToken(code)
+        response.status(200).json({ result })
+        response.send()
+        //traer la Data del usuario en Google
+        
+        //Aca tenemos que guardar los datos de tokens en la base de datos y en redis
+
     } catch (error) {
         logger.error(error)
         response.status(400).json(new ErrorPayload(400, error))
     }
 }
-//fin AGus
+//fin Agus
 
 export async function generateTokenAsync(request: Request, response: Response, next: NextFunction) {
     const user: User = response.locals.user

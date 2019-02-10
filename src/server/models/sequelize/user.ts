@@ -7,6 +7,10 @@ interface IAttributes {
     pictureURL?: string
     FBAccessToken?: string
     FBRefreshToken?: string
+    googleAccessToken?: string
+    googleRefreshToken?: string
+    name?: string
+
 }
 
 @Table({ timestamps: true })
@@ -48,6 +52,15 @@ class User extends Model<User> {
 
     @Column(DataType.STRING)
     public resetToken
+
+    @Column(DataType.STRING)
+    public googleAccessToken
+
+    @Column(DataType.STRING)
+    public googleRefreshToken
+    
+    @Column(DataType.STRING)
+    public name
 
     @Default(false)
     @Column(DataType.BOOLEAN)
