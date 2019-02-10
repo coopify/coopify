@@ -14,13 +14,13 @@ export async function loadAsync(request: Request, response: Response, next: Next
     try {
         const user =  await UserInterface.getAsync(id)
 
-        if (!user) { return response.status(404).json(new Error('User not found')) }
+        if (!user) { return response.status(404).json(new ErrorPayload(404, 'User not found')) }
 
         response.locals.user = user
         next()
     } catch (error) {
         logger.error(error)
-        response.status(400).json(new Error(error))
+        response.status(400).json(new ErrorPayload(500, error))
     }
 }
 
@@ -69,9 +69,9 @@ export async function loginAsync(request: Request, response: Response, next: Nex
         if (!isValidEmail(request.body.email)) { return response.status(404).json(new ErrorPayload(400, 'Invalid email')) }
         const users =  await UserInterface.findAsync({ email : request.body.email })
 
-        if (!users || users.length === 0) { return response.status(404).json(new Error('User not found')) }
+        if (!users || users.length === 0) { return response.status(404).json(new ErrorPayload(404, 'User not found')) }
         const user = users[0]
-        if (user.password !== request.body.password) { return response.status(401).json(new Error('Wrong password')) }
+        if (user.password !== request.body.password) { return response.status(401).json(new ErrorPayload(403, 'Wrong password')) }
 
         response.locals.user = user
         next()
@@ -112,13 +112,13 @@ export async function loadLoggedUser(request: Request, response: Response, next:
 
         if (!id) {
             logger.error(`USER Ctrl => Invalid bearer token: ${token}`)
-            throw new Error(`Invalid bearer token: ${token}`)
+            throw new ErrorPayload(400, `Invalid bearer token: ${token}`)
         }
 
         const loggedUser = await UserInterface.getAsync(id)
         if (!loggedUser) {
             logger.error(`USER Ctrl => User not found with id: ${id}`)
-            return response.status(403).json(new Error('User not found'))
+            return response.status(403).json(new ErrorPayload(404, 'User not found'))
         }
 
         logger.info(`USER Ctrl => Loaded logged user ${loggedUser.email}`)
@@ -127,7 +127,7 @@ export async function loadLoggedUser(request: Request, response: Response, next:
         next()
     } catch (error) {
         logger.error(`USER Ctrl => Failed to load user with token: ${token}`)
-        response.status(400).json(new Error(error))
+        response.status(500).json(new ErrorPayload(500, error))
     }
 }
 
@@ -135,7 +135,7 @@ export async function loadLoggedUser(request: Request, response: Response, next:
  * This function should be used when the endpoint is extrictly for logged users
  */
 export function authenticate(request: Request, response: Response, next: NextFunction) {
-    if (!response.locals.loggedUser) { response.status(401).json(new Error(`Unauthorised. You need to provide a valid bearer token`)) }
+    if (!response.locals.loggedUser) { response.status(401).json(new ErrorPayload(403, `Unauthorised. You need to provide a valid bearer token`)) }
 
     next()
 }
