@@ -13,17 +13,6 @@ export async function getAsync(id: string): Promise<User | null> {
     }
 }
 
-export async function getAsyncMongo(id: string): Promise<mUser.IUser> {
-    try {
-        const userInstance = await mUser.Model.getOneAsync(id)
-
-        return userInstance
-    } catch (error) {
-        logger.error(new Error(error))
-        throw error
-    }
-}
-
 export async function findAsync(where: object): Promise<User[] | null> {
     try {
         const userInstances = await User.getManyAsync(where)

@@ -19,8 +19,7 @@ export async function loadAsync(request: Request, response: Response, next: Next
         response.locals.user = user
         next()
     } catch (error) {
-        logger.error(error)
-        response.status(400).json(new ErrorPayload(500, error))
+        handleError(error, response)
     }
 }
 
@@ -40,8 +39,7 @@ export async function signupAsync(request: Request, response: Response, next: Ne
         response.locals.user = user
         next()
     } catch (error) {
-        logger.error(error)
-        response.status(400).json(new ErrorPayload(400, error))
+        handleError(error, response)
     }
 }
 
@@ -55,8 +53,7 @@ export async function generateTokenAsync(request: Request, response: Response, n
         const bodyResponse = { accessToken, user: userDTO(user) }
         response.status(200).json(bodyResponse)
     } catch (error) {
-        logger.error('Error in generateTokenAsync')
-        response.status(500).json(new ErrorPayload(500, error.message))
+        handleError(error, response)
     }
   }
 
@@ -76,8 +73,7 @@ export async function loginAsync(request: Request, response: Response, next: Nex
         response.locals.user = user
         next()
     } catch (error) {
-        logger.error(error)
-        response.status(500).json(new ErrorPayload(500, error))
+        handleError(error, response)
     }
 }
 
@@ -95,8 +91,7 @@ export async function logoutAsync(request: Request, response: Response, next: Ne
             response.status(401).json(new ErrorPayload(401, 'Unauthorized'))
         }
     } catch (error) {
-        logger.error(error as Error)
-        response.status(400).json(new ErrorPayload(40, error.message))
+        handleError(error, response)
     }
 }
 
@@ -126,8 +121,7 @@ export async function loadLoggedUser(request: Request, response: Response, next:
 
         next()
     } catch (error) {
-        logger.error(`USER Ctrl => Failed to load user with token: ${token}`)
-        response.status(500).json(new ErrorPayload(500, error))
+        handleError(error, response)
     }
 }
 
@@ -143,4 +137,13 @@ function extractAuthBearerToken(request: Request): string {
     const authHeader = request.header('authorization') || ''
     const token = authHeader.split(' ')[1]
     return token
+}
+
+function handleError(error: ErrorPayload | Error, response: Response){
+    logger.error(error)
+    if (error instanceof ErrorPayload) {
+        response.status(error.code).json(error)
+    } else {
+        response.status(500).json(new ErrorPayload(500, 'Something went wrong'))
+    }
 }
