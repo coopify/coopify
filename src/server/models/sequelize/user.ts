@@ -4,7 +4,9 @@ import { rdb } from '../../services'
 interface IAttributes {
     email: string
     password: string
-    pictureURL: string
+    pictureURL?: string
+    FBAccessToken?: string
+    FBRefreshToken?: string
 }
 
 @Table({ timestamps: true })
@@ -50,6 +52,12 @@ class User extends Model<User> {
     @Default(false)
     @Column(DataType.BOOLEAN)
     public isVerified
+
+    @Column(DataType.STRING)
+    public FBAccessToken
+
+    @Column(DataType.STRING)
+    public FBRefreshToken
 }
 
 function toDTO(user: User | null): object | null {

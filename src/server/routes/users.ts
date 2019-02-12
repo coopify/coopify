@@ -4,7 +4,10 @@ import { authenticateRequest } from '../auth'
 
 const userRoutes = Router()
 
+userRoutes.get('/facebookURL', usersController.getFacebookAuthURLAsync)
+
 userRoutes.post('/signup', usersController.signupAsync, usersController.generateTokenAsync)
+userRoutes.post('/facebook/signup', usersController.exchangeFacebookCodeAsync, usersController.generateTokenAsync)
 userRoutes.post('/login', usersController.loginAsync, usersController.generateTokenAsync)
 userRoutes.post('/:userid/logout', usersController.logoutAsync)
 
