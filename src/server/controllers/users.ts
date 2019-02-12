@@ -2,14 +2,11 @@ import { compare, genSalt, hash } from 'bcrypt-nodejs'
 import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
 import { UserInterface } from '../interfaces'
-import { logger, redisCache } from '../services'
+import { logger, redisCache, facebook } from '../services'
 import { User, userDTO } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { isValidEmail } from '../../../lib/validations'
 
-/**
- * This function loads the user that matchs with userId (request query) into response.locals.user
- */
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
         const user =  await UserInterface.getAsync(id)
@@ -23,9 +20,31 @@ export async function loadAsync(request: Request, response: Response, next: Next
     }
 }
 
-/**
- * This function loads the user that matchs with userId (request query) into response.locals.user
- */
+export function getFacebookAuthURLAsync(request: Request, response: Response) {
+    try {
+        const url = facebook.generateAuthUrl()
+        response.status(200).json({ url })
+        response.send()
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
+export async function exchangeFacebookCodeAsync(request: Request, response: Response, next: NextFunction) {
+    try {
+        const code = request.body.code
+        if (!code) { throw new ErrorPayload(400, 'Should provide a code to exchange') }
+        const tokens = await facebook.exchangeCodeAsync(code)
+        const userData = await facebook.getUserDataAsync(tokens.access_token)
+        delete userData.id
+        const user = await UserInterface.createFromIPAsync(userData, tokens)
+        response.locals.user = user
+        next()
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
 export async function signupAsync(request: Request, response: Response, next: NextFunction) {
     try {
         if (!isValidEmail(request.body.email)) { return response.status(404).json(new ErrorPayload(400, 'Invalid email')) }
@@ -57,9 +76,6 @@ export async function generateTokenAsync(request: Request, response: Response, n
     }
   }
 
-/**
- * This function loads the user that matchs with userId (request query) into response.locals.user
- */
 export async function loginAsync(request: Request, response: Response, next: NextFunction) {
 
     try {
@@ -95,9 +111,6 @@ export async function logoutAsync(request: Request, response: Response, next: Ne
     }
 }
 
-/**
- * This function loads the user that matchs with bearer token (request header) into response.locals.loggedUser
- */
 export async function loadLoggedUser(request: Request, response: Response, next: NextFunction) {
     const token = extractAuthBearerToken(request)
     try {
@@ -125,9 +138,6 @@ export async function loadLoggedUser(request: Request, response: Response, next:
     }
 }
 
-/**
- * This function should be used when the endpoint is extrictly for logged users
- */
 export function authenticate(request: Request, response: Response, next: NextFunction) {
     if (!response.locals.loggedUser) { response.status(401).json(new ErrorPayload(403, `Unauthorised. You need to provide a valid bearer token`)) }
 
