@@ -50,6 +50,7 @@
     "cors": "^2.8.4",
     "express": "^4.15.5",
     "express-validation": "^1.0.2",
+    "fb": "^2.0.0",
     "geojson": "^0.5.0",
     "gulp": "^3.9.1",
     "gulp-typescript": "^3.2.2",

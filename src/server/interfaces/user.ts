@@ -1,21 +1,10 @@
-import { User, UserAttributes, userDTO, mUser } from '../models'
+import { User, UserAttributes, userDTO } from '../models'
 import { hash } from 'bcrypt-nodejs'
 import { logger } from '../services'
 
 export async function getAsync(id: string): Promise<User | null> {
     try {
         const userInstance = await User.getAsync(id)
-
-        return userInstance
-    } catch (error) {
-        logger.error(new Error(error))
-        throw error
-    }
-}
-
-export async function getAsyncMongo(id: string): Promise<mUser.IUser> {
-    try {
-        const userInstance = await mUser.Model.getOneAsync(id)
 
         return userInstance
     } catch (error) {
@@ -39,6 +28,17 @@ export async function createAsync(body: UserAttributes): Promise<User | null> {
     try {
         const userInstance = await User.createAsync(body)
 
+        return userInstance
+    } catch (error) {
+        logger.error(new Error(error))
+        throw error
+    }
+}
+
+export async function createFromIPAsync(body: { name: string, email: string }, tokens: { access_token: string, refresh_token: string } ): Promise<User | null> {
+    try {
+        const payload = { ...body, password: 'default', FBAccessToken: tokens.access_token, FBRefreshToken: tokens.refresh_token }
+        const userInstance = await User.createAsync(payload)
         return userInstance
     } catch (error) {
         logger.error(new Error(error))

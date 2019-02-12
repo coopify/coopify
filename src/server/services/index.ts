@@ -1,12 +1,14 @@
 import { logger } from './wLogger'
 import { redisCache, ClientParams } from './redisCache'
 import { rdb, IOptions as RDBOptions } from './rdb'
-import { mongodb, IOptions as MongoOpt } from './mongoDB'
 import * as config from '../../../config'
-import { ISequelizeConfig } from 'sequelize-typescript'
+import { FacebookService } from './facebook'
+
+let facebook: FacebookService
 
 export  function initExternalServices() {
 
+    facebook = new FacebookService(config.facebook)
     /*
         Initializing Redis instance for auth token hosting
     */
@@ -19,20 +21,6 @@ export  function initExternalServices() {
     redisCache.init(redisOpt)
 
     /*
-        Initializing APN (Apple Push Notifications Service)
-        We are using .p8 configuration instead of .pem and .cer
-    */
-    // const apnOpt: APNOptions = {
-    //     p8FilePath: config.apn.p8FilePath,
-    //     keyId: config.apn.keyId,
-    //     teamId: config.apn.teamId,
-    //     release: config.apn.release,
-    //     bundleIdentifier: config.apn.bundleIdentifier,
-    // }
-
-    // apn.init(apnOpt)
-
-    /*
         Initializing relational Database Connection
         Sequelize used as ORM
         TODO: Docker
@@ -43,17 +31,6 @@ export  function initExternalServices() {
 
     rdb.initAsync(rdbOpt)
 
-    /*
-        Initializing MongoDB (non-relational) Database Connection
-        Mongoose used as ODM
-        TODO: Docker
-    */
-    // const mongodbOpt: MongoOpt = {
-    //     uri : config.mongodb.getConnectionString(),
-    //     mongoOptions : { useMongoClient: true },
-    // }
-
-    // mongodb.initAsync(mongodbOpt)
 }
 
 /*
@@ -66,4 +43,4 @@ export function initWLogger() {
     logger.init(logLevel)
 }
 
-export { logger, redisCache, rdb, mongodb }
+export { logger, redisCache, rdb, facebook }

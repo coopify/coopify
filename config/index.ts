@@ -3,14 +3,14 @@ import { ApnConfigs } from './apn'
 import { ServerConfigs } from './server'
 import { RDBConfigs } from './rdb'
 import { RedisConfigs } from './redis'
-import { MongoConfigs } from './mongodb'
+import { FacebookConfigs } from './facebook'
 
 const wLogger = new LoggerConfigs()
 const apn = new ApnConfigs()
 const server = new ServerConfigs()
 const redis = new RedisConfigs()
 const rdb = new RDBConfigs()
-const mongodb = new MongoConfigs()
+const facebook = new FacebookConfigs()
 
 export function validateAll() {
     return [
@@ -19,8 +19,8 @@ export function validateAll() {
         server.validate(),
         rdb.validate(),
         redis.validate(),
-        // mongodb.validate(),
+        facebook.validate(),
       ].filter((x) => x.hasErrors)
 }
 
-export { wLogger, apn, server, redis, rdb, mongodb }
+export { wLogger, apn, server, redis, rdb, facebook }
