@@ -2,8 +2,8 @@ import { compare, genSalt, hash } from 'bcrypt-nodejs'
 import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
 import { UserInterface } from '../interfaces'
-import { logger, redisCache, facebook } from '../services'
-import { User, userDTO } from '../models'
+import { logger, redisCache, facebook, googleAuth } from '../services'
+import { User } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { isValidEmail } from '../../../lib/validations'
 
@@ -37,7 +37,7 @@ export async function exchangeFacebookCodeAsync(request: Request, response: Resp
         const tokens = await facebook.exchangeCodeAsync(code)
         const userData = await facebook.getUserDataAsync(tokens.access_token)
         delete userData.id
-        const user = await UserInterface.createFromIPAsync(userData, tokens)
+        const user = await UserInterface.createFromFBAsync(userData, tokens)
         response.locals.user = user
         next()
     } catch (error) {
@@ -62,6 +62,33 @@ export async function signupAsync(request: Request, response: Response, next: Ne
     }
 }
 
+export async function googleAPIURLAsync(request: Request, response: Response, next: NextFunction) {
+    try {
+        const url = googleAuth.generateAuthURI()
+        response.status(200).json({ url })
+        response.send()
+    } catch (error) {
+        logger.error(error)
+        response.status(400).json(new ErrorPayload(400, error))
+    }
+}
+
+export async function googleAPIExchangeCodeForTokenAsync(request: Request, response: Response, next: NextFunction) {
+    try {
+        const code = request.body.code
+        const result = await googleAuth.ExchangeCodeForToken(code)
+        const googleData = await googleAuth.getUserData(result.access_token, result.refresh_token)
+        const user = await UserInterface.createFromGoogleAsync(googleData, result)
+        if (user == null) { throw new ErrorPayload(400, 'Could not create user from IP') }
+        response.locals.user = user
+        next()
+
+    } catch (error) {
+        logger.error(error)
+        response.status(400).json(new ErrorPayload(400, error))
+    }
+}
+
 export async function generateTokenAsync(request: Request, response: Response, next: NextFunction) {
     const user: User = response.locals.user
     const payload = { userId: user.id }
@@ -69,7 +96,7 @@ export async function generateTokenAsync(request: Request, response: Response, n
     try {
         const accessToken = sign(payload, 'someKeyToSubstitute')
         await redisCache.saveAccessTokenAsync(`${user.id}`, accessToken)
-        const bodyResponse = { accessToken, user: userDTO(user) }
+        const bodyResponse = { accessToken, user: user.toDTO() }
         response.status(200).json(bodyResponse)
     } catch (error) {
         handleError(error, response)
