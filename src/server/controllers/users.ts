@@ -2,7 +2,7 @@ import { compare, genSalt, hash } from 'bcrypt-nodejs'
 import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
 import { UserInterface } from '../interfaces'
-import { logger, redisCache, facebook, googleAuth } from '../services'
+import { logger, redisCache, facebook, googleAuth, sendgrid } from '../services'
 import { User } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { isValidEmail } from '../../../lib/validations'
@@ -53,8 +53,16 @@ export async function signupAsync(request: Request, response: Response, next: Ne
         if (users && users.length > 0) { return response.status(404).json(new ErrorPayload(404, 'Email already in use')) }
 
         const user =  await UserInterface.createAsync(request.body)
-
         if (!user) { return response.status(404).json(new ErrorPayload(404, 'Failed to create user')) }
+        logger.info(`Will send email`)
+        const sendgridResponse = await sendgrid.sendEmail({
+            from: 'coopify@dev.com',
+            subject: 'Welcome to Coopify',
+            text: 'Welcome',
+            to: user.email,
+            html: '<strong>We are glad to have you</strong>',
+        })
+        JSON.stringify(`sendgridResponse => ${JSON.stringify(sendgridResponse)}`)
         response.locals.user = user
         next()
     } catch (error) {
