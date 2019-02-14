@@ -54,15 +54,13 @@ export async function signupAsync(request: Request, response: Response, next: Ne
 
         const user =  await UserInterface.createAsync(request.body)
         if (!user) { return response.status(404).json(new ErrorPayload(404, 'Failed to create user')) }
-        logger.info(`Will send email`)
-        const sendgridResponse = await sendgrid.sendEmail({
+        await sendgrid.sendEmail({
             from: 'coopify@dev.com',
             subject: 'Welcome to Coopify',
             text: 'Welcome',
             to: user.email,
             html: '<strong>We are glad to have you</strong>',
         })
-        JSON.stringify(`sendgridResponse => ${JSON.stringify(sendgridResponse)}`)
         response.locals.user = user
         next()
     } catch (error) {
