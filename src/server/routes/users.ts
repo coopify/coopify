@@ -5,9 +5,9 @@ import { authenticateRequest } from '../auth'
 const userRoutes = Router()
 
 userRoutes.get('/facebookURL', usersController.getFacebookAuthURLAsync)
-userRoutes.get('/googleauthurl', usersController.googleAPIURLAsync)
+userRoutes.get('/googleURL', usersController.googleAPIURLAsync)
 
-userRoutes.post('/exchangecodefortoken', usersController.googleAPIExchangeCodeForTokenAsync, usersController.generateTokenAsync)
+userRoutes.post('/google/signup', usersController.googleAPIExchangeCodeForTokenAsync, usersController.generateTokenAsync)
 
 userRoutes.post('/signup', usersController.signupAsync, usersController.generateTokenAsync)
 userRoutes.post('/facebook/signup', usersController.exchangeFacebookCodeAsync, usersController.generateTokenAsync)
