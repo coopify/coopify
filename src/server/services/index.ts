@@ -4,6 +4,7 @@ import { redisCache, ClientParams } from './redisCache'
 import { rdb, IOptions as RDBOptions } from './rdb'
 import * as config from '../../../config'
 import { FacebookService } from './facebook'
+import { sendgrid } from './sendgrid'
 
 let facebook: FacebookService
 
@@ -36,6 +37,7 @@ export  function initExternalServices() {
 
     rdb.initAsync(rdbOpt)
 
+    sendgrid.initAsync(config.sendgrid.apikey)
 }
 
 /*
@@ -48,4 +50,4 @@ export function initWLogger() {
     logger.init(logLevel)
 }
 
-export { logger, redisCache, rdb, facebook, googleAuth }
+export { logger, redisCache, rdb, facebook, googleAuth, sendgrid }
