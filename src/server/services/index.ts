@@ -1,5 +1,5 @@
 import { googleAuth } from "./googleAuthentication";
-import { logger } from './wLogger'
+import { Logger } from './wLogger'
 import { redisCache, ClientParams } from './redisCache'
 import { rdb, IOptions as RDBOptions } from './rdb'
 import * as config from '../../../config'
@@ -7,6 +7,7 @@ import { FacebookService } from './facebook'
 import { sendgrid } from './sendgrid'
 
 let facebook: FacebookService
+let logger: Logger
 
 export  function initExternalServices() {
 
@@ -47,7 +48,7 @@ export  function initExternalServices() {
 */
 export function initWLogger() {
     const logLevel = config.wLogger.isValid ? config.wLogger.level : 'info'
-    logger.init(logLevel)
+    logger = new Logger(logLevel)
 }
 
 export { logger, redisCache, rdb, facebook, googleAuth, sendgrid }

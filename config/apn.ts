@@ -24,6 +24,16 @@ export class ApnConfigs extends CValidator {
     @IsNotEmpty({ message: `IOS_RELEASE is empty` })
     public release: boolean
 
+    constructor() {
+        super()
+        this.bundleIdentifier = '',
+        this.isValid = false
+        this.keyId = '',
+        this.p8FilePath = ''
+        this.release = false
+        this.teamId = ''
+    }
+
     public validate(): IValidationError {
         this.setVariables()
         return super.validate()

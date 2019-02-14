@@ -1,5 +1,5 @@
 import { google } from 'googleapis'
-import { logger } from './wLogger'
+import { logger } from '../services'
 
 export interface IOptions {
     clientId: string

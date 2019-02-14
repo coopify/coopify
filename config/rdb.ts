@@ -29,6 +29,16 @@ export class RDBConfigs extends CValidator {
     @IsString({ message: `DB_USER is not a String` })
     public user: string
 
+    constructor() {
+      super()
+      this.host = '',
+      this.isValid = false
+      this.name = '',
+      this.password = ''
+      this.port = 1
+      this.user = ''
+    }
+
     public validate(): IValidationError {
         this.setVariables()
         return super.validate()
@@ -38,6 +48,8 @@ export class RDBConfigs extends CValidator {
       // See https://www.postgresql.org/docs/current/static/libpq-connect.html#LIBPQ-CONNSTRING
       return `postgresql://${this.user}:${this.password}@${this.host}:${this.port}/${this.name}`
     }
+
+    
 
     private setVariables() {
       const dbConfig = dbConfigs[process.env.NODE_ENV || 'development']

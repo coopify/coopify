@@ -21,6 +21,14 @@ export class FacebookConfigs extends CValidator {
         return super.validate()
     }
 
+    constructor() {
+      super()
+      this.apikey = '',
+      this.isValid = false
+      this.secret = '',
+      this.redirect = ''
+    }
+
     private setVariables() {
       this.apikey = process.env.FB_APIKEY || ''
       this.secret = process.env.FB_SECRET || ''

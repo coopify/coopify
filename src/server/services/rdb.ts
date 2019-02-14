@@ -1,5 +1,5 @@
 import { Model, Sequelize, ISequelizeConfig } from 'sequelize-typescript'
-import { logger } from './wLogger'
+import { logger } from '../services'
 import { seqModels } from '../models'
 
 export interface IOptions {

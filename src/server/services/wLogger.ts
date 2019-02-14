@@ -1,17 +1,18 @@
-import { ConsoleTransportInstance, Logger as wsLogger, LoggerInstance, LoggerOptions, transports } from 'winston'
+import { createLogger , Logger as LoggerInstance, LoggerOptions, transports, format } from 'winston'
 
 export class Logger {
   private logger: LoggerInstance
-  private consoleTransport: ConsoleTransportInstance
 
-  public init(level: string) {
-    this.consoleTransport = new transports.Console({
-      colorize: true,
+  constructor(level: string) {
+    // Initialization inside the constructor
+    this.logger = createLogger({
       level,
-      timestamp: () => new Date().toISOString(),
-    })
-    this.logger = new wsLogger({
-      transports: [this.consoleTransport],
+      format: format.combine(
+        format.colorize(),
+        format.timestamp(() => new Date().toISOString()),
+        format.printf((info) => `${info.timestamp} [${info.level}]: ${info.message}`),
+      ),
+      transports: [new transports.Console()],
     })
   }
 
@@ -30,10 +31,4 @@ export class Logger {
       this.logger.error(JSON.stringify(message))
     }
   }
-
-  public disable() {
-    this.logger.remove(this.consoleTransport)
-  }
 }
-
-export const logger: Logger = new Logger()

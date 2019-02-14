@@ -25,6 +25,12 @@ export class SendgridConfigs extends CValidator {
       return super.validate()
     }
 
+    constructor() {
+      super()
+      this.apikey = '',
+      this.isValid = false
+    }
+
     private setVariables() {
       this.apikey = process.env.SENDGRID_APIKEY || ''
       /*this.frontendHost = process.env.FRONTEND_HOST || ''

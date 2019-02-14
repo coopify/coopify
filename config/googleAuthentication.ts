@@ -22,6 +22,14 @@ export class GoogleConfigs extends CValidator {
         return super.validate()
     }
 
+    constructor() {
+        super()
+        this.clientId = '',
+        this.isValid = false
+        this.clientSecret = '',
+        this.redirectURL = ''
+    }
+
     private setVariables() {
         this.clientId = process.env.CLIENT_ID || ''
         this.clientSecret = process.env.CLIENT_SECRET || ''

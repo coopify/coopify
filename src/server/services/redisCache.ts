@@ -1,5 +1,5 @@
 import redis, { ClientParams } from '@mcrowe/redis-promise'
-import { logger } from './wLogger'
+import { logger } from '../services'
 
 export { ClientParams }
 

@@ -25,6 +25,15 @@ export class RedisConfigs extends CValidator {
       return super.validate()
     }
 
+    constructor() {
+      super()
+      this.host = '',
+      this.isValid = false
+      this.username = '',
+      this.password = ''
+      this.port = 1
+    }
+
     private setVariables() {
       this.port = Number(process.env.REDIS_PORT)
       this.host = process.env.REDIS_HOST || ''

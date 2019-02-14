@@ -21,6 +21,14 @@ export class ServerConfigs extends CValidator {
         return super.validate()
     }
 
+    constructor() {
+        super()
+        this.environment = '',
+        this.isValid = false
+        this.basePath = ''
+        this.port = 1
+      }
+
     private setVariables() {
         this.port = Number(process.env.PORT)
         this.environment = process.env.NODE_ENV || ''

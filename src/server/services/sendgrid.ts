@@ -1,5 +1,5 @@
 import * as sendgridLib from '@sendgrid/mail'
-import { logger } from './wLogger'
+import { logger } from '../services'
 import { server as config } from '../../../config'
 
 export interface IMessageFields {
