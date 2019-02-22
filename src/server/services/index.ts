@@ -9,7 +9,7 @@ import { sendgrid } from './sendgrid'
 let facebook: FacebookService
 let logger: Logger
 
-export  function initExternalServices() {
+export async function initExternalServices() {
 
     facebook = new FacebookService(config.facebook)
     /*
@@ -22,7 +22,7 @@ export  function initExternalServices() {
     }
 
     redisCache.init(redisOpt)
-    googleAuth.initAsync({
+    await googleAuth.initAsync({
         apiKey: config.googleConfis.clientSecret,
         clientId: config.googleConfis.clientId,
         redirectURI: config.googleConfis.redirectURL,
@@ -33,12 +33,19 @@ export  function initExternalServices() {
         TODO: Docker
     */
     const rdbOpt: RDBOptions = {
+        seqOptions: {
+            host: config.rdb.host,
+            database: config.rdb.name,
+            password: config.rdb.password,
+            port: config.rdb.port,
+            username: config.rdb.user,
+        },
         uri : config.rdb.getConnectionString(),
     }
 
-    rdb.initAsync(rdbOpt)
+    await rdb.initAsync(rdbOpt)
 
-    sendgrid.initAsync(config.sendgrid.apikey)
+    await sendgrid.initAsync(config.sendgrid.apikey)
 }
 
 /*
