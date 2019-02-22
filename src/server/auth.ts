@@ -22,7 +22,7 @@ export async function validateToken(request: Request, response: Response, next: 
         response.locals.loggedUser = loggedUser
         next()
     } catch (error) {
-        response.status(400).json(new ErrorPayload(400, error.message))
+        response.status(400).json(new ErrorPayload(400, error.message, error))
     }
 }
 

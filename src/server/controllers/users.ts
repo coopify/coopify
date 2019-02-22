@@ -77,7 +77,7 @@ export async function googleAPIURLAsync(request: Request, response: Response, ne
         response.send()
     } catch (error) {
         logger.error(error)
-        response.status(400).json(new ErrorPayload(400, error))
+        response.status(400).json(new ErrorPayload(400, error, error))
     }
 }
 
@@ -93,7 +93,7 @@ export async function googleAPIExchangeCodeForTokenAsync(request: Request, respo
 
     } catch (error) {
         logger.error(error)
-        response.status(400).json(new ErrorPayload(400, error))
+        response.status(400).json(new ErrorPayload(400, error, error))
     }
 }
 
@@ -189,6 +189,6 @@ function handleError(error: ErrorPayload | Error, response: Response){
     if (error instanceof ErrorPayload) {
         response.status(error.code).json(error)
     } else {
-        response.status(500).json(new ErrorPayload(500, 'Something went wrong'))
+        response.status(500).json(new ErrorPayload(500, 'Something went wrong', error))
     }
 }
