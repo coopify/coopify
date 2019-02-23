@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import { usersController } from '../controllers'
-import { authenticateRequest } from '../auth'
 
 const userRoutes = Router()
 
@@ -13,6 +12,8 @@ userRoutes.post('/signup', usersController.signupAsync, usersController.generate
 userRoutes.post('/facebook/signup', usersController.exchangeFacebookCodeAsync, usersController.generateTokenAsync)
 userRoutes.post('/login', usersController.loginAsync, usersController.generateTokenAsync)
 userRoutes.post('/:userid/logout', usersController.logoutAsync)
+
+userRoutes.put('/:userId', usersController.authenticate, usersController.validateOwner, usersController.updateAsync)
 
 userRoutes.param('userId', usersController.loadAsync)
 

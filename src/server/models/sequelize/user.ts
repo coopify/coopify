@@ -10,15 +10,31 @@ interface IAttributes {
     googleAccessToken?: string
     googleRefreshToken?: string
     name?: string
+    lastName?: string
+    birthdate?: Date
+    bio?: string
+    gender?: 'Male' | 'Female' | 'Other' | 'Unspecified'
+    address?: string
+    phone?: string
+    interests?: [{ name: string, selected: boolean }]
+}
 
+interface IUpdateAttributes {
+    pictureURL?: string
+    FBAccessToken?: string
+    googleAccessToken?: string
+    name?: string
+    lastName?: string
+    birthdate?: Date
+    bio?: string
+    gender?: 'Male' | 'Female' | 'Other' | 'Unspecified'
+    address?: string
+    phone?: string
+    interests?: [{ name: string, selected: boolean }]
 }
 
 @Table({ timestamps: true })
 class User extends Model<User> {
-    @AfterCreate
-    public static sendConfirmationEmail() {
-        // TODO
-    }
 
     public static async getAsync(id: string): Promise<User | null> {
         return this.findById<User>(id)
@@ -31,6 +47,28 @@ class User extends Model<User> {
     public static async createAsync(params: IAttributes): Promise<User> {
         const user: User = await new User(params)
         return user.save()
+    }
+
+    public static async updateAsync(userToEdit: User, params: IUpdateAttributes): Promise<User> {
+        return userToEdit.update(params)
+    }
+
+    public static toDTO(user: User) {
+        return {
+            id: user.id,
+            email: user.email,
+            pictureURL: user.pictureURL,
+            resetToken: user.resetToken,
+            isVerified: user.isVerified,
+            name: user.name,
+            lastName: user.lastName,
+            birthdate: user.birthdate,
+            bio: user.bio,
+            gender: user.gender,
+            address: user.address,
+            phone: user.phone,
+            interests: user.interests,
+        }
     }
 
     @PrimaryKey
@@ -62,6 +100,27 @@ class User extends Model<User> {
     @Column(DataType.STRING)
     public name
 
+    @Column(DataType.STRING)
+    public lastName
+
+    @Column(DataType.DATE)
+    public birthdate
+
+    @Column(DataType.TEXT)
+    public bio
+
+    @Column(DataType.STRING)
+    public gender
+
+    @Column(DataType.STRING)
+    public phone
+
+    @Column(DataType.STRING)
+    public address
+
+    @Column(DataType.JSONB)
+    public interests
+
     @Default(false)
     @Column(DataType.BOOLEAN)
     public isVerified
@@ -72,15 +131,6 @@ class User extends Model<User> {
     @Column(DataType.STRING)
     public FBRefreshToken
 
-    public toDTO() {
-        return {
-            id: this.id,
-            email: this.email,
-            pictureURL: this.pictureURL,
-            resetToken: this.resetToken,
-            isVerified: this.isVerified,
-        }
-    }
 }
 
-export { IAttributes, User }
+export { IAttributes, IUpdateAttributes, User }
