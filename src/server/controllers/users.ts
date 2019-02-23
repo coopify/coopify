@@ -161,6 +161,7 @@ export async function logoutAsync(request: Request, response: Response, next: Ne
 }
 
 export async function loadLoggedUser(request: Request, response: Response, next: NextFunction) {
+    logger.info(JSON.stringify(request.body));
     const token = extractAuthBearerToken(request)
     try {
         if (!token) { return next() }
