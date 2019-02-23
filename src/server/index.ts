@@ -3,7 +3,7 @@ import * as express from 'express'
 import { createServer as createHttpServer, Server as httpServer } from 'http'
 import { createServer as createHttpsServer, Server as httpsServer } from 'https'
 import { router } from './routes'
-import { logger } from './services'
+import { logger, initExternalServices } from './services'
 import * as cors from 'cors'
 import * as helmet from 'helmet'
 
@@ -23,8 +23,9 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 app.use('/api', router)
-export default function listen(port: number): httpServer | httpsServer {
+export default async function listen(port: number): Promise<httpServer | httpsServer> {
   const server = createHttpServer(app)
+  await initExternalServices()
   server.listen(port)
   logger.info(`Server => Listening on port ${process.env.PORT}`)
   return server

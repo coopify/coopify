@@ -47,10 +47,12 @@ export async function exchangeFacebookCodeAsync(request: Request, response: Resp
 
 export async function signupAsync(request: Request, response: Response, next: NextFunction) {
     try {
-        if (!isValidEmail(request.body.email)) { return response.status(404).json(new ErrorPayload(400, 'Invalid email')) }
+        const { email } = request.body
+        if (!email) { throw new ErrorPayload(400, 'Missing required data') }
+        if (!isValidEmail(request.body.email)) { throw new ErrorPayload(400, 'Invalid email') }
         const users = await UserInterface.findAsync({ email : request.body.email })
 
-        if (users && users.length > 0) { return response.status(404).json(new ErrorPayload(404, 'Email already in use')) }
+        if (users && users.length > 0) { return response.status(400).json(new ErrorPayload(400, 'Email already in use')) }
 
         const user =  await UserInterface.createAsync(request.body)
         if (!user) { return response.status(404).json(new ErrorPayload(404, 'Failed to create user')) }
@@ -75,7 +77,7 @@ export async function googleAPIURLAsync(request: Request, response: Response, ne
         response.send()
     } catch (error) {
         logger.error(error)
-        response.status(400).json(new ErrorPayload(400, error))
+        response.status(400).json(new ErrorPayload(400, error, error))
     }
 }
 
@@ -91,7 +93,7 @@ export async function googleAPIExchangeCodeForTokenAsync(request: Request, respo
 
     } catch (error) {
         logger.error(error)
-        response.status(400).json(new ErrorPayload(400, error))
+        response.status(400).json(new ErrorPayload(400, error, error))
     }
 }
 
@@ -187,6 +189,6 @@ function handleError(error: ErrorPayload | Error, response: Response){
     if (error instanceof ErrorPayload) {
         response.status(error.code).json(error)
     } else {
-        response.status(500).json(new ErrorPayload(500, 'Something went wrong'))
+        response.status(500).json(new ErrorPayload(500, 'Something went wrong', error))
     }
 }

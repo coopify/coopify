@@ -1,6 +1,7 @@
 import { Model, Sequelize, ISequelizeConfig } from 'sequelize-typescript'
 import { logger } from '../services'
 import { seqModels } from '../models'
+import { server as config } from '../../../config'
 
 export interface IOptions {
     uri: string
@@ -23,7 +24,19 @@ class RDB {
     }
 
     public async initAsync(options: IOptions) {
-        this.sequelize = new Sequelize(options.uri)
+        if (config.environment === 'test' && options.seqOptions) {
+            this.sequelize = new Sequelize({
+                database: options.seqOptions.database,
+                username: options.seqOptions.username,
+                password: options.seqOptions.password,
+                port: options.seqOptions.port,
+                dialect: 'postgres',
+                logging: false,
+                query: { logging: false },
+            })
+        } else {
+            this.sequelize = new Sequelize(options.uri)
+        }
         try {
             await this.sequelize.addModels(seqModels)
             /*
@@ -32,6 +45,11 @@ class RDB {
             */
             await this.sequelize.authenticate()
             logger.info('RDB => Authenticated')
+
+            if (config.environment === 'test') {
+                await rdb.sequelize.sync()
+                logger.info('RDB => Models synced')
+            }
 
             this.isConnected = true
         } catch (error) {
