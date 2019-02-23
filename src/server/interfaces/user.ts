@@ -1,6 +1,6 @@
-import { User, UserAttributes } from '../models'
-import { hash } from 'bcrypt-nodejs'
+import { User, UserAttributes, UserUpateAttributes } from '../models'
 import { logger } from '../services'
+import { validateBirthdate, validateGender } from './helpers'
 
 export async function getAsync(id: string): Promise<User | null> {
     try {
@@ -52,6 +52,19 @@ export async function createFromGoogleAsync(body: {email: string, name: string }
         const params = { ...body, password: 'default', googleAccessToken: tokens.access_token, googleRefreshToken: tokens.refresh_token }
         const userInstance = await User.createAsync(params)
 
+        return userInstance
+    } catch (error) {
+        logger.error(new Error(error))
+        throw error
+    }
+}
+
+export async function updateAsync(user: User, body: UserUpateAttributes): Promise<User | null> {
+    try {
+        if (body.gender) { validateGender(body.gender) }
+        if (body.birthdate) { validateBirthdate(body.birthdate) } //TODO: validate 18 or older?
+        //validateInterests(body.interests) //TODO: validate dynamically against a table or similar
+        const userInstance = await User.updateAsync(user, body)
         return userInstance
     } catch (error) {
         logger.error(new Error(error))

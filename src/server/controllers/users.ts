@@ -70,6 +70,20 @@ export async function signupAsync(request: Request, response: Response, next: Ne
     }
 }
 
+export async function updateAsync(request: Request, response: Response, next: NextFunction) {
+    try {
+        const loggedUser = response.locals.loggedUser
+        if (!loggedUser) { throw new ErrorPayload(404, 'User not found') }
+        const attributes = request.body.attributes
+        if (!attributes) { throw new ErrorPayload(403, 'Missing required data') }
+        const user = await UserInterface.updateAsync(response.locals.loggedUser, attributes)
+        if (!user) { throw new ErrorPayload(403, 'Could not update user profile') }
+        response.status(200).json({ user: User.toDTO(user) })
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
 export async function googleAPIURLAsync(request: Request, response: Response, next: NextFunction) {
     try {
         const url = googleAuth.generateAuthURI()
@@ -104,7 +118,7 @@ export async function generateTokenAsync(request: Request, response: Response, n
     try {
         const accessToken = sign(payload, 'someKeyToSubstitute')
         await redisCache.saveAccessTokenAsync(`${user.id}`, accessToken)
-        const bodyResponse = { accessToken, user: user.toDTO() }
+        const bodyResponse = { accessToken, user: User.toDTO(user) }
         response.status(200).json(bodyResponse)
     } catch (error) {
         handleError(error, response)
@@ -174,10 +188,25 @@ export async function loadLoggedUser(request: Request, response: Response, next:
 }
 
 export function authenticate(request: Request, response: Response, next: NextFunction) {
-    if (!response.locals.loggedUser) { response.status(401).json(new ErrorPayload(403, `Unauthorised. You need to provide a valid bearer token`)) }
-
+    try {
+        if (!response.locals.loggedUser) { throw new ErrorPayload(403, `Unauthorised. You need to provide a valid bearer token`) }    
+    } catch (error) {
+        handleError(error, response)
+    }
     next()
 }
+
+export function validateOwner(request: Request, response: Response, next: NextFunction) {
+    try {
+        const loggedUser: User = response.locals.loggedUser
+        const routeUser: User = response.locals.user
+        if (loggedUser.id !== routeUser.id) { throw new ErrorPayload(403, `Unauthorised. You don't have ownership of the selected resource`) }    
+        next()
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
 function extractAuthBearerToken(request: Request): string {
     const authHeader = request.header('authorization') || ''
     const token = authHeader.split(' ')[1]
