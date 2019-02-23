@@ -74,11 +74,11 @@ export async function updateAsync(request: Request, response: Response, next: Ne
     try {
         const loggedUser = response.locals.loggedUser
         if (!loggedUser) { throw new ErrorPayload(404, 'User not found') }
-        const updateParams = request.body.updatedParams
-        if (!updateParams) { throw new ErrorPayload(403, 'Missing required data') }
-        const user = await UserInterface.updateAsync(response.locals.loggedUser, updateParams)
-        response.locals.user = user
-        next()
+        const attributes = request.body.attributes
+        if (!attributes) { throw new ErrorPayload(403, 'Missing required data') }
+        const user = await UserInterface.updateAsync(response.locals.loggedUser, attributes)
+        if (!user) { throw new ErrorPayload(403, 'Could not update user profile') }
+        response.status(200).json({ user: User.toDTO(user) })
     } catch (error) {
         handleError(error, response)
     }
@@ -201,10 +201,10 @@ export function validateOwner(request: Request, response: Response, next: NextFu
         const loggedUser: User = response.locals.loggedUser
         const routeUser: User = response.locals.user
         if (loggedUser.id !== routeUser.id) { throw new ErrorPayload(403, `Unauthorised. You don't have ownership of the selected resource`) }    
+        next()
     } catch (error) {
         handleError(error, response)
     }
-    next()
 }
 
 function extractAuthBearerToken(request: Request): string {

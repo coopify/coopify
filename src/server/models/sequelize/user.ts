@@ -16,7 +16,7 @@ interface IAttributes {
     gender?: 'Male' | 'Female' | 'Other' | 'Unspecified'
     address?: string
     phone?: string
-    interests?: [{ name: string, selected: boolean }]
+    interests?: { name: string, selected: boolean }[]
 }
 
 interface IUpdateAttributes {
@@ -30,7 +30,7 @@ interface IUpdateAttributes {
     gender?: 'Male' | 'Female' | 'Other' | 'Unspecified'
     address?: string
     phone?: string
-    interests?: [{ name: string, selected: boolean }]
+    interests?: { name: string, selected: boolean }[]
 }
 
 @Table({ timestamps: true })

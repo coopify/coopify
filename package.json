@@ -7,7 +7,7 @@
     "lint:js": "node_modules/.bin/eslint .",
     "lint:ts": "node_modules/.bin/tslint -t codeFrame 'src/**/*.ts' 'lib/**/*.ts' 'bin/**/*.ts' 'config/**/*.ts' 'test/**/*.ts'",
     "lint": "yarn run lint:js && yarn run lint:ts",
-    "test": "mocha --opts test/mocha.opts",
+    "test": "mocha --opts test/mocha.opts --exit",
     "precommit": "lint-staged",
     "prebuild": "rimraf dist",
     "js-start": "node ./dist/src/index.js",
