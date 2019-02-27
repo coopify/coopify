@@ -1,6 +1,8 @@
 import { User, UserAttributes, UserUpateAttributes } from '../models'
 import { logger } from '../services'
 import { validateBirthdate, validateGender } from './helpers'
+import { IUserData as GoogleUserData } from '../services/googleAuthentication'
+import { IUserData as FBUserData } from '../services/facebook'
 
 export async function getAsync(id: string): Promise<User | null> {
     try {
@@ -24,6 +26,17 @@ export async function findAsync(where: object): Promise<User[] | null> {
     }
 }
 
+export async function findOneAsync(where: object): Promise<User | null> {
+    try {
+        const userInstances = await User.getOneAsync(where)
+
+        return userInstances
+    } catch (error) {
+        logger.error(new Error(error))
+        throw error
+    }
+}
+
 export async function createAsync(body: UserAttributes): Promise<User | null> {
     try {
         const userInstance = await User.createAsync(body)
@@ -35,9 +48,11 @@ export async function createAsync(body: UserAttributes): Promise<User | null> {
     }
 }
 
-export async function createFromFBAsync(body: { name: string, email: string }, tokens: { access_token: string, refresh_token: string } ): Promise<User | null> {
+export async function createFromFBAsync(body: FBUserData, tokens: { access_token: string, refresh_token: string } ): Promise<User | null> {
     try {
+        if (body.gender) { validateGender(body.gender) }
         const payload = { ...body, password: 'default', FBAccessToken: tokens.access_token, FBRefreshToken: tokens.refresh_token }
+        logger.info(`payload => ${JSON.stringify(payload)}`)
         const userInstance = await User.createAsync(payload)
 
         return userInstance
@@ -47,9 +62,9 @@ export async function createFromFBAsync(body: { name: string, email: string }, t
     }
 }
 
-export async function createFromGoogleAsync(body: {email: string, name: string }, tokens: { access_token: string, refresh_token: string }): Promise<User | null> {
+export async function createFromGoogleAsync(body: GoogleUserData, tokens: { access_token: string, refresh_token: string }): Promise<User | null> {
     try {
-        const params = { ...body, password: 'default', googleAccessToken: tokens.access_token, googleRefreshToken: tokens.refresh_token }
+        const params = { ...body, password: 'default', googleAccessToken: tokens.access_token, googleRefreshToken: tokens.refresh_token, isVerified: true }
         const userInstance = await User.createAsync(params)
 
         return userInstance

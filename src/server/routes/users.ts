@@ -8,9 +8,11 @@ userRoutes.get('/googleURL', usersController.googleAPIURLAsync)
 
 userRoutes.put('/:userId', usersController.authenticate, usersController.validateOwner, usersController.updateAsync)
 
-userRoutes.post('/google/signup', usersController.googleAPIExchangeCodeForTokenAsync, usersController.generateTokenAsync)
 userRoutes.post('/signup', usersController.signupAsync, usersController.generateTokenAsync)
 userRoutes.post('/facebook/signup', usersController.exchangeFacebookCodeAsync, usersController.generateTokenAsync)
+userRoutes.post('/facebook/login', usersController.facebookLoginAsync, usersController.generateTokenAsync)
+userRoutes.post('/google/signup', usersController.googleAPIExchangeCodeForTokenAsync, usersController.generateTokenAsync)
+userRoutes.post('/google/login', usersController.googleLoginAsync, usersController.generateTokenAsync)
 userRoutes.post('/login', usersController.loginAsync, usersController.generateTokenAsync)
 userRoutes.post('/:userId/logout', usersController.logoutAsync)
 

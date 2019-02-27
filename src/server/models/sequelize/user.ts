@@ -5,15 +5,17 @@ interface IAttributes {
     email: string
     password: string
     pictureURL?: string
+    FBId?: string
     FBAccessToken?: string
     FBRefreshToken?: string
+    googleId?: string
     googleAccessToken?: string
     googleRefreshToken?: string
     name?: string
     lastName?: string
     birthdate?: Date
     bio?: string
-    gender?: 'Male' | 'Female' | 'Other' | 'Unspecified'
+    gender?: 'Male' | 'Female' | 'Other' | 'Unspecified' | string
     address?: string
     phone?: string
     interests?: { name: string, selected: boolean }[]
@@ -27,7 +29,7 @@ interface IUpdateAttributes {
     lastName?: string
     birthdate?: Date
     bio?: string
-    gender?: 'Male' | 'Female' | 'Other' | 'Unspecified'
+    gender?: 'Male' | 'Female' | 'Other' | 'Unspecified' | string
     address?: string
     phone?: string
     interests?: { name: string, selected: boolean }[]
@@ -42,6 +44,10 @@ class User extends Model<User> {
 
     public static async getManyAsync(where: any): Promise<User[] | null> {
         return this.findAll<User>({ where })
+    }
+
+    public static async getOneAsync(where: any): Promise<User | null> {
+        return this.findOne<User>({ where })
     }
 
     public static async createAsync(params: IAttributes): Promise<User> {
@@ -96,6 +102,9 @@ class User extends Model<User> {
 
     @Column(DataType.STRING)
     public googleRefreshToken
+
+    @Column(DataType.STRING)
+    public googleId
     
     @Column(DataType.STRING)
     public name
@@ -130,6 +139,9 @@ class User extends Model<User> {
 
     @Column(DataType.STRING)
     public FBRefreshToken
+
+    @Column(DataType.STRING)
+    public FBId
 
 }
 

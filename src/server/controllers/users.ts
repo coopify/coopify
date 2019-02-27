@@ -1,6 +1,7 @@
 import { compare, genSalt, hash } from 'bcrypt-nodejs'
 import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
+import * as moment from 'moment'
 import { UserInterface } from '../interfaces'
 import { logger, redisCache, facebook, googleAuth, sendgrid } from '../services'
 import { User } from '../models'
@@ -20,7 +21,7 @@ export async function loadAsync(request: Request, response: Response, next: Next
     }
 }
 
-export function getFacebookAuthURLAsync(request: Request, response: Response) {
+export async function getFacebookAuthURLAsync(request: Request, response: Response) {
     try {
         const url = facebook.generateAuthUrl()
         response.status(200).json({ url })
@@ -35,8 +36,8 @@ export async function exchangeFacebookCodeAsync(request: Request, response: Resp
         const code = request.body.code
         if (!code) { throw new ErrorPayload(400, 'Should provide a code to exchange') }
         const tokens = await facebook.exchangeCodeAsync(code)
-        const userData = await facebook.getUserDataAsync(tokens.access_token)
-        delete userData.id
+        const userDataRaw = await facebook.getUserDataAsync(tokens.access_token)
+        const userData = facebook.transform(userDataRaw)
         const user = await UserInterface.createFromFBAsync(userData, tokens)
         response.locals.user = user
         next()
@@ -142,6 +143,32 @@ export async function loginAsync(request: Request, response: Response, next: Nex
     }
 }
 
+export async function facebookLoginAsync(request: Request, response: Response, next: NextFunction) {
+    try {
+        const { facebookId } = request.body
+        if (!facebookId) { throw new ErrorPayload(400, 'Missing required data')  }
+        const user = await UserInterface.findOneAsync({ FBId: facebookId })
+        if (!user) { throw new ErrorPayload(404, 'User with that facebook id was not found') }
+        response.locals.user = user
+        next()
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
+export async function googleLoginAsync(request: Request, response: Response, next: NextFunction) {
+    try {
+        const { googleId } = request.body
+        if (!googleId) { throw new ErrorPayload(400, 'Missing required data')  }
+        const user = await UserInterface.findOneAsync({ googleId })
+        if (!user) { throw new ErrorPayload(404, 'User with that google id was not found') }
+        response.locals.user = user
+        next()
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
 export async function logoutAsync(request: Request, response: Response, next: NextFunction) {
     try {
         const logged = response.locals.loggedUser as User
@@ -215,7 +242,7 @@ function extractAuthBearerToken(request: Request): string {
 }
 
 function handleError(error: ErrorPayload | Error, response: Response){
-    logger.error(error)
+    logger.error(error + ' - ' + JSON.stringify(error))
     if (error instanceof ErrorPayload) {
         response.status(error.code).json(error)
     } else {
