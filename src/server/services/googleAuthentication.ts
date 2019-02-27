@@ -1,10 +1,21 @@
 import { google } from 'googleapis'
 import { logger } from '../services'
+import * as moment from 'moment'
 
 export interface IOptions {
     clientId: string
     apiKey: string
     redirectURI: string  
+}
+
+export interface IUserData {
+    email: string,
+    pictureURL: string,
+    googleId: string,
+    name: string
+    lastName: string,
+    birthdate: Date,
+    gender: string,
 }
 
 class GoogleAuthentication {
@@ -35,7 +46,8 @@ class GoogleAuthentication {
         // generate a url that asks permissions for Blogger and Google Calendar scopes
         const scopes = [
             'https://www.googleapis.com/auth/userinfo.profile',
-            'https://www.googleapis.com/auth/userinfo.email'
+            'https://www.googleapis.com/auth/userinfo.email',
+            'https://www.googleapis.com/auth/user.birthday.read'
         ]
         const url = this.authenticator.generateAuthUrl({
             // 'online' (default) or 'offline' (gets refresh_token)
@@ -62,7 +74,7 @@ class GoogleAuthentication {
         }
     }
 
-    public async getUserData(authToken: string, refreshToken: string): Promise<{ email: string, name: string }> {
+    public async getUserData(authToken: string, refreshToken: string): Promise<IUserData> {
         try {
             this.authenticator.setCredentials({
                 refresh_token: refreshToken,
@@ -71,7 +83,7 @@ class GoogleAuthentication {
             const info = await google.people("v1").people.get({ 
                 resourceName: 'people/me',
                 auth: this.authenticator,
-                personFields: 'names,emailAddresses'
+                personFields: 'names,emailAddresses,birthdays,coverPhotos,genders'
             })
             return this.processResponse(info)
         } catch (error) {
@@ -80,10 +92,23 @@ class GoogleAuthentication {
         }
     }
 
-    private processResponse(info: any): { email: string, name: string } {
-        const name = info.data.names[0].displayname
+    private processResponse(info: any): IUserData {
+        let pictureURL, gender, birthdate
+        const name = info.data.names[0].givenName
+        const lastName = info.data.names[0].familyName
         const email = info.data.emailAddresses[0].value
-        return { email, name }
+        if (info.data.coverPhotos && info.data.coverPhotos.length > 0) { pictureURL = info.data.coverPhotos[0].url }
+        if (info.data.genders && info.data.genders.length > 0) { gender = info.data.genders[0].formattedValue }
+        if (info.data.birthdays && info.data.birthdays.length > 1) {
+            const day = info.data.birthdays[1].date.day
+            const month = info.data.birthdays[1].date.month
+            const year = info.data.birthdays[1].date.year
+            birthdate = moment(`${day}/${month}/${year}`, 'DD/MM/YYYY')
+        }
+        const resourceName: string = info.data.resourceName
+        const googleId = resourceName.substring(7)
+        const response = { email, name, pictureURL, gender, googleId, birthdate, lastName }
+        return response
     }
 }
 
