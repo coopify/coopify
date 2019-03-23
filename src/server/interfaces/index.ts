@@ -1,4 +1,4 @@
 import * as UserInterface from './user'
-import * as BidInterface from './bid'
+import * as OfferInterface from './offer'
 
-export { UserInterface, BidInterface }
+export { UserInterface, OfferInterface }

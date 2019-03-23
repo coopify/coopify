@@ -14,36 +14,36 @@ interface IAttributes {
 }
 
 @Table({ timestamps: true })
-class Bid extends Model<Bid> {
+class Offer extends Model<Offer> {
 
-    public static async getAsync(id: string): Promise<Bid | null> {
-        return this.findById<Bid>(id)
+    public static async getAsync(id: string): Promise<Offer | null> {
+        return this.findById<Offer>(id)
     }
 
-    public static async getManyAsync(where: any): Promise<Bid[] | null> {
-        return this.findAll<Bid>({ where })
+    public static async getManyAsync(where: any): Promise<Offer[] | null> {
+        return this.findAll<Offer>({ where })
     }
 
-    public static async getOneAsync(where: any): Promise<Bid | null> {
-        return this.findOne<Bid>({ where })
+    public static async getOneAsync(where: any): Promise<Offer | null> {
+        return this.findOne<Offer>({ where })
     }
 
-    public static async createAsync(params: IAttributes): Promise<Bid> {
-        const bid: Bid = await new Bid(params)
-        return bid.save()
+    public static async createAsync(params: IAttributes): Promise<Offer> {
+        const offer: Offer = await new Offer(params)
+        return offer.save()
     }
 
-    public static toDTO(bid: Bid) {
+    public static toDTO(offer: Offer) {
         return {            
-            id: bid.id,
-            userId: bid.userId,
-            description: bid.description,
-            images: bid.images,
-            category: bid.category,
-            paymentMethod: bid.paymentMethod,
-            startDate: bid.startDate,
-            finishDate: bid.finishDate,
-            status: bid.status,
+            id: offer.id,
+            userId: offer.userId,
+            description: offer.description,
+            images: offer.images,
+            category: offer.category,
+            paymentMethod: offer.paymentMethod,
+            startDate: offer.startDate,
+            finishDate: offer.finishDate,
+            status: offer.status,
         }
     }
 
@@ -83,4 +83,4 @@ class Bid extends Model<Bid> {
     public status
 }
 
-export { IAttributes, Bid }
+export { IAttributes, Offer }

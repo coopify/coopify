@@ -1,25 +1,25 @@
 import { compare, genSalt, hash } from 'bcrypt-nodejs'
 import { NextFunction, Request, Response } from 'express'
 import * as moment from 'moment'
-import { BidInterface } from '../interfaces'
+import { OfferInterface } from '../interfaces'
 import { logger, redisCache, facebook, googleAuth, sendgrid } from '../services'
-import { User, Bid } from '../models'
+import { User, Offer } from '../models'
 import { ErrorPayload } from '../errorPayload'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
-        const bid =  await BidInterface.getAsync(id)
+        const offer =  await OfferInterface.getAsync(id)
 
-        if (!bid) { return response.status(404).json(new ErrorPayload(404, 'Bid not found')) }
+        if (!offer) { return response.status(404).json(new ErrorPayload(404, 'Offer not found')) }
 
-        response.locals.bid = bid
+        response.locals.offer = offer
         next()
     } catch (error) {
         handleError(error, response)
     }
 }
 
-export async function createBidAsync(request: Request, response: Response) {
+export async function createOffferAsync(request: Request, response: Response) {
     try {
         const loggedId = response.locals.loggedUser.userId
         const { images, paymentMethod, startDate, finishDate, status } = request.body
@@ -27,7 +27,7 @@ export async function createBidAsync(request: Request, response: Response) {
             throw new ErrorPayload(400, 'Missing required data')
         }
 
-        const bidToCreate = await BidInterface.createAsync({
+        const offerToCreate = await OfferInterface.createAsync({
             userId : loggedId,
             description : request.body.description,
             images : request.body.images,
@@ -38,9 +38,9 @@ export async function createBidAsync(request: Request, response: Response) {
             status : request.body.status
         })
         
-        if (!bidToCreate) { throw new ErrorPayload(500, 'Failed to create a new bid') }
+        if (!offerToCreate) { throw new ErrorPayload(500, 'Failed to create a new offer') }
 
-        const bodyResponse = {bid: Bid.toDTO(bidToCreate) }
+        const bodyResponse = {offer: Offer.toDTO(offerToCreate) }
         response.status(200).json(bodyResponse)
     } catch (error) {
         handleError(error, response)

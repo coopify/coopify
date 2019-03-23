@@ -1,4 +1,4 @@
 import * as usersController from './users'
-import * as bidsController from './bids'
+import * as offersController from './offers'
 
-export { usersController, bidsController }
+export { usersController, offersController }
