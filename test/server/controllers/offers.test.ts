@@ -19,20 +19,23 @@ const createUser: UserAttributes = {
 describe('Offer Tests', async () => {
     describe('#GET /api/offers/', async () => {
         context('Offer already created', async () => {
-            let createOfferClone
+            let createOfferClone, user
             beforeEach(async () =>  {
-                const user = await factory.create('user', createUser)
+                user = await factory.create('user', createUser)
+            })
+            it('Should get the offer list with one element', async () => {
                 createOfferClone = _.cloneDeep(createOffer)
                 createOfferClone.userId = user.id
                 await factory.create('offer', createOfferClone)
-            })
-            it('Should get the offer list', async () => {
                 const res = await request.get('/api/offers/').expect(200)
-                //logger.info('Response => ' + JSON.stringify(res.body))
                 expect(res.body.offers.length).to.eq(1)
                 expect(res.body.offers[0].userId).to.eq(createOfferClone.userId)
                 expect(res.body.offers[0].status).to.eq(createOfferClone.status)
                 expect(res.body.offers[0].paymentMethod).to.eq(createOfferClone.paymentMethod)
+            })
+            it('Should get an empty offer list', async () => {
+                const res = await request.get('/api/offers/').expect(200)
+                expect(res.body.offers.length).to.eq(0)
             })
         })
     })
@@ -65,18 +68,12 @@ describe('Offer Tests', async () => {
                 const user = await factory.create('user', createUser) 
                 createOfferClone = _.cloneDeep(createOffer)
                 createOfferClone.userId = user.id
-                //const offer = await factory.create('offer', createOfferClone)
-                //offerId = offer.id
             })
-            it.only('Should create the new offer', async () => {
-                /*const res = await request.get(`/api/offers/${offerId}`).expect(200)*/
+            it('Should create the new offer', async () => {
                 const token = (await logInUser(user)).accessToken
                 const res = await request.post('/api/offers/').set('Authorization', `bearer ${token}`)
                 .send(createOfferClone).expect(200)
-
-                logger.info('Response => ' + JSON.stringify(res.body))
-
-
+                //logger.info('Response => ' + JSON.stringify(res.body))
             })
         })
     })
