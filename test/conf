@@ -8,7 +8,7 @@ REDIS_PASSWORD=dontneed
 REDIS_USERNAME=dontneed
 
 DB_HOST = localhost
-DB_NAME_TEST = coopifyTest
-DB_USER = postgres
-DB_PASSWORD = dontneed
+DB_NAME_TEST = test_coopifydb
+DB_USER = juan
+DB_PASSWORD = admin1234
 DB_PORT = 5432
