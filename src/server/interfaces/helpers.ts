@@ -12,3 +12,9 @@ export function validateGender(gender: string) {
         throw new ErrorPayload(400, 'Invalid gender')
     }
 }
+
+export function validateStatus(gender: string) {
+    if (gender !== 'Started' && gender !== 'Paused' ) {
+        throw new ErrorPayload(400, 'Invalid status')
+    }
+}
