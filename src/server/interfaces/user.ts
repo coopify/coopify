@@ -39,6 +39,9 @@ export async function findOneAsync(where: object): Promise<User | null> {
 
 export async function createAsync(body: UserAttributes): Promise<User | null> {
     try {
+        //See if it corresponds
+        if (body.gender) { validateGender(body.gender) }
+        if (body.birthdate) { validateBirthdate(body.birthdate) }
         const userInstance = await User.createAsync(body)
 
         return userInstance
