@@ -83,4 +83,4 @@ class Bid extends Model<Bid> {
     public status
 }
 
-export { IAttributes, wBid }
+export { IAttributes, Bid }
