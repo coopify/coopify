@@ -7,7 +7,7 @@ interface IAttributes {
     description?: Text
     images: Array<{ url: string, default: boolean }>
     category?: string
-    paymentMethod: 'Coopy' | 'FinalProduct' | 'Exchange'
+    paymentMethod: 'Coopy' | 'Exchange'
     startDate: Date
     finishDate?: Date
     status: 'Started' | 'Paused'
