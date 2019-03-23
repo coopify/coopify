@@ -21,11 +21,10 @@ export async function loadAsync(request: Request, response: Response, next: Next
 
 export async function createBidAsync(request: Request, response: Response) {
     try {
-        //const bid =  await BidInterface.getAsync(id)
+        const bid: Bid = response.locals.bid
 
-        //if (!bid) { return response.status(404).json(new ErrorPayload(404, 'Bid not found')) }
-
-        //response.locals.bid = bid
+        const bodyResponse = {bid: Bid.toDTO(bid) }
+        response.status(200).json(bodyResponse)
     } catch (error) {
         handleError(error, response)
     }
