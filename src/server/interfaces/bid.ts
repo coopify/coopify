@@ -39,7 +39,7 @@ export async function createAsync(body: BidAttributes): Promise<Bid | null> {
     try {
         if (body.paymentMethod) { validatePaymentMethod(body.paymentMethod) }
         if (body.status) { validateStatus(body.status) }
-        
+        //TODO in future: validate categories
         const bidInstance = await Bid.createAsync(body)
 
         return bidInstance

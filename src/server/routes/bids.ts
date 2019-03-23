@@ -1,10 +1,12 @@
 import { Router } from 'express'
-import { bidsController } from '../controllers'
+import { bidsController, usersController } from '../controllers'
 
 const bidRoutes = Router()
 
-bidRoutes.param('bidId', bidsController.loadAsync)
+//bidRoutes.get('/:bidId', bidsController.)
 
-bidRoutes.post('/createBid', bidsController.createBidAsync)
+bidRoutes.post('/createBid', usersController.authenticate, bidsController.createBidAsync)
+
+bidRoutes.param('bidId', bidsController.loadAsync)
 
 export default bidRoutes
