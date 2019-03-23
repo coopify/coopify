@@ -1,16 +1,16 @@
 import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, AfterCreate, ForeignKey } from 'sequelize-typescript'
 import { rdb } from '../../services'
+import { User } from './user';
 
 interface IAttributes {
-    //bidId: uuid
-    //userId: User.id
+    userId: string
     description?: Text
-    image: [string]
+    images: [{ url: string, default: boolean }]
     category?: string
-    paymentMethod: string
+    paymentMethod: 'Coopy' | 'FinalProduct' | 'Exchange'
     startDate: Date
     finishDate: Date
-    status: 'Started' | 'Paused' | string
+    status: 'Started' | 'Paused'
 }
 
 @Table({ timestamps: true })
@@ -38,7 +38,7 @@ class Bid extends Model<Bid> {
             id: bid.id,
             userId: bid.userId,
             description: bid.description,
-            image: bid.image,
+            images: bid.images,
             category: bid.category,
             paymentMethod: bid.paymentMethod,
             startDate: bid.startDate,
@@ -52,17 +52,17 @@ class Bid extends Model<Bid> {
     @Column(DataType.UUID)
     public id
 
-    //@ForeignKey
-    @Default(DataType.UUIDV1)
+    @ForeignKey(() => User )
+    @AllowNull(false)
     @Column(DataType.UUID)
     public userId
 
     @Column(DataType.TEXT)
     public description
 
-    //ver ma;ana
+    @AllowNull(false)
     @Column(DataType.JSONB)
-    public image
+    public images
 
     @Column(DataType.TEXT)
     public category
