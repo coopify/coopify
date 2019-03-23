@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
 import * as moment from 'moment'
 import { UserInterface } from '../interfaces'
-import { logger, redisCache, facebook, googleAuth, sendgrid } from '../services'
+import { logger, redisCache, facebook, googleAuth, sendgrid, blockchain } from '../services'
 import { User } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { isValidEmail } from '../../../lib/validations'
@@ -57,6 +57,7 @@ export async function signupAsync(request: Request, response: Response, next: Ne
 
         const user =  await UserInterface.createAsync(request.body)
         if (!user) { return response.status(404).json(new ErrorPayload(404, 'Failed to create user')) }
+        blockchain.signUp(user.id) //Call the blockchain to generate the wallet, etc.
         await sendgrid.sendEmail({
             from: 'coopify@dev.com',
             subject: 'Welcome to Coopify',
@@ -89,6 +90,17 @@ export async function googleAPIURLAsync(request: Request, response: Response, ne
     try {
         const url = googleAuth.generateAuthURI()
         response.status(200).json({ url })
+        response.send()
+    } catch (error) {
+        logger.error(error)
+        response.status(400).json(new ErrorPayload(400, error, error))
+    }
+}
+
+export async function getBalanceAsync(request: Request, response: Response, next: NextFunction) {
+    try {
+        const balance = await blockchain.getBalanceAsync(response.locals.user.id)
+        response.status(200).json(balance)
         response.send()
     } catch (error) {
         logger.error(error)

@@ -5,9 +5,11 @@ import { rdb, IOptions as RDBOptions } from './rdb'
 import * as config from '../../../config'
 import { FacebookService } from './facebook'
 import { sendgrid } from './sendgrid'
+import { Blockchain } from './blockchain'
 
 let facebook: FacebookService
 let logger: Logger
+let blockchain: Blockchain
 
 export async function initExternalServices() {
 
@@ -46,6 +48,8 @@ export async function initExternalServices() {
     await rdb.initAsync(rdbOpt)
 
     await sendgrid.initAsync(config.sendgrid.apikey)
+
+    blockchain = new Blockchain(config.blockchain)
 }
 
 /*
@@ -58,4 +62,4 @@ export function initWLogger() {
     logger = new Logger(logLevel)
 }
 
-export { logger, redisCache, rdb, facebook, googleAuth, sendgrid }
+export { logger, redisCache, rdb, facebook, googleAuth, sendgrid, blockchain }
