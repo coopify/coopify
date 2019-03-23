@@ -5,11 +5,11 @@ import { User } from './user';
 interface IAttributes {
     userId: string
     description?: Text
-    images: Array<{ url: string, default: boolean }>
+    images: [{ url: string, default: boolean }]
     category?: string
     paymentMethod: 'Coopy' | 'FinalProduct' | 'Exchange'
     startDate: Date
-    finishDate?: Date
+    finishDate: Date
     status: 'Started' | 'Paused'
 }
 
@@ -75,7 +75,7 @@ class Offer extends Model<Offer> {
     @Column(DataType.DATE)
     public startDate
 
-    @AllowNull(true)
+    @AllowNull(false)
     @Column(DataType.DATE)
     public finishDate
 
