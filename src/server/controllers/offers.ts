@@ -19,7 +19,31 @@ export async function loadAsync(request: Request, response: Response, next: Next
     }
 }
 
-export async function createOffferAsync(request: Request, response: Response) {
+export async function getOneAsync(request: Request, response: Response) {
+    try {
+        const offer : Offer = response.locals.offer
+        if (!offer) { throw new ErrorPayload(404, 'Offer not found') }
+
+        const bodyResponse = {offer: Offer.toDTO(offer) }
+        response.status(200).json(bodyResponse)
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
+export async function getListAsync(request: Request, response: Response) {
+    try {
+        const offers = await OfferInterface.findAsync({})
+        if (!offers) { throw new ErrorPayload(500, 'Failed to get offers') }
+
+        const bodyResponse = { offers: offers.map((o) => Offer.toDTO(o)) }
+        response.status(200).json(bodyResponse)
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
+export async function createAsync(request: Request, response: Response) {
     try {
         const loggedId = response.locals.loggedUser.userId
         const { images, paymentMethod, startDate, finishDate, status } = request.body

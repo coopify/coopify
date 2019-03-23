@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import userRoutes from './users'
-import bidRoutes from './bids'
+import offerRoutes from './offers';
 import { loadLoggedUser } from '../controllers/users'
 
 const router = Router()
@@ -8,6 +8,6 @@ const router = Router()
 router.use('*', loadLoggedUser)
 
 router.use('/users', userRoutes)
-router.use('/bids', bidRoutes)
+router.use('/offers', offerRoutes)
 
 export { router }

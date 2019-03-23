@@ -1,12 +1,13 @@
 import { Router } from 'express'
 import { offersController, usersController } from '../controllers'
 
-const bidRoutes = Router()
+const offerRoutes = Router()
 
-//bidRoutes.get('/:bidId', offersController.)
+offerRoutes.get('/', offersController.getListAsync)
+offerRoutes.get('/:offerId', offersController.getOneAsync)
 
-bidRoutes.post('/createBid', usersController.authenticate, offersController.createOffferAsync)
+offerRoutes.post('/createOffer', usersController.authenticate, offersController.createAsync)
 
-bidRoutes.param('bidId', offersController.loadAsync)
+offerRoutes.param('offerId', offersController.loadAsync)
 
-export default bidRoutes
+export default offerRoutes
