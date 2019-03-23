@@ -6,6 +6,7 @@ const userRoutes = Router()
 userRoutes.get('/facebookURL', usersController.getFacebookAuthURLAsync)
 userRoutes.get('/googleURL', usersController.googleAPIURLAsync)
 userRoutes.get('/:userId/balance', usersController.getBalanceAsync)
+userRoutes.get('/:userId/transactions', usersController.getTransactionsAsync)
 
 userRoutes.put('/:userId', usersController.authenticate, usersController.validateOwner, usersController.updateAsync)
 

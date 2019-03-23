@@ -108,6 +108,46 @@ export async function getBalanceAsync(request: Request, response: Response, next
     }
 }
 
+export async function getTransactionsAsync(request: Request, response: Response, next: NextFunction) {
+    try {
+        const transactions = await blockchain.getTransactionsAsync(response.locals.user.id)
+        const userTransactions = transactions.filter((t) => t.from !== 'Coopify' && t.to !== 'Coopify' )
+        const coopifyTransactions = transactions.filter((t) => t.from === 'Coopify' || t.to === 'Coopify' )
+        if (userTransactions) {
+            const usersIds = userTransactions.map((t) => t.from !== response.locals.user.id ? t.from : t.to)
+            const users = await UserInterface.findAsync({ id: { $in: usersIds } })
+            if (!users) { throw new ErrorPayload(500, 'No users found') }
+            userTransactions.map((t) => {
+                const user = users.find((u) => u === response.locals.user.id !== t.from ? t.from : t.to)
+                if (!user) { throw new ErrorPayload(404, 'User not found') }
+                if (t.from === response.locals.user.id) {
+                    t.from = response.locals.user.name 
+                    t.to = user.name
+                } else {
+                    t.from = response.locals.user.name 
+                    t.to = user.name
+                }
+            })
+        }
+        if (coopifyTransactions) {
+            coopifyTransactions.map((t) => {
+                if (t.from === response.locals.user.id) {
+                    t.from = response.locals.user.name 
+                    t.to = 'Coopify'
+                } else {
+                    t.from = 'Coopify'
+                    t.to = response.locals.user.name 
+                }
+            })
+        }
+        response.status(200).json(coopifyTransactions.concat(userTransactions))
+        response.send()
+    } catch (error) {
+        logger.error(error)
+        response.status(400).json(new ErrorPayload(400, error, error))
+    }
+}
+
 export async function googleAPIExchangeCodeForTokenAsync(request: Request, response: Response, next: NextFunction) {
     try {
         const code = request.body.code

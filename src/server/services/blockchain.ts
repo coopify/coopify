@@ -47,7 +47,26 @@ export class Blockchain {
         }).catch((err) => {
             logger.error(`Failed to obtain the balance of the user  ${userId} - ${JSON.stringify(err)}`)
         })
-        logger.info(`BALANCE => ${balance} ${JSON.stringify(balance)}`)
         return balance
+    }
+
+    public async getTransactionsAsync(userId: string): Promise<any> {
+        //We dont wait for this cause it has to make some transactions on a Blockchain Network and that does not happen quickly
+        //TODO: Mock this calls so we can test what depends on this nock (https://github.com/nock/nock)
+        const transactions = await rp({
+            uri: `${this.options.route}:${this.options.port}/api/users/${userId}/transactions`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            json: true,
+        }).then((res) => {
+            logger.info(`Obtained the transactions of the user ${userId}`)
+            return res
+        }).catch((err) => {
+            logger.error(`Failed to obtain the transactions of the user  ${userId} - ${JSON.stringify(err)}`)
+        })
+        logger.info(`TRANSACTIONS => ${transactions} ${JSON.stringify(transactions)}`)
+        return transactions
     }
 }
