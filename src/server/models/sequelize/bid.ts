@@ -1,6 +1,5 @@
 import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, AfterCreate, ForeignKey } from 'sequelize-typescript'
 import { rdb } from '../../services'
-import { User } from '.';
 
 interface IAttributes {
     //bidId: uuid
