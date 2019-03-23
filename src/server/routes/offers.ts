@@ -6,7 +6,7 @@ const offerRoutes = Router()
 offerRoutes.get('/', offersController.getListAsync)
 offerRoutes.get('/:offerId', offersController.getOneAsync)
 
-offerRoutes.post('/createOffer', usersController.authenticate, offersController.createAsync)
+offerRoutes.post('/', usersController.authenticate, offersController.createAsync)
 
 offerRoutes.param('offerId', offersController.loadAsync)
 

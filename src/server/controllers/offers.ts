@@ -45,9 +45,9 @@ export async function getListAsync(request: Request, response: Response) {
 
 export async function createAsync(request: Request, response: Response) {
     try {
-        const loggedId = response.locals.loggedUser.userId
-        const { images, paymentMethod, startDate, finishDate, status } = request.body
-        if (!images || !paymentMethod || !startDate || !finishDate || !status) { 
+        const loggedId = response.locals.loggedUser.id
+        const { images, paymentMethod, startDate, status } = request.body
+        if (!images || !paymentMethod || !startDate || !status) { 
             throw new ErrorPayload(400, 'Missing required data')
         }
 
