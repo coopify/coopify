@@ -66,7 +66,6 @@ export class Blockchain {
         }).catch((err) => {
             logger.error(`Failed to obtain the transactions of the user  ${userId} - ${JSON.stringify(err)}`)
         })
-        logger.info(`TRANSACTIONS => ${transactions} ${JSON.stringify(transactions)}`)
         return transactions
     }
 }
