@@ -1,6 +1,7 @@
-import { Offer, OfferAttributes } from '../models'
+import { Offer, OfferAttributes, Offer_Price } from '../models'
 import { validateStatus, validatePaymentMethod } from './helpers'
 import { logger } from '../services'
+import { ErrorPayload } from '../errorPayload'
 
 export async function getAsync(id: string): Promise<Offer | null> {
     try {
@@ -41,13 +42,16 @@ export async function createAsync(body: OfferAttributes): Promise<Offer | null> 
         if (body.status) { validateStatus(body.status) }
         //TODO in future: validate categories
         const offerInstance = await Offer.createAsync(body)
-
-        return offerInstance
+        if (!offerInstance) { throw new ErrorPayload(500, 'Failed to create an offer') }
+        if (body.prices) {
+            await Promise.all(body.prices.map(async (price) => {
+                price.offerId = offerInstance.id
+                await Offer_Price.createAsync(price)
+            }))
+        }
+        return getAsync(offerInstance.id)
     } catch (error) {
         logger.error(new Error(error))
         throw error
     }
 }
-
-//In the Offer update use the paymentMethod validation and the status validation
-

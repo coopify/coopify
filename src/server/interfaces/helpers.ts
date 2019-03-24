@@ -1,5 +1,5 @@
 import * as moment from 'moment'
-import { ErrorPayload } from '../errorPayload';
+import { ErrorPayload } from '../errorPayload'
 
 export function validateBirthdate(date: Date) {
     moment.isDate(date)

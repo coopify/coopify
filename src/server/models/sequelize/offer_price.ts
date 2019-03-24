@@ -32,7 +32,6 @@ class Offer_Price extends Model<Offer_Price> {
     public static toDTO(offerPrice: Offer_Price) {
         return {
             id: offerPrice.id,
-            offerId: offerPrice.offerId,
             selected: offerPrice.selected,
             frequency: offerPrice.frequency,
             price: offerPrice.price,

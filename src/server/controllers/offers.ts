@@ -21,7 +21,7 @@ export async function loadAsync(request: Request, response: Response, next: Next
 
 export async function getOneAsync(request: Request, response: Response) {
     try {
-        const offer : Offer = response.locals.offer
+        const offer: Offer = response.locals.offer
         if (!offer) { throw new ErrorPayload(404, 'Offer not found') }
 
         const bodyResponse = {offer: Offer.toDTO(offer) }
@@ -59,9 +59,10 @@ export async function createAsync(request: Request, response: Response) {
             paymentMethod : request.body.paymentMethod,
             startDate : request.body.startDate,
             finishDate : request.body.finishDate,
-            status : request.body.status
+            status : request.body.status,
+            prices: request.body.prices,
         })
-        
+
         if (!offerToCreate) { throw new ErrorPayload(500, 'Failed to create a new offer') }
 
         const bodyResponse = {offer: Offer.toDTO(offerToCreate) }

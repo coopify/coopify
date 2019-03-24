@@ -1,6 +1,7 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, AfterCreate, ForeignKey } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey } from 'sequelize-typescript'
 import { rdb } from '../../services'
-import { User } from './user';
+import { User } from './user'
+import { Offer_Price, IAttributes as Offer_PriceAttributes } from './offer_price'
 
 interface IAttributes {
     userId: string
@@ -11,13 +12,18 @@ interface IAttributes {
     startDate: Date
     finishDate?: Date
     status: 'Started' | 'Paused'
+    prices?: Array<Offer_PriceAttributes>
 }
 
 @Table({ timestamps: true })
 class Offer extends Model<Offer> {
 
     public static async getAsync(id: string): Promise<Offer | null> {
-        return this.findById<Offer>(id)
+        return this.findById<Offer>(id, {
+            include: [{
+                model: Offer_Price,
+            }]
+        })
     }
 
     public static async getManyAsync(where: any): Promise<Offer[] | null> {
@@ -25,7 +31,11 @@ class Offer extends Model<Offer> {
     }
 
     public static async getOneAsync(where: any): Promise<Offer | null> {
-        return this.findOne<Offer>({ where })
+        return this.findOne<Offer>({
+            where, include: [{
+                model: Offer_Price,
+            }]
+        })
     }
 
     public static async createAsync(params: IAttributes): Promise<Offer> {
@@ -34,7 +44,7 @@ class Offer extends Model<Offer> {
     }
 
     public static toDTO(offer: Offer) {
-        return {            
+        return {
             id: offer.id,
             userId: offer.userId,
             description: offer.description,
@@ -44,6 +54,7 @@ class Offer extends Model<Offer> {
             startDate: offer.startDate,
             finishDate: offer.finishDate,
             status: offer.status,
+            prices: offer.prices ? offer.prices.map((price) => Offer_Price.toDTO(price)) : [],
         }
     }
 
@@ -52,7 +63,7 @@ class Offer extends Model<Offer> {
     @Column(DataType.UUID)
     public id
 
-    @ForeignKey(() => User )
+    @ForeignKey(() => User)
     @AllowNull(false)
     @Column(DataType.UUID)
     public userId
@@ -66,7 +77,7 @@ class Offer extends Model<Offer> {
 
     @Column(DataType.TEXT)
     public category
-    
+
     @AllowNull(false)
     @Column(DataType.STRING)
     public paymentMethod
@@ -81,6 +92,9 @@ class Offer extends Model<Offer> {
 
     @Column(DataType.STRING)
     public status
+
+    @HasMany(() => Offer_Price)
+    public prices
 }
 
 export { IAttributes, Offer }

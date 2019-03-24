@@ -11,16 +11,16 @@ import { logger } from '../../../src/server/services';
 
 const request = supertest(app)
 const createUser: UserAttributes = {
-    email : 'sdfs@test.com',
+    email: 'sdfs@test.com',
     password: 'cdelsur',
-    pictureURL : 'http://codigo.com',
+    pictureURL: 'http://codigo.com',
 }
 
 describe('Offer Tests', async () => {
     describe('#GET /api/offers/', async () => {
         context('Offer already created', async () => {
             let createOfferClone, user
-            beforeEach(async () =>  {
+            beforeEach(async () => {
                 user = await factory.create('user', createUser)
             })
             it('Should get the offer list with one element', async () => {
@@ -43,7 +43,7 @@ describe('Offer Tests', async () => {
     describe('#GET /api/offers/:offerId', async () => {
         context('Offer already created', async () => {
             let createOfferClone, offerId
-            beforeEach(async () =>  {
+            beforeEach(async () => {
                 const user = await factory.create('user', createUser)
                 createOfferClone = _.cloneDeep(createOffer)
                 createOfferClone.userId = user.id
@@ -52,7 +52,6 @@ describe('Offer Tests', async () => {
             })
             it('Should get the offer list', async () => {
                 const res = await request.get(`/api/offers/${offerId}`).expect(200)
-                //logger.info('Response => ' + JSON.stringify(res.body))
                 expect(res.body.offer.id).to.eq(offerId)
                 expect(res.body.offer.userId).to.eq(createOfferClone.userId)
                 expect(res.body.offer.status).to.eq(createOfferClone.status)
@@ -64,16 +63,23 @@ describe('Offer Tests', async () => {
     describe('#POST /api/offers/createOffer', async () => {
         context('No offer created', async () => {
             let createOfferClone, user
-            beforeEach(async () =>  {
-                const user = await factory.create('user', createUser) 
+            beforeEach(async () => {
+                user = await factory.create('user', createUser)
                 createOfferClone = _.cloneDeep(createOffer)
                 createOfferClone.userId = user.id
             })
             it('Should create the new offer', async () => {
                 const token = (await logInUser(user)).accessToken
+                createOfferClone.prices = new Array()
+                createOfferClone.prices.push({ selected: true, frequency: 'FinalProduct', price: 20 })
+                logger.info(`OfferClone => ${JSON.stringify(createOfferClone)}`)
                 const res = await request.post('/api/offers/').set('Authorization', `bearer ${token}`)
-                .send(createOfferClone).expect(200)
-                //logger.info('Response => ' + JSON.stringify(res.body))
+                    .send(createOfferClone).expect(200)
+            })
+            it('Should create the new offer', async () => {
+                const token = (await logInUser(user)).accessToken
+                const res = await request.post('/api/offers/').set('Authorization', `bearer ${token}`)
+                    .send(createOfferClone).expect(200)
             })
         })
     })
