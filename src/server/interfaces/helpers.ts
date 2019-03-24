@@ -19,8 +19,14 @@ export function validateStatus(status: string) {
     }
 }
 
-export function validatePaymentMethod(status: string) {
-    if (status !== 'Coopy' && status !== 'FinalProduct' && status !== 'Exchange' ) {
+export function validatePaymentMethod(paymentMethod: string) {
+    if (paymentMethod !== 'Coopy' && paymentMethod !== 'Exchange' ) {
         throw new ErrorPayload(400, 'Invalid payment method')
+    }
+}
+
+export function validateFrecuency(frequency: string) {
+    if (frequency !== 'Hour' && frequency !== 'Session' && frequency !== 'FinalProduct' ) {
+        throw new ErrorPayload(400, 'Invalid frecuency type')
     }
 }

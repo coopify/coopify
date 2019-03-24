@@ -8,7 +8,7 @@ import { ErrorPayload } from '../errorPayload'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
-        const offer =  await OfferInterface.getAsync(id)
+        const offer = await OfferInterface.getAsync(id)
 
         if (!offer) { return response.status(404).json(new ErrorPayload(404, 'Offer not found')) }
 
@@ -21,10 +21,10 @@ export async function loadAsync(request: Request, response: Response, next: Next
 
 export async function getOneAsync(request: Request, response: Response) {
     try {
-        const offer : Offer = response.locals.offer
+        const offer: Offer = response.locals.offer
         if (!offer) { throw new ErrorPayload(404, 'Offer not found') }
 
-        const bodyResponse = {offer: Offer.toDTO(offer) }
+        const bodyResponse = { offer: Offer.toDTO(offer) }
         response.status(200).json(bodyResponse)
     } catch (error) {
         handleError(error, response)
@@ -47,31 +47,32 @@ export async function createAsync(request: Request, response: Response) {
     try {
         const loggedId = response.locals.loggedUser.id
         const { images, paymentMethod, startDate, status } = request.body
-        if (!images || !paymentMethod || !startDate || !status) { 
+        if (!images || !paymentMethod || !startDate || !status) {
             throw new ErrorPayload(400, 'Missing required data')
         }
 
         const offerToCreate = await OfferInterface.createAsync({
-            userId : loggedId,
-            description : request.body.description,
-            images : request.body.images,
-            category : request.body.category,
-            paymentMethod : request.body.paymentMethod,
-            startDate : request.body.startDate,
-            finishDate : request.body.finishDate,
-            status : request.body.status
+            userId: loggedId,
+            description: request.body.description,
+            images: request.body.images,
+            category: request.body.category,
+            paymentMethod: request.body.paymentMethod,
+            startDate: request.body.startDate,
+            finishDate: request.body.finishDate,
+            status: request.body.status,
+            prices: request.body.prices
         })
-        
+
         if (!offerToCreate) { throw new ErrorPayload(500, 'Failed to create a new offer') }
 
-        const bodyResponse = {offer: Offer.toDTO(offerToCreate) }
+        const bodyResponse = { offer: Offer.toDTO(offerToCreate) }
         response.status(200).json(bodyResponse)
     } catch (error) {
         handleError(error, response)
     }
 }
 
-function handleError(error: ErrorPayload | Error, response: Response){
+function handleError(error: ErrorPayload | Error, response: Response) {
     logger.error(error + ' - ' + JSON.stringify(error))
     if (error instanceof ErrorPayload) {
         response.status(error.code).json(error)
