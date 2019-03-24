@@ -10,7 +10,7 @@ import { isValidEmail } from '../../../lib/validations'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
-        const user =  await UserInterface.getAsync(id)
+        const user = await UserInterface.getAsync(id)
 
         if (!user) { return response.status(404).json(new ErrorPayload(404, 'User not found')) }
 
@@ -51,11 +51,11 @@ export async function signupAsync(request: Request, response: Response, next: Ne
         const { email } = request.body
         if (!email) { throw new ErrorPayload(400, 'Missing required data') }
         if (!isValidEmail(request.body.email)) { throw new ErrorPayload(400, 'Invalid email') }
-        const users = await UserInterface.findAsync({ email : request.body.email })
+        const users = await UserInterface.findAsync({ email: request.body.email })
 
         if (users && users.length > 0) { return response.status(400).json(new ErrorPayload(400, 'Email already in use')) }
 
-        const user =  await UserInterface.createAsync(request.body)
+        const user = await UserInterface.createAsync(request.body)
         if (!user) { return response.status(404).json(new ErrorPayload(404, 'Failed to create user')) }
         blockchain.signUp(user.id) //Call the blockchain to generate the wallet, etc.
         await sendgrid.sendEmail({
@@ -176,13 +176,13 @@ export async function generateTokenAsync(request: Request, response: Response, n
     } catch (error) {
         handleError(error, response)
     }
-  }
+}
 
 export async function loginAsync(request: Request, response: Response, next: NextFunction) {
 
     try {
         if (!isValidEmail(request.body.email)) { return response.status(404).json(new ErrorPayload(400, 'Invalid email')) }
-        const users =  await UserInterface.findAsync({ email : request.body.email })
+        const users = await UserInterface.findAsync({ email: request.body.email })
 
         if (!users || users.length === 0) { return response.status(404).json(new ErrorPayload(404, 'User not found')) }
         const user = users[0]
@@ -198,7 +198,7 @@ export async function loginAsync(request: Request, response: Response, next: Nex
 export async function facebookLoginAsync(request: Request, response: Response, next: NextFunction) {
     try {
         const { facebookId } = request.body
-        if (!facebookId) { throw new ErrorPayload(400, 'Missing required data')  }
+        if (!facebookId) { throw new ErrorPayload(400, 'Missing required data') }
         const user = await UserInterface.findOneAsync({ FBId: facebookId })
         if (!user) { throw new ErrorPayload(404, 'User with that facebook id was not found') }
         response.locals.user = user
@@ -211,7 +211,7 @@ export async function facebookLoginAsync(request: Request, response: Response, n
 export async function googleLoginAsync(request: Request, response: Response, next: NextFunction) {
     try {
         const { googleId } = request.body
-        if (!googleId) { throw new ErrorPayload(400, 'Missing required data')  }
+        if (!googleId) { throw new ErrorPayload(400, 'Missing required data') }
         const user = await UserInterface.findOneAsync({ googleId })
         if (!user) { throw new ErrorPayload(404, 'User with that google id was not found') }
         response.locals.user = user
@@ -240,7 +240,6 @@ export async function logoutAsync(request: Request, response: Response, next: Ne
 }
 
 export async function loadLoggedUser(request: Request, response: Response, next: NextFunction) {
-    logger.info(JSON.stringify(request.body));
     const token = extractAuthBearerToken(request)
     try {
         if (!token) { return next() }
@@ -269,7 +268,7 @@ export async function loadLoggedUser(request: Request, response: Response, next:
 
 export function authenticate(request: Request, response: Response, next: NextFunction) {
     try {
-        if (!response.locals.loggedUser) { throw new ErrorPayload(403, `Unauthorised. You need to provide a valid bearer token`) }    
+        if (!response.locals.loggedUser) { throw new ErrorPayload(403, `Unauthorised. You need to provide a valid bearer token`) }
     } catch (error) {
         handleError(error, response)
     }
@@ -280,7 +279,7 @@ export function validateOwner(request: Request, response: Response, next: NextFu
     try {
         const loggedUser: User = response.locals.loggedUser
         const routeUser: User = response.locals.user
-        if (loggedUser.id !== routeUser.id) { throw new ErrorPayload(403, `Unauthorised. You don't have ownership of the selected resource`) }    
+        if (loggedUser.id !== routeUser.id) { throw new ErrorPayload(403, `Unauthorised. You don't have ownership of the selected resource`) }
         next()
     } catch (error) {
         handleError(error, response)
@@ -293,7 +292,7 @@ function extractAuthBearerToken(request: Request): string {
     return token
 }
 
-function handleError(error: ErrorPayload | Error, response: Response){
+function handleError(error: ErrorPayload | Error, response: Response) {
     logger.error(error + ' - ' + JSON.stringify(error))
     if (error instanceof ErrorPayload) {
         response.status(error.code).json(error)

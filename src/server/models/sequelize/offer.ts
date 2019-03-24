@@ -12,6 +12,7 @@ interface IAttributes {
     startDate: Date
     finishDate?: Date
     status: 'Started' | 'Paused'
+    //tslint:disable:array-type
     prices?: Array<Offer_PriceAttributes>
 }
 
@@ -22,7 +23,7 @@ class Offer extends Model<Offer> {
         return this.findById<Offer>(id, {
             include: [{
                 model: Offer_Price,
-            }]
+            }],
         })
     }
 
@@ -34,7 +35,7 @@ class Offer extends Model<Offer> {
         return this.findOne<Offer>({
             where, include: [{
                 model: Offer_Price,
-            }]
+            }],
         })
     }
 
