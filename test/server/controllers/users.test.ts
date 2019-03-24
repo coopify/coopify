@@ -6,7 +6,6 @@ import { logInUser } from './helpers'
 import { UserAttributes, UserUpateAttributes, User } from '../../../src/server/models'
 import { app } from '../../../src/server'
 import { factory } from '../factory'
-import { logger } from '../../../src/server/services';
 import * as moment from 'moment'
 
 const request = supertest(app)

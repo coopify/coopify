@@ -12,3 +12,15 @@ export function validateGender(gender: string) {
         throw new ErrorPayload(400, 'Invalid gender')
     }
 }
+
+export function validateStatus(status: string) {
+    if (status !== 'Started' && status !== 'Paused' ) {
+        throw new ErrorPayload(400, 'Invalid status')
+    }
+}
+
+export function validatePaymentMethod(status: string) {
+    if (status !== 'Coopy' && status !== 'FinalProduct' && status !== 'Exchange' ) {
+        throw new ErrorPayload(400, 'Invalid payment method')
+    }
+}
