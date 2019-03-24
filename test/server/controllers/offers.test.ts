@@ -3,11 +3,10 @@ import { suite, test } from 'mocha-typescript'
 import * as supertest from 'supertest'
 import * as _ from 'lodash'
 import { logInUser } from './helpers'
-import { OfferAttributes, Offer, UserAttributes, User } from '../../../src/server/models'
+import { UserAttributes } from '../../../src/server/models'
 import { app } from '../../../src/server'
 import { factory, createOffer } from '../factory'
-import * as moment from 'moment'
-import { logger } from '../../../src/server/services';
+//import { logger } from '../../../src/server/services'
 
 const request = supertest(app)
 const createUser: UserAttributes = {
@@ -74,6 +73,13 @@ describe('Offer Tests', async () => {
                 const res = await request.post('/api/offers/').set('Authorization', `bearer ${token}`)
                 .send(createOfferClone).expect(200)
                 //logger.info('Response => ' + JSON.stringify(res.body))
+            })
+            it('Should create the new offer', async () => {
+                const token = (await logInUser(user)).accessToken
+                createOfferClone.prices = new Array()
+                createOfferClone.prices.push({ selected: true, frequency: 'FinalProduct', price: 20 })
+                const res = await request.post('/api/offers/').set('Authorization', `bearer ${token}`)
+                    .send(createOfferClone).expect(200)
             })
         })
     })

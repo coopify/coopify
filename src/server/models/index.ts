@@ -1,7 +1,5 @@
-import { User, UserAttributes, UserUpateAttributes, } from './sequelize'
-import { Offer, OfferAttributes, } from './sequelize'
+import { User, UserAttributes, UserUpateAttributes, Offer, OfferAttributes, OfferPrice, OfferPriceAttributes } from './sequelize'
 
-export const seqModels = [ User, Offer ]
+export const seqModels = [ User, Offer, OfferPrice ]
 
-export { User, UserAttributes, UserUpateAttributes }
-export { Offer, OfferAttributes }
+export { User, UserAttributes, UserUpateAttributes, OfferPrice, OfferAttributes, OfferPriceAttributes, Offer }

@@ -1,23 +1,28 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, AfterCreate, ForeignKey } from 'sequelize-typescript'
-import { rdb } from '../../services'
-import { User } from './user';
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey } from 'sequelize-typescript'
+import { User } from './user'
+import { OfferPrice, IAttributes as OfferPriceAttributes } from './offerPrice'
 
 interface IAttributes {
     userId: string
     description?: Text
     images: Array<{ url: string, default: boolean }>
     category?: string
-    paymentMethod: 'Coopy' | 'FinalProduct' | 'Exchange'
+    paymentMethod: 'Coopy' | 'Exchange'
     startDate: Date
     finishDate?: Date
     status: 'Started' | 'Paused'
+    prices?: Array<OfferPriceAttributes>
 }
 
 @Table({ timestamps: true })
 class Offer extends Model<Offer> {
 
     public static async getAsync(id: string): Promise<Offer | null> {
-        return this.findById<Offer>(id)
+        return this.findById<Offer>(id, {
+            include: [{
+                model: OfferPrice,
+            }],
+        })
     }
 
     public static async getManyAsync(where: any): Promise<Offer[] | null> {
@@ -25,7 +30,11 @@ class Offer extends Model<Offer> {
     }
 
     public static async getOneAsync(where: any): Promise<Offer | null> {
-        return this.findOne<Offer>({ where })
+        return this.findOne<Offer>({
+            where, include: [{
+                model: OfferPrice,
+            }],
+        })
     }
 
     public static async createAsync(params: IAttributes): Promise<Offer> {
@@ -44,6 +53,7 @@ class Offer extends Model<Offer> {
             startDate: offer.startDate,
             finishDate: offer.finishDate,
             status: offer.status,
+            prices: offer.prices ? offer.prices.map((price) => OfferPrice.toDTO(price)) : [],
         }
     }
 
@@ -81,6 +91,9 @@ class Offer extends Model<Offer> {
 
     @Column(DataType.STRING)
     public status
+
+    @HasMany(() => OfferPrice)
+    public prices
 }
 
 export { IAttributes, Offer }

@@ -1,6 +1,8 @@
 import { Offer, OfferAttributes } from '../models'
 import { validateStatus, validatePaymentMethod } from './helpers'
 import { logger } from '../services'
+import { ErrorPayload } from '../errorPayload';
+import { OfferPrice } from '../models/sequelize/offerPrice';
 
 export async function getAsync(id: string): Promise<Offer | null> {
     try {
@@ -41,8 +43,15 @@ export async function createAsync(body: OfferAttributes): Promise<Offer | null> 
         if (body.status) { validateStatus(body.status) }
         //TODO in future: validate categories
         const offerInstance = await Offer.createAsync(body)
+        if (!offerInstance) { throw new ErrorPayload(500, 'Failed to create offer') }
+        if (body.prices) {
+            await Promise.all(body.prices.map(async (p) => {
+                p.offerId = offerInstance.id
+                await OfferPrice.createAsync(p)
+            }))
+        }
 
-        return offerInstance
+        return getAsync(offerInstance.id)
     } catch (error) {
         logger.error(new Error(error))
         throw error
