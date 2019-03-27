@@ -26,7 +26,11 @@ class Offer extends Model<Offer> {
     }
 
     public static async getManyAsync(where: any): Promise<Offer[] | null> {
-        return this.findAll<Offer>({ where })
+        return this.findAll<Offer>({ 
+            where , include: [{
+                model: OfferPrice
+            }],
+        })
     }
 
     public static async getOneAsync(where: any): Promise<Offer | null> {
