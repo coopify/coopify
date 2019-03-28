@@ -20,9 +20,10 @@ class Offer extends Model<Offer> {
 
     public static async getAsync(id: string): Promise<Offer | null> {
         return this.findById<Offer>(id, {
-            include: [{
-                model: OfferPrice,
-            }],
+            include: [
+                { model: OfferPrice },
+                { model: User }
+            ],
         })
     }
 
