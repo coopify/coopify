@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { User } from './user'
 import { OfferPrice, IAttributes as OfferPriceAttributes } from './offerPrice'
 
@@ -28,9 +28,10 @@ class Offer extends Model<Offer> {
 
     public static async getManyAsync(where: any): Promise<Offer[] | null> {
         return this.findAll<Offer>({ 
-            where , include: [{
-                model: OfferPrice
-            }],
+            where , include: [
+                { model: OfferPrice },
+                { model: User }
+            ],
         })
     }
 
@@ -60,6 +61,7 @@ class Offer extends Model<Offer> {
             finishDate: offer.finishDate,
             status: offer.status,
             prices: offer.prices ? offer.prices.map((price) => OfferPrice.toDTO(price)) : [],
+            by: offer.by.email, //TODO: Change this to name
         }
     }
 
@@ -103,6 +105,9 @@ class Offer extends Model<Offer> {
 
     @HasMany(() => OfferPrice)
     public prices
+
+    @BelongsTo(() => User)
+    public by
 }
 
 export { IAttributes, Offer }
