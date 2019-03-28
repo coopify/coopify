@@ -53,6 +53,7 @@ export async function createAsync(request: Request, response: Response) {
 
         const offerToCreate = await OfferInterface.createAsync({
             userId: loggedId,
+            title: request.body.title,
             description: request.body.description,
             images: request.body.images,
             category: request.body.category,

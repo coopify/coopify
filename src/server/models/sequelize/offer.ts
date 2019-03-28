@@ -4,6 +4,7 @@ import { OfferPrice, IAttributes as OfferPriceAttributes } from './offerPrice'
 
 interface IAttributes {
     userId: string
+    title?: Text
     description?: Text
     images: Array<{ url: string, default: boolean }>
     category?: string
@@ -26,7 +27,11 @@ class Offer extends Model<Offer> {
     }
 
     public static async getManyAsync(where: any): Promise<Offer[] | null> {
-        return this.findAll<Offer>({ where })
+        return this.findAll<Offer>({ 
+            where , include: [{
+                model: OfferPrice
+            }],
+        })
     }
 
     public static async getOneAsync(where: any): Promise<Offer | null> {
@@ -45,6 +50,7 @@ class Offer extends Model<Offer> {
     public static toDTO(offer: Offer) {
         return {            
             id: offer.id,
+            title: offer.title,
             userId: offer.userId,
             description: offer.description,
             images: offer.images,
@@ -66,6 +72,9 @@ class Offer extends Model<Offer> {
     @AllowNull(false)
     @Column(DataType.UUID)
     public userId
+
+    @Column(DataType.TEXT)
+    public title
 
     @Column(DataType.TEXT)
     public description
