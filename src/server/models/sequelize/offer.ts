@@ -1,13 +1,15 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo, BelongsToMany } from 'sequelize-typescript'
 import { User } from './user'
 import { OfferPrice, IAttributes as OfferPriceAttributes } from './offerPrice'
+import { OfferCategory } from './offerCategory'
+import { Category } from './category'
 
 interface IAttributes {
     userId: string
     title?: string
     description?: Text
     images: Array<{ url: string, default: boolean }>
-    category?: string
+    categories?: string[]
     paymentMethod: 'Coopy' | 'Exchange'
     startDate: Date
     finishDate?: Date
@@ -33,6 +35,7 @@ class Offer extends Model<Offer> {
             include: [
                 { model: OfferPrice },
                 { model: User },
+                { model: Category },
             ],
         })
     }
@@ -43,6 +46,7 @@ class Offer extends Model<Offer> {
             where: seqFilter.offer, include: [
                 { model: OfferPrice , where: seqFilter.offerPrice },
                 { model: User },
+                { model: Category },
             ],
             limit,
             offset: skip,
@@ -71,7 +75,7 @@ class Offer extends Model<Offer> {
             userId: offer.userId,
             description: offer.description,
             images: offer.images,
-            category: offer.category,
+            categories: offer.categories ? offer.categories.map((category) => Category.toDTO(category)) : [],
             paymentMethod: offer.paymentMethod,
             startDate: offer.startDate,
             finishDate: offer.finishDate,
@@ -127,8 +131,8 @@ class Offer extends Model<Offer> {
     @Column(DataType.JSONB)
     public images
 
-    @Column(DataType.TEXT)
-    public category
+    @BelongsToMany(() => Category, () => OfferCategory)
+    public categories
 
     @AllowNull(false)
     @Column(DataType.STRING)
