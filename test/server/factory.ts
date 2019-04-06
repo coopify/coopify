@@ -20,6 +20,7 @@ const createOffer : OfferAttributes = {
     paymentMethod: 'Exchange',
     startDate: new Date(Date.now()),
     status: 'Started',
+    title: 'Some offer',
 }
 
 export { factory, createOffer }

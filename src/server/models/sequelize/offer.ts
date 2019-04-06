@@ -6,7 +6,7 @@ import { logger } from '../../services';
 
 interface IAttributes {
     userId: string
-    title?: Text
+    title?: string
     description?: Text
     images: Array<{ url: string, default: boolean }>
     category?: string

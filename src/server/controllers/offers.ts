@@ -34,6 +34,7 @@ export async function getListAsync(request: Request, response: Response) {
         let { limit, skip } = request.query
         if (limit) { limit = parseInt(limit) }
         if (skip) { skip = parseInt(skip) }
+        if (limit && skip) { skip = limit * skip }
         const filterParams = processQueryInput(request.query)
         const offers = await OfferInterface.findAsync(filterParams, limit, skip)
         if (!offers) { throw new ErrorPayload(500, 'Failed to get offers') }
