@@ -1,8 +1,8 @@
 import { Offer, OfferAttributes } from '../models'
 import { validateStatus, validatePaymentMethod } from './helpers'
 import { logger } from '../services'
-import { ErrorPayload } from '../errorPayload';
-import { OfferPrice } from '../models/sequelize/offerPrice';
+import { ErrorPayload } from '../errorPayload'
+import { OfferPrice, IServiceFilter } from '../models'
 
 export async function getAsync(id: string): Promise<Offer | null> {
     try {
@@ -15,18 +15,18 @@ export async function getAsync(id: string): Promise<Offer | null> {
     }
 }
 
-export async function findAsync(where: object): Promise<Offer[] | null> {
+export async function findAsync(where: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number }| null> {
     try {
-        const offerInstances = await Offer.getManyAsync(where)
+        const offerInstances = await Offer.getManyAsync(where, limit, skip)
 
         return offerInstances
     } catch (error) {
-        logger.error(new Error(error))
+        logger.error(new Error(error) + JSON.stringify(error))
         throw error
     }
 }
 
-export async function findOneAsync(where: object): Promise<Offer | null> {
+export async function findOneAsync(where: IServiceFilter): Promise<Offer | null> {
     try {
         const offerInstances = await Offer.getOneAsync(where)
 

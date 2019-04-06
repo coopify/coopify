@@ -1,6 +1,8 @@
 import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo } from 'sequelize-typescript'
+import { IncludeOptions } from 'sequelize'
 import { User } from './user'
 import { OfferPrice, IAttributes as OfferPriceAttributes } from './offerPrice'
+import { logger } from '../../services';
 
 interface IAttributes {
     userId: string
@@ -15,6 +17,13 @@ interface IAttributes {
     prices?: Array<OfferPriceAttributes>
 }
 
+interface IServiceFilter {
+    name?: string,
+    paymentMethods?: string[]
+    lowerPrice?: number
+    upperPrice?: number
+}
+
 @Table({ timestamps: true })
 class Offer extends Model<Offer> {
 
@@ -27,16 +36,20 @@ class Offer extends Model<Offer> {
         })
     }
 
-    public static async getManyAsync(where: any): Promise<Offer[] | null> {
-        return this.findAll<Offer>({ 
-            where , include: [
-                { model: OfferPrice },
+    public static async getManyAsync(filter: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
+        const where = this.transformFilter(filter)
+        return this.findAndCount<Offer>({ 
+            where: where.offer, include: [
+                { model: OfferPrice , where: where.offerPrice },
                 { model: User }
             ],
+            limit,
+            offset: skip,
         })
     }
 
-    public static async getOneAsync(where: any): Promise<Offer | null> {
+    public static async getOneAsync(filter: IServiceFilter): Promise<Offer | null> {
+        const where = this.transformFilter(filter)
         return this.findOne<Offer>({
             where, include: [{
                 model: OfferPrice,
@@ -64,6 +77,19 @@ class Offer extends Model<Offer> {
             prices: offer.prices ? offer.prices.map((price) => OfferPrice.toDTO(price)) : [],
             by: offer.by.email, //TODO: Change this to name
         }
+    }
+
+    private static transformFilter(filter: IServiceFilter): { offer?: any, offerPrice?: any } {
+        const where: { offer?: any, offerPrice?: any } = { offer: {}, offerPrice: {} }
+        if (filter.name) { where.offer.title = { $like: filter.name } }
+        if (filter.lowerPrice) { where.offerPrice.price = { $lt: filter.lowerPrice } }
+        if (filter.upperPrice) { where.offerPrice.price = { $gt: filter.upperPrice } }
+        if (filter.lowerPrice && filter.upperPrice) { where.offerPrice.price = { $gt: filter.upperPrice, $lt: filter.lowerPrice } }
+        if (filter.paymentMethods) { where.offerPrice.frequency = { $in: filter.upperPrice } }
+        
+        if (!where.offerPrice.price && !where.offerPrice.frequency) { delete where.offerPrice }
+
+        return where
     }
 
     @PrimaryKey
@@ -111,4 +137,4 @@ class Offer extends Model<Offer> {
     public by
 }
 
-export { IAttributes, Offer }
+export { IAttributes, Offer, IServiceFilter }
