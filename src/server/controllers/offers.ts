@@ -58,7 +58,7 @@ export async function createAsync(request: Request, response: Response) {
             title: request.body.title,
             description: request.body.description,
             images: request.body.images,
-            category: request.body.category,
+            categories: request.body.categories,
             paymentMethod: request.body.paymentMethod,
             startDate: request.body.startDate,
             finishDate: request.body.finishDate,
@@ -104,3 +104,4 @@ function processQueryInput(queryParams: any): IServiceFilter {
 
     return filters
 }
+
