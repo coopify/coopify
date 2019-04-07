@@ -63,7 +63,7 @@ export async function createAsync(request: Request, response: Response) {
             startDate: request.body.startDate,
             finishDate: request.body.finishDate,
             status: request.body.status,
-            prices: request.body.prices
+            prices: request.body.prices,
         })
 
         if (!offerToCreate) { throw new ErrorPayload(500, 'Failed to create a new offer') }

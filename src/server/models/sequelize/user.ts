@@ -18,7 +18,7 @@ interface IAttributes {
     gender?: 'Male' | 'Female' | 'Other' | 'Unspecified' | string
     address?: string
     phone?: string
-    interests?: { name: string, selected: boolean }[]
+    interests?: Array<{ name: string, selected: boolean }>
 }
 
 interface IUpdateAttributes {
@@ -32,7 +32,7 @@ interface IUpdateAttributes {
     gender?: 'Male' | 'Female' | 'Other' | 'Unspecified' | string
     address?: string
     phone?: string
-    interests?: { name: string, selected: boolean }[]
+    interests?: Array<{ name: string, selected: boolean }>
 }
 
 @Table({ timestamps: true })
@@ -105,7 +105,7 @@ class User extends Model<User> {
 
     @Column(DataType.STRING)
     public googleId
-    
+
     @Column(DataType.STRING)
     public name
 

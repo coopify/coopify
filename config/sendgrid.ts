@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, Validate } from 'class-validator'
 import { CValidator, IValidationError } from '../lib/validations'
-import * as config from '.'
+
 export class SendgridConfigs extends CValidator {
     public isValid: boolean
 
@@ -25,6 +25,7 @@ export class SendgridConfigs extends CValidator {
       return super.validate()
     }
 
+    //tslint:disable:member-ordering
     constructor() {
       super()
       this.apikey = '',

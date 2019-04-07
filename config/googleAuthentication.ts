@@ -4,7 +4,6 @@ import { CValidator, IValidationError } from '../lib/validations'
 export class GoogleConfigs extends CValidator {
     public isValid: boolean
 
-    
     @IsNotEmpty({ message: `CLIENT_ID is empty` })
     @IsString({ message: `CLIENT_ID is not a String` })
     public clientId: string
@@ -22,6 +21,7 @@ export class GoogleConfigs extends CValidator {
         return super.validate()
     }
 
+    //tslint:disable:member-ordering
     constructor() {
         super()
         this.clientId = '',

@@ -100,7 +100,7 @@ describe('Offer Tests', async () => {
         context('No offer created', async () => {
             let createOfferClone, user
             beforeEach(async () =>  {
-                const user = await factory.create('user', createUser) 
+                user = await factory.create('user', createUser)
                 createOfferClone = _.cloneDeep(createOffer)
                 createOfferClone.userId = user.id
             })

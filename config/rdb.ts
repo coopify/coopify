@@ -29,6 +29,7 @@ export class RDBConfigs extends CValidator {
     @IsString({ message: `DB_USER is not a String` })
     public user: string
 
+    //tslint:disable:member-ordering
     constructor() {
       super()
       this.host = '',
@@ -48,8 +49,6 @@ export class RDBConfigs extends CValidator {
       // See https://www.postgresql.org/docs/current/static/libpq-connect.html#LIBPQ-CONNSTRING
       return `postgresql://${this.user}:${this.password}@${this.host}:${this.port}/${this.name}`
     }
-
-    
 
     private setVariables() {
       const dbConfig = dbConfigs[process.env.NODE_ENV || 'development']

@@ -21,6 +21,7 @@ export class FacebookConfigs extends CValidator {
         return super.validate()
     }
 
+    //tslint:disable:member-ordering
     constructor() {
       super()
       this.apikey = '',

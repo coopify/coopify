@@ -14,7 +14,7 @@ factory.define('offer', Offer, {
     status: 'Started',
 })
 
-const createOffer : OfferAttributes = {
+const createOffer: OfferAttributes = {
     userId: 'someId',
     images: new Array(),
     paymentMethod: 'Exchange',

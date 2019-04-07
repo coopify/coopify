@@ -15,7 +15,7 @@ export async function getAsync(id: string): Promise<Offer | null> {
     }
 }
 
-export async function findAsync(where: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number }| null> {
+export async function findAsync(where: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
     try {
         const offerInstances = await Offer.getManyAsync(where, limit, skip)
 
@@ -59,4 +59,3 @@ export async function createAsync(body: OfferAttributes): Promise<Offer | null> 
 }
 
 //In the Offer update use the paymentMethod validation and the status validation
-

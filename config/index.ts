@@ -1,6 +1,5 @@
-import { GoogleConfigs } from "./googleAuthentication";
+import { GoogleConfigs } from './googleAuthentication'
 import { LoggerConfigs } from './wLogger'
-import { ApnConfigs } from './apn'
 import { ServerConfigs } from './server'
 import { RDBConfigs } from './rdb'
 import { RedisConfigs } from './redis'
@@ -9,7 +8,6 @@ import { SendgridConfigs } from './sendgrid'
 import { BlockchainConfigs } from './blockchain'
 
 const wLogger = new LoggerConfigs()
-const apn = new ApnConfigs()
 const server = new ServerConfigs()
 const redis = new RedisConfigs()
 const rdb = new RDBConfigs()
@@ -31,4 +29,4 @@ export function validateAll() {
       ].filter((x) => x.hasErrors)
 }
 
-export { wLogger, apn, server, redis, rdb, facebook, googleConfis, sendgrid, blockchain }
+export { wLogger, server, redis, rdb, facebook, googleConfis, sendgrid, blockchain }

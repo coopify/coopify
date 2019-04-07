@@ -24,7 +24,7 @@ export class RedisConfigs extends CValidator {
       this.setVariables()
       return super.validate()
     }
-
+    //tslint:disable:member-ordering
     constructor() {
       super()
       this.host = '',

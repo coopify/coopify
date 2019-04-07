@@ -23,7 +23,7 @@ const updateUser: UserUpateAttributes = {
     lastName: 'Default 2',
     phone: 'Default phone',
     interests: new Array<{ name: string, selected: boolean }>(),
-    pictureURL: 'Some URL'
+    pictureURL: 'Some URL',
 }
 
 describe('User Tests', async () => {

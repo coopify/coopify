@@ -13,19 +13,19 @@ export class BlockchainConfigs extends CValidator {
     public port: string
 
     public validate(): IValidationError {
-      this.setVariables()
-      return super.validate()
+        this.setVariables()
+        return super.validate()
     }
-
+    //tslint:disable:member-ordering
     constructor() {
-      super()
-      this.route = '',
-      this.port = '',
-      this.isValid = false
+        super()
+        this.route = '',
+        this.port = '',
+        this.isValid = false
     }
 
     private setVariables() {
-      this.route = process.env.BLOCKCHAIN_ROUTE || ''
-      this.port = process.env.BLOCKCHAIN_PORT || ''
+        this.route = process.env.BLOCKCHAIN_ROUTE || ''
+        this.port = process.env.BLOCKCHAIN_PORT || ''
     }
-  }
+}
