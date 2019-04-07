@@ -91,7 +91,7 @@ describe('Offer Tests', async () => {
 
     describe('#POST /api/offers/', async () => {
         context('No offer created', async () => {
-            let createOfferClone, user
+            let createOfferClone, user, createCategoryClone, categoryId
             beforeEach(async () =>  {
                 user = await factory.create('user', createUser)
                 createOfferClone = _.cloneDeep(createOffer)
