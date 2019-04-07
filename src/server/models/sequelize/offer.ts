@@ -22,6 +22,7 @@ interface IServiceFilter {
     exchangeInstances?: string[]
     lowerPrice?: number
     upperPrice?: number
+    orderBy?: string
 }
 
 @Table({ timestamps: true })
@@ -37,21 +38,22 @@ class Offer extends Model<Offer> {
     }
 
     public static async getManyAsync(filter: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
-        const where = this.transformFilter(filter)
+        const seqFilter = this.transformFilter(filter)
         return this.findAndCount<Offer>({
-            where: where.offer, include: [
-                { model: OfferPrice , where: where.offerPrice },
+            where: seqFilter.offer, include: [
+                { model: OfferPrice , where: seqFilter.offerPrice },
                 { model: User },
             ],
             limit,
             offset: skip,
+            order: seqFilter.order,
         })
     }
 
     public static async getOneAsync(filter: IServiceFilter): Promise<Offer | null> {
-        const where = this.transformFilter(filter)
+        const seqFilter = this.transformFilter(filter)
         return this.findOne<Offer>({
-            where, include: [{
+            where: seqFilter.offer, include: [{
                 model: OfferPrice,
             }],
         })
@@ -79,14 +81,26 @@ class Offer extends Model<Offer> {
         }
     }
 
-    private static transformFilter(filter: IServiceFilter): { offer?: any, offerPrice?: any } {
-        const where: { offer?: any, offerPrice?: any } = { offer: {}, offerPrice: {} }
+    private static transformFilter(filter: IServiceFilter): { offer?: any, offerPrice?: any, order: Array<Array<string>> } {
+        const where: { offer?: any, offerPrice?: any, order: Array<Array<string>> } = { offer: {}, offerPrice: {}, order: new Array() }
         if (filter.name) { where.offer.title = { $like: filter.name } }
         if (filter.paymentMethods) { where.offer.paymentMethod = { $in: filter.paymentMethods } }
         if (filter.lowerPrice) { where.offerPrice.price = { $lt: filter.lowerPrice } }
         if (filter.upperPrice) { where.offerPrice.price = { $gt: filter.upperPrice } }
         if (filter.lowerPrice && filter.upperPrice) { where.offerPrice.price = { $gt: filter.upperPrice, $lt: filter.lowerPrice } }
         if (filter.exchangeInstances) { where.offerPrice.frequency = { $in: filter.exchangeInstances } }
+        switch (filter.orderBy) {
+            //orderBy === 'price' || orderBy === 'rate' || orderBy === 'date'
+            case 'price':
+                where.order = where.order.concat([['prices', 'DESC']])
+                break
+            case 'rating':
+                where.order = where.order.concat([['rating', 'DESC']])
+                break
+            default:
+                where.order = where.order.concat([['createdAt', 'DESC']])
+                break
+        }
 
         if (!where.offerPrice.price && !where.offerPrice.frequency) { delete where.offerPrice }
 
