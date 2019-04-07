@@ -116,7 +116,7 @@ describe('Offer Tests', async () => {
                 expect(res.body.offer.userId).to.eq(createOfferClone.userId)
                 expect(res.body.offer.status).to.eq(createOfferClone.status)
             })
-            it.only('Should create the new offer with a category asociated', async () => {
+            it('Should create the new offer with a category asociated', async () => {
                 const token = (await logInUser(user)).accessToken
                 createOfferClone.prices = new Array()
                 createOfferClone.prices.push({ selected: true, frequency: 'FinalProduct', price: 20 })

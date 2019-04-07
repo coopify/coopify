@@ -45,7 +45,7 @@ export async function getListAsync(request: Request, response: Response) {
 
 export async function createAsync(request: Request, response: Response) {
     try {
-        const name = request.body
+        const name = request.body.name
         if (!name) {
             throw new ErrorPayload(400, 'Missing required data')
         }
