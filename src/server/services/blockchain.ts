@@ -1,5 +1,4 @@
 import { logger } from '../services'
-import { server as config } from '../../../config'
 import * as rp from 'request-promise'
 
 export interface IOptions {
@@ -22,7 +21,7 @@ export class Blockchain {
             uri: `${this.options.route}:${this.options.port}/api/users/signup`,
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: { userId },
             json: true,
@@ -38,7 +37,7 @@ export class Blockchain {
             uri: `${this.options.route}:${this.options.port}/api/users/${userId}/balance`,
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             json: true,
         }).then((res) => {
@@ -57,7 +56,7 @@ export class Blockchain {
             uri: `${this.options.route}:${this.options.port}/api/users/${userId}/transactions`,
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             json: true,
         }).then((res) => {

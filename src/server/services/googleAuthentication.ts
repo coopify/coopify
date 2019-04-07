@@ -5,7 +5,7 @@ import * as moment from 'moment'
 export interface IOptions {
     clientId: string
     apiKey: string
-    redirectURI: string  
+    redirectURI: string
 }
 
 export interface IUserData {
@@ -22,7 +22,7 @@ class GoogleAuthentication {
     public authenticator
     public isConnected: boolean
 
-    constructor(){
+    constructor() {
         this.isConnected = false
     }
 
@@ -38,7 +38,7 @@ class GoogleAuthentication {
             logger.error(`GoogleAuthenticator => ${error}`)
         }
     }
-    
+
     /**
      * method to generate the url in google
      */
@@ -47,16 +47,16 @@ class GoogleAuthentication {
         const scopes = [
             'https://www.googleapis.com/auth/userinfo.profile',
             'https://www.googleapis.com/auth/userinfo.email',
-            'https://www.googleapis.com/auth/user.birthday.read'
+            'https://www.googleapis.com/auth/user.birthday.read',
         ]
         const url = this.authenticator.generateAuthUrl({
             // 'online' (default) or 'offline' (gets refresh_token)
             access_type: 'offline',
 
             // If you only need one scope you can pass it as a string
-            scope: scopes
+            scope: scopes,
         })
-        return url      
+        return url
     }
 
     /**
@@ -67,10 +67,10 @@ class GoogleAuthentication {
         // Save these somewhere safe so they can be used at a later time.
         try {
             const response = await this.authenticator.getToken(code)
-            
+
             return response.tokens
         } catch (error) {
-            logger.error(`ERROR => ${error}`) 
+            logger.error(`ERROR => ${error}`)
         }
     }
 
@@ -80,10 +80,10 @@ class GoogleAuthentication {
                 refresh_token: refreshToken,
                 access_token: authToken,
             })
-            const info = await google.people("v1").people.get({ 
+            const info = await google.people('v1').people.get({
                 resourceName: 'people/me',
                 auth: this.authenticator,
-                personFields: 'names,emailAddresses,birthdays,coverPhotos,genders'
+                personFields: 'names,emailAddresses,birthdays,coverPhotos,genders',
             })
             return this.processResponse(info)
         } catch (error) {

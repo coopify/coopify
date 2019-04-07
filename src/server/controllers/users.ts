@@ -1,7 +1,5 @@
-import { compare, genSalt, hash } from 'bcrypt-nodejs'
 import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
-import * as moment from 'moment'
 import { UserInterface } from '../interfaces'
 import { logger, redisCache, facebook, googleAuth, sendgrid, blockchain } from '../services'
 import { User } from '../models'
@@ -121,10 +119,10 @@ export async function getTransactionsAsync(request: Request, response: Response,
                 const user = users.find((u) => u === response.locals.user.id !== t.from ? t.from : t.to)
                 if (!user) { throw new ErrorPayload(404, 'User not found') }
                 if (t.from === response.locals.user.id) {
-                    t.from = response.locals.user.name 
+                    t.from = response.locals.user.name
                     t.to = user.name
                 } else {
-                    t.from = response.locals.user.name 
+                    t.from = response.locals.user.name
                     t.to = user.name
                 }
             })
@@ -132,11 +130,11 @@ export async function getTransactionsAsync(request: Request, response: Response,
         if (coopifyTransactions) {
             coopifyTransactions.map((t) => {
                 if (t.from === response.locals.user.id) {
-                    t.from = response.locals.user.name 
+                    t.from = response.locals.user.name
                     t.to = 'Coopify'
                 } else {
                     t.from = 'Coopify'
-                    t.to = response.locals.user.name 
+                    t.to = response.locals.user.name
                 }
             })
         }
@@ -240,7 +238,6 @@ export async function logoutAsync(request: Request, response: Response, next: Ne
 }
 
 export async function loadLoggedUser(request: Request, response: Response, next: NextFunction) {
-    logger.info(JSON.stringify(request.body));
     const token = extractAuthBearerToken(request)
     try {
         if (!token) { return next() }
@@ -269,7 +266,7 @@ export async function loadLoggedUser(request: Request, response: Response, next:
 
 export function authenticate(request: Request, response: Response, next: NextFunction) {
     try {
-        if (!response.locals.loggedUser) { throw new ErrorPayload(403, `Unauthorised. You need to provide a valid bearer token`) }    
+        if (!response.locals.loggedUser) { throw new ErrorPayload(403, `Unauthorised. You need to provide a valid bearer token`) }
     } catch (error) {
         handleError(error, response)
     }
@@ -280,7 +277,7 @@ export function validateOwner(request: Request, response: Response, next: NextFu
     try {
         const loggedUser: User = response.locals.loggedUser
         const routeUser: User = response.locals.user
-        if (loggedUser.id !== routeUser.id) { throw new ErrorPayload(403, `Unauthorised. You don't have ownership of the selected resource`) }    
+        if (loggedUser.id !== routeUser.id) { throw new ErrorPayload(403, `Unauthorised. You don't have ownership of the selected resource`) }
         next()
     } catch (error) {
         handleError(error, response)
@@ -293,7 +290,7 @@ function extractAuthBearerToken(request: Request): string {
     return token
 }
 
-function handleError(error: ErrorPayload | Error, response: Response){
+function handleError(error: ErrorPayload | Error, response: Response) {
     logger.error(error + ' - ' + JSON.stringify(error))
     if (error instanceof ErrorPayload) {
         response.status(error.code).json(error)

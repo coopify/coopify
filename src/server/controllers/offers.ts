@@ -1,9 +1,7 @@
-import { compare, genSalt, hash } from 'bcrypt-nodejs'
 import { NextFunction, Request, Response } from 'express'
-import * as moment from 'moment'
 import { OfferInterface } from '../interfaces'
-import { logger, redisCache, facebook, googleAuth, sendgrid } from '../services'
-import { User, Offer } from '../models'
+import { logger } from '../services'
+import { IServiceFilter, Offer } from '../models'
 import { ErrorPayload } from '../errorPayload'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
@@ -33,10 +31,14 @@ export async function getOneAsync(request: Request, response: Response) {
 
 export async function getListAsync(request: Request, response: Response) {
     try {
-        const offers = await OfferInterface.findAsync({})
+        let { limit, skip } = request.query
+        if (limit) { limit = parseInt(limit) }
+        if (skip) { skip = parseInt(skip) }
+        if (limit && skip) { skip = limit * skip }
+        const filterParams = processQueryInput(request.query)
+        const offers = await OfferInterface.findAsync(filterParams, limit, skip)
         if (!offers) { throw new ErrorPayload(500, 'Failed to get offers') }
-
-        const bodyResponse = { offers: offers.map((o) => Offer.toDTO(o)) }
+        const bodyResponse = { offers: offers.rows.map((o) => Offer.toDTO(o)), count: offers.count }
         response.status(200).json(bodyResponse)
     } catch (error) {
         handleError(error, response)
@@ -61,7 +63,7 @@ export async function createAsync(request: Request, response: Response) {
             startDate: request.body.startDate,
             finishDate: request.body.finishDate,
             status: request.body.status,
-            prices: request.body.prices
+            prices: request.body.prices,
         })
 
         if (!offerToCreate) { throw new ErrorPayload(500, 'Failed to create a new offer') }
@@ -80,4 +82,27 @@ function handleError(error: ErrorPayload | Error, response: Response) {
     } else {
         response.status(500).json(new ErrorPayload(500, 'Something went wrong', error))
     }
+}
+
+function processQueryInput(queryParams: any): IServiceFilter {
+    const { minimunCoopy, maximunCoopy, name, categories, paymentMethods, exchangeInstances, orderBy } = queryParams
+    const filters: IServiceFilter = {}
+    if (name) { filters.name = name }
+    if (orderBy) { filters.orderBy = orderBy }
+    if (minimunCoopy && parseInt(minimunCoopy) > 0) { filters.lowerPrice = parseInt(minimunCoopy) }
+    if (maximunCoopy && parseInt(maximunCoopy) > 0) { filters.upperPrice = parseInt(maximunCoopy) }
+    if (paymentMethods) {
+        const parsedPaymentMethods: string[] = JSON.parse(paymentMethods)
+        if (parsedPaymentMethods.length && parsedPaymentMethods.length > 0) {
+            filters.paymentMethods = parsedPaymentMethods
+        }
+    }
+    if (exchangeInstances) {
+        const parsedExchangeInstances: string[] = JSON.parse(exchangeInstances)
+        if (parsedExchangeInstances.length && parsedExchangeInstances.length > 0) {
+            filters.exchangeInstances = parsedExchangeInstances
+        }
+    }
+
+    return filters
 }

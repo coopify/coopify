@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import userRoutes from './users'
-import offerRoutes from './offers';
+import offerRoutes from './offers'
 import { loadLoggedUser } from '../controllers/users'
 
 const router = Router()

@@ -11,12 +11,13 @@ export class LoggerConfigs extends CValidator {
     @IsString({ message: `LOG_LEVEL is not a String` })
     public level: string
 
+    //tslint:disable:member-ordering
     constructor() {
         super()
         this.level = '',
         this.isValid = false
-      }
-    
+    }
+
     public validate(): IValidationError {
         this.setVariables()
         return super.validate()

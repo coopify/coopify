@@ -37,6 +37,42 @@ describe('Offer Tests', async () => {
                 expect(res.body.offers.length).to.eq(0)
             })
         })
+        context('Pagination tests', async () => {
+            let user
+            beforeEach(async () =>  {
+                user = await factory.create('user', createUser)
+                for (let index = 0; index < 15; index++) {
+                    const createOfferClone = _.cloneDeep(createOffer)
+                    createOfferClone.title = 'Test offer ' + index + 1
+                    createOfferClone.userId = user.id
+                    await factory.create('offer', createOfferClone)
+                }
+            })
+            it('Should get the offer list with one element', async () => {
+                const res = await request.get('/api/offers/?limit=5&skip=0').expect(200)
+                expect(res.body.offers.length).to.eq(5)
+                expect(res.body.count).to.eq(15)
+            })
+            it('Should get the offer list with one element', async () => {
+                const res = await request.get('/api/offers/?limit=5&skip=2').expect(200)
+                expect(res.body.offers.length).to.eq(5)
+                expect(res.body.count).to.eq(15)
+            })
+            it('Should get the offer list with one element', async () => {
+                const res = await request.get('/api/offers/?limit=5&skip=4').expect(200)
+                expect(res.body.offers.length).to.eq(0)
+                expect(res.body.count).to.eq(15)
+            })
+            it('Should get the offer list with one element', async () => {
+                const res = await request.get('/api/offers/?limit=8&skip=1').expect(200)
+                expect(res.body.offers.length).to.eq(7)
+                expect(res.body.count).to.eq(15)
+            })
+            it('Should get an empty offer list', async () => {
+                const res = await request.get('/api/offers/').expect(200)
+                expect(res.body.offers.length).to.eq(15)
+            })
+        })
     })
 
     describe('#GET /api/offers/:offerId', async () => {
@@ -64,7 +100,7 @@ describe('Offer Tests', async () => {
         context('No offer created', async () => {
             let createOfferClone, user
             beforeEach(async () =>  {
-                const user = await factory.create('user', createUser) 
+                user = await factory.create('user', createUser)
                 createOfferClone = _.cloneDeep(createOffer)
                 createOfferClone.userId = user.id
             })

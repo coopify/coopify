@@ -1,4 +1,4 @@
-import { googleAuth } from "./googleAuthentication";
+import { googleAuth } from './googleAuthentication'
 import { Logger } from './wLogger'
 import { redisCache, ClientParams } from './redisCache'
 import { rdb, IOptions as RDBOptions } from './rdb'

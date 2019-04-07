@@ -14,12 +14,13 @@ factory.define('offer', Offer, {
     status: 'Started',
 })
 
-const createOffer : OfferAttributes = {
+const createOffer: OfferAttributes = {
     userId: 'someId',
     images: new Array(),
     paymentMethod: 'Exchange',
     startDate: new Date(Date.now()),
     status: 'Started',
+    title: 'Some offer',
 }
 
 export { factory, createOffer }
