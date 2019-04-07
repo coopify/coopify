@@ -3,7 +3,6 @@ import { OfferInterface } from '../interfaces'
 import { logger } from '../services'
 import { IServiceFilter, Offer } from '../models'
 import { ErrorPayload } from '../errorPayload'
-import { parse } from 'query-string'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
