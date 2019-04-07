@@ -44,7 +44,7 @@ class Offer extends Model<Offer> {
         const seqFilter = this.transformFilter(filter)
         return this.findAndCount<Offer>({
             where: seqFilter.offer, include: [
-                { model: OfferPrice , where: seqFilter.offerPrice },
+                { model: OfferPrice , where: seqFilter.offerPrice, required: false },
                 { model: User },
                 { model: Category },
             ],
