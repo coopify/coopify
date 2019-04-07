@@ -3,6 +3,7 @@ import { OfferInterface } from '../interfaces'
 import { logger } from '../services'
 import { IServiceFilter, Offer } from '../models'
 import { ErrorPayload } from '../errorPayload'
+import { parse } from 'query-string'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
@@ -92,15 +93,13 @@ function processQueryInput(queryParams: any): IServiceFilter {
     if (minimunCoopy && parseInt(minimunCoopy) > 0) { filters.lowerPrice = parseInt(minimunCoopy) }
     if (maximunCoopy && parseInt(maximunCoopy) > 0) { filters.upperPrice = parseInt(maximunCoopy) }
     if (paymentMethods) {
-        const parsedPaymentMethods: string[] = JSON.parse(paymentMethods)
-        if (parsedPaymentMethods.length && parsedPaymentMethods.length > 0) {
-            filters.paymentMethods = parsedPaymentMethods
+        if (paymentMethods.length && paymentMethods.length > 0) {
+            filters.paymentMethods = paymentMethods
         }
     }
     if (exchangeInstances) {
-        const parsedExchangeInstances: string[] = JSON.parse(exchangeInstances)
-        if (parsedExchangeInstances.length && parsedExchangeInstances.length > 0) {
-            filters.exchangeInstances = parsedExchangeInstances
+        if (exchangeInstances.length && exchangeInstances.length > 0) {
+            filters.exchangeInstances = exchangeInstances
         }
     }
 
