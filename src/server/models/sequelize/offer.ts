@@ -48,6 +48,7 @@ class Offer extends Model<Offer> {
                 { model: User },
                 { model: Category },
             ],
+            ['distinct' as any]: true,
             limit,
             offset: skip,
             order: seqFilter.order,
@@ -87,7 +88,7 @@ class Offer extends Model<Offer> {
 
     private static transformFilter(filter: IServiceFilter): { offer?: any, offerPrice?: any, order: Array<Array<string>> } {
         const where: { offer?: any, offerPrice?: any, order: Array<Array<string>> } = { offer: {}, offerPrice: {}, order: new Array() }
-        if (filter.name) { where.offer.title = { $like: filter.name } }
+        if (filter.name) { where.offer.title = { $like: `%${filter.name}%` } }
         if (filter.paymentMethods) { where.offer.paymentMethod = { $or: filter.paymentMethods } }
         if (filter.lowerPrice) { where.offerPrice.price = { $gt: filter.lowerPrice } }
         if (filter.upperPrice) { where.offerPrice.price = { $lt: filter.upperPrice } }
