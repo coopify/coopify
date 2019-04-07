@@ -35,12 +35,12 @@ export async function findOneAsync(where: object): Promise<Category | null> {
     }
 }
 
-export async function createAsync(body: CategoryAttributes): Promise<Category | null> {
+export async function createAsync(body: CategoryAttributes): Promise<Category> {
     try {
         const categoryInstance = await Category.createAsync(body)
         if (!categoryInstance) { throw new ErrorPayload(500, 'Failed to create offer') }
 
-        return getAsync(categoryInstance.id)
+        return categoryInstance
     } catch (error) {
         logger.error(new Error(error))
         throw error

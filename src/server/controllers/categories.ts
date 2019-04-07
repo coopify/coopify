@@ -45,14 +45,14 @@ export async function getListAsync(request: Request, response: Response) {
 
 export async function createAsync(request: Request, response: Response) {
     try {
-        const { name, deleted } = request.body
-        if (!name || !deleted) {
+        const name = request.body
+        if (!name) {
             throw new ErrorPayload(400, 'Missing required data')
         }
 
         const categoryToCreate = await CategoryInterface.createAsync({
-            name: request.body.name,
-            deleted: request.body.deleted,
+            name,
+            deleted: false,
         })
 
         if (!categoryToCreate) { throw new ErrorPayload(500, 'Failed to create a new category') }

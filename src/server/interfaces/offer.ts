@@ -1,8 +1,7 @@
-import { Offer, OfferAttributes, OfferCategory, OfferCategoryAttributes } from '../models'
+import { Offer, OfferAttributes, OfferCategory, OfferCategoryAttributes, OfferPrice, IServiceFilter } from '../models'
 import { validateStatus, validatePaymentMethod } from './helpers'
 import { logger } from '../services'
 import { ErrorPayload } from '../errorPayload'
-import { OfferPrice, IServiceFilter } from '../models'
 import { CategoryInterface } from '.'
 
 export async function getAsync(id: string): Promise<Offer | null> {

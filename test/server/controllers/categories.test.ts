@@ -3,17 +3,11 @@ import { suite, test } from 'mocha-typescript'
 import * as supertest from 'supertest'
 import * as _ from 'lodash'
 import { logInUser } from './helpers'
-import { UserAttributes } from '../../../src/server/models'
 import { app } from '../../../src/server'
-import { factory, createOffer, createCategory } from '../factory'
+import { factory, createCategory } from '../factory'
 import { logger } from '../../../src/server/services'
 
 const request = supertest(app)
-const createUser: UserAttributes = {
-    email: 'sdfs@test.com',
-    password: 'cdelsur',
-    pictureURL: 'http://codigo.com',
-}
 
 describe('Category Tests', async () => {
     describe('#GET /api/categories/', async () => {
@@ -43,7 +37,6 @@ describe('Category Tests', async () => {
             })
             it('Should get the category list with the required parameters', async () => {
                 const res = await request.get(`/api/categories/${categoryId}`).expect(200)
-                logger.info('Response => ' + JSON.stringify(res.body))
                 expect(res.body.category.id).to.eq(categoryId)
                 expect(res.body.category.name).to.eq(createCategoryClone.name)
             })

@@ -3,17 +3,11 @@ import { suite, test } from 'mocha-typescript'
 import * as supertest from 'supertest'
 import * as _ from 'lodash'
 import { logInUser } from './helpers'
-import { UserAttributes } from '../../../src/server/models'
 import { app } from '../../../src/server'
-import { factory, createOffer, createCategory } from '../factory'
+import { factory, createUser, createOffer, createCategory } from '../factory'
 import { logger } from '../../../src/server/services'
 
 const request = supertest(app)
-const createUser: UserAttributes = {
-    email: 'sdfs@test.com',
-    password: 'cdelsur',
-    pictureURL: 'http://codigo.com',
-}
 
 describe('Offer Tests', async () => {
     describe('#GET /api/offers/', async () => {
@@ -87,7 +81,6 @@ describe('Offer Tests', async () => {
             })
             it('Should get the offer list', async () => {
                 const res = await request.get(`/api/offers/${offerId}`).expect(200)
-                //logger.info('Response => ' + JSON.stringify(res.body))
                 expect(res.body.offer.id).to.eq(offerId)
                 expect(res.body.offer.userId).to.eq(createOfferClone.userId)
                 expect(res.body.offer.status).to.eq(createOfferClone.status)
@@ -104,7 +97,6 @@ describe('Offer Tests', async () => {
                 createOfferClone = _.cloneDeep(createOffer)
                 createOfferClone.userId = user.id
                 createCategoryClone = _.cloneDeep(createCategory)
-                createCategoryClone.id = '319497a7-73fe-4e1c-b224-8f71d0ee0bb8'
                 const cat = await factory.create('category', createCategoryClone)
                 categoryId = cat.id
             })
@@ -112,6 +104,8 @@ describe('Offer Tests', async () => {
                 const token = (await logInUser(user)).accessToken
                 const res = await request.post('/api/offers/').set('Authorization', `bearer ${token}`)
                     .send(createOfferClone).expect(200)
+                expect(res.body.offer.userId).to.eq(createOfferClone.userId)
+                expect(res.body.offer.status).to.eq(createOfferClone.status)
             })
             it('Should create the new offer with its prices', async () => {
                 const token = (await logInUser(user)).accessToken
@@ -119,8 +113,10 @@ describe('Offer Tests', async () => {
                 createOfferClone.prices.push({ selected: true, frequency: 'FinalProduct', price: 20 })
                 const res = await request.post('/api/offers/').set('Authorization', `bearer ${token}`)
                     .send(createOfferClone).expect(200)
+                expect(res.body.offer.userId).to.eq(createOfferClone.userId)
+                expect(res.body.offer.status).to.eq(createOfferClone.status)
             })
-            it('Should create the new offer with a category asociated', async () => {
+            it.only('Should create the new offer with a category asociated', async () => {
                 const token = (await logInUser(user)).accessToken
                 createOfferClone.prices = new Array()
                 createOfferClone.prices.push({ selected: true, frequency: 'FinalProduct', price: 20 })
@@ -129,6 +125,7 @@ describe('Offer Tests', async () => {
                 const res = await request.post('/api/offers/').set('Authorization', `bearer ${token}`)
                     .send(createOfferClone).expect(200)
                 expect(res.body.offer.userId).to.eq(createOfferClone.userId)
+                expect(res.body.offer.categories[0].id).to.eq(categoryId)
                 expect(res.body.offer.status).to.eq(createOfferClone.status)
                 expect(res.body.offer.categories[0].id).to.eq(createOfferClone.categories[0])
             })
