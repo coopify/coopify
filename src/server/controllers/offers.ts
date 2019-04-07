@@ -85,23 +85,26 @@ function handleError(error: ErrorPayload | Error, response: Response) {
 }
 
 function processQueryInput(queryParams: any): IServiceFilter {
-    const { minimunCoopy, maximunCoopy, name, categories, paymentMethods, exchangeInstances, orderBy } = queryParams
+    const { lowerPrice, upperPrice, name, categories, paymentMethods, exchangeMethods, orderBy } = queryParams
     const filters: IServiceFilter = {}
     if (name) { filters.name = name }
     if (orderBy) { filters.orderBy = orderBy }
-    if (minimunCoopy && parseInt(minimunCoopy) > 0) { filters.lowerPrice = parseInt(minimunCoopy) }
-    if (maximunCoopy && parseInt(maximunCoopy) > 0) { filters.upperPrice = parseInt(maximunCoopy) }
+    if (lowerPrice && parseInt(lowerPrice) > 0) { filters.lowerPrice = parseInt(lowerPrice) }
+    if (upperPrice && parseInt(upperPrice) > 0) { filters.upperPrice = parseInt(upperPrice) }
     if (paymentMethods) {
-        if (paymentMethods.length && paymentMethods.length > 0) {
+        if (paymentMethods instanceof Array) {
             filters.paymentMethods = paymentMethods
+        } else {
+            filters.paymentMethods = [paymentMethods]
         }
     }
-    if (exchangeInstances) {
-        if (exchangeInstances.length && exchangeInstances.length > 0) {
-            filters.exchangeInstances = exchangeInstances
+    if (exchangeMethods) {
+        if (exchangeMethods  instanceof Array) {
+            filters.exchangeMethods = exchangeMethods
+        } else {
+            filters.exchangeMethods = [exchangeMethods]
         }
     }
 
     return filters
 }
-

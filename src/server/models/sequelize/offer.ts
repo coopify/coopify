@@ -21,7 +21,7 @@ interface IAttributes {
 interface IServiceFilter {
     name?: string,
     paymentMethods?: string[]
-    exchangeInstances?: string[]
+    exchangeMethods?: string[]
     lowerPrice?: number
     upperPrice?: number
     orderBy?: string
@@ -88,11 +88,11 @@ class Offer extends Model<Offer> {
     private static transformFilter(filter: IServiceFilter): { offer?: any, offerPrice?: any, order: Array<Array<string>> } {
         const where: { offer?: any, offerPrice?: any, order: Array<Array<string>> } = { offer: {}, offerPrice: {}, order: new Array() }
         if (filter.name) { where.offer.title = { $like: filter.name } }
-        if (filter.paymentMethods) { where.offer.paymentMethod = { $in: filter.paymentMethods } }
+        if (filter.paymentMethods) { where.offer.paymentMethod = { $or: filter.paymentMethods } }
         if (filter.lowerPrice) { where.offerPrice.price = { $gt: filter.lowerPrice } }
         if (filter.upperPrice) { where.offerPrice.price = { $lt: filter.upperPrice } }
-        if (filter.lowerPrice && filter.upperPrice) { where.offerPrice.price = { $gt: filter.upperPrice, $lt: filter.lowerPrice } }
-        if (filter.exchangeInstances) { where.offerPrice.frequency = { $in: filter.exchangeInstances } }
+        if (filter.lowerPrice && filter.upperPrice) { where.offerPrice.price = { $lt: filter.upperPrice, $gt: filter.lowerPrice } }
+        if (filter.exchangeMethods) { where.offerPrice.frequency = { $or: filter.exchangeMethods } }
         switch (filter.orderBy) {
             //orderBy === 'price' || orderBy === 'rate' || orderBy === 'date'
             case 'price':
