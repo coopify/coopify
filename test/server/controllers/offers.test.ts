@@ -70,7 +70,7 @@ describe('Offer Tests', async () => {
             })
             it('Should get an empty offer list', async () => {
                 const res = await request.get('/api/offers/').expect(200)
-                expect(res.body.offers.length).to.eq(0)
+                expect(res.body.offers.length).to.eq(15)
             })
         })
     })
