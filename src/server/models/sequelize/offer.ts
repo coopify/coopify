@@ -1,8 +1,6 @@
 import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo } from 'sequelize-typescript'
-import { IncludeOptions } from 'sequelize'
 import { User } from './user'
 import { OfferPrice, IAttributes as OfferPriceAttributes } from './offerPrice'
-import { logger } from '../../services';
 
 interface IAttributes {
     userId: string
@@ -14,12 +12,14 @@ interface IAttributes {
     startDate: Date
     finishDate?: Date
     status: 'Started' | 'Paused'
+    //tslint:disable:array-type
     prices?: Array<OfferPriceAttributes>
 }
 
 interface IServiceFilter {
     name?: string,
     paymentMethods?: string[]
+    exchangeInstances?: string[]
     lowerPrice?: number
     upperPrice?: number
 }
@@ -31,17 +31,17 @@ class Offer extends Model<Offer> {
         return this.findById<Offer>(id, {
             include: [
                 { model: OfferPrice },
-                { model: User }
+                { model: User },
             ],
         })
     }
 
     public static async getManyAsync(filter: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
         const where = this.transformFilter(filter)
-        return this.findAndCount<Offer>({ 
+        return this.findAndCount<Offer>({
             where: where.offer, include: [
                 { model: OfferPrice , where: where.offerPrice },
-                { model: User }
+                { model: User },
             ],
             limit,
             offset: skip,
@@ -63,7 +63,7 @@ class Offer extends Model<Offer> {
     }
 
     public static toDTO(offer: Offer) {
-        return {            
+        return {
             id: offer.id,
             title: offer.title,
             userId: offer.userId,
@@ -82,11 +82,12 @@ class Offer extends Model<Offer> {
     private static transformFilter(filter: IServiceFilter): { offer?: any, offerPrice?: any } {
         const where: { offer?: any, offerPrice?: any } = { offer: {}, offerPrice: {} }
         if (filter.name) { where.offer.title = { $like: filter.name } }
+        if (filter.paymentMethods) { where.offer.paymentMethod = { $in: filter.paymentMethods } }
         if (filter.lowerPrice) { where.offerPrice.price = { $lt: filter.lowerPrice } }
         if (filter.upperPrice) { where.offerPrice.price = { $gt: filter.upperPrice } }
         if (filter.lowerPrice && filter.upperPrice) { where.offerPrice.price = { $gt: filter.upperPrice, $lt: filter.lowerPrice } }
-        if (filter.paymentMethods) { where.offerPrice.frequency = { $in: filter.upperPrice } }
-        
+        if (filter.exchangeInstances) { where.offerPrice.frequency = { $in: filter.exchangeInstances } }
+
         if (!where.offerPrice.price && !where.offerPrice.frequency) { delete where.offerPrice }
 
         return where
@@ -114,7 +115,7 @@ class Offer extends Model<Offer> {
 
     @Column(DataType.TEXT)
     public category
-    
+
     @AllowNull(false)
     @Column(DataType.STRING)
     public paymentMethod

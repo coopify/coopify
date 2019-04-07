@@ -85,7 +85,7 @@ function handleError(error: ErrorPayload | Error, response: Response) {
 }
 
 function processQueryInput(queryParams: any): IServiceFilter {
-    const { minimunCoopy, maximunCoopy, name, categories, paymentMethods } = queryParams
+    const { minimunCoopy, maximunCoopy, name, categories, paymentMethods, exchangeInstances } = queryParams
     const filters: IServiceFilter = {}
     if (name) { filters.name = name }
     if (minimunCoopy && parseInt(minimunCoopy) > 0) { filters.lowerPrice = parseInt(minimunCoopy) }
@@ -94,6 +94,12 @@ function processQueryInput(queryParams: any): IServiceFilter {
         const parsedPaymentMethods: string[] = JSON.parse(paymentMethods)
         if (parsedPaymentMethods.length && parsedPaymentMethods.length > 0) {
             filters.paymentMethods = parsedPaymentMethods
+        }
+    }
+    if (exchangeInstances) {
+        const parsedexchangeInstances: string[] = JSON.parse(exchangeInstances)
+        if (parsedexchangeInstances.length && parsedexchangeInstances.length > 0) {
+            filters.exchangeInstances = parsedexchangeInstances
         }
     }
     return filters
