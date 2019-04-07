@@ -1,8 +1,9 @@
-import { Offer, OfferAttributes } from '../models'
+import { Offer, OfferAttributes, OfferCategory, OfferCategoryAttributes } from '../models'
 import { validateStatus, validatePaymentMethod } from './helpers'
 import { logger } from '../services'
 import { ErrorPayload } from '../errorPayload'
 import { OfferPrice, IServiceFilter } from '../models'
+import { CategoryInterface } from '.'
 
 export async function getAsync(id: string): Promise<Offer | null> {
     try {
@@ -48,6 +49,13 @@ export async function createAsync(body: OfferAttributes): Promise<Offer | null> 
             await Promise.all(body.prices.map(async (p) => {
                 p.offerId = offerInstance.id
                 await OfferPrice.createAsync(p)
+            }))
+        }
+        if (body.categories) {
+            await Promise.all(body.categories.map(async (c) => {
+                const cat = await CategoryInterface.getAsync(c)
+                if (!cat) { throw new ErrorPayload(404, 'Failed to get category') }
+                await OfferCategory.createAsync({ categoryId: cat.id, offerId: offerInstance.id })
             }))
         }
 

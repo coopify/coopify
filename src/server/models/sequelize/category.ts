@@ -1,10 +1,15 @@
 import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo, BelongsToMany } from 'sequelize-typescript'
 import { Offer } from './offer'
 import { OfferCategory } from './offerCategory'
+import { ErrorPayload } from '../../errorPayload'
 
 interface IAttributes {
-    offers: string,
-    name: string,
+    name: string
+    deleted: boolean
+}
+
+interface IUpdateAttributes {
+    deleted: boolean
 }
 
 @Table({ timestamps: true })
@@ -15,15 +20,11 @@ class Category extends Model<Category> {
     }
 
     public static async getManyAsync(where: any): Promise<Category[] | null> {
-        return this.findAll<Category>({
-            where ,
-        })
+        return this.findAll<Category>({ where })
     }
 
     public static async getOneAsync(where: any): Promise<Category | null> {
-        return this.findOne<Category>({
-            where,
-        })
+        return this.findOne<Category>({ where })
     }
 
     public static async createAsync(params: IAttributes): Promise<Category> {
@@ -31,11 +32,20 @@ class Category extends Model<Category> {
         return category.save()
     }
 
+    public static async updateAsync(idToUpdate: string, params: IUpdateAttributes): Promise<Category | null> {
+        const categoryToUpdate: Category | null = await this.getAsync(idToUpdate)
+        if (categoryToUpdate) {
+            return categoryToUpdate.update(params)
+        }
+        throw (new ErrorPayload(404, 'Category not found'))
+    }
+
     public static toDTO(category: Category) {
         return {
             id: category.id,
             offers: category.offers ? category.offers.map((offer) => Offer.toDTO(offer)) : [],
             name: category.name,
+            deleted: category.deleted,
         }
     }
 
@@ -47,9 +57,13 @@ class Category extends Model<Category> {
     @BelongsToMany(() => Offer, () => OfferCategory)
     public offers
 
-    @AllowNull(true)
+    @AllowNull(false)
     @Column(DataType.TEXT)
     public name
+
+    @AllowNull(false)
+    @Column(DataType.BOOLEAN)
+    public deleted
 }
 
-export { IAttributes, Category }
+export { IAttributes, IUpdateAttributes, Category }

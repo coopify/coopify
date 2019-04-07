@@ -1,5 +1,5 @@
 import { factory } from 'factory-girl'
-import { User, Offer, OfferAttributes } from '../../src/server/models'
+import { User, Offer, OfferAttributes, CategoryAttributes, Category } from '../../src/server/models'
 
 factory.define('user', User, {
     email: factory.seq('User.email', (n) => `user${n}@example.com`),
@@ -14,6 +14,11 @@ factory.define('offer', Offer, {
     status: 'Started',
 })
 
+factory.define('category', Category, {
+    name: 'Sports',
+    deleted: false,
+})
+
 const createOffer: OfferAttributes = {
     userId: 'someId',
     images: new Array(),
@@ -23,4 +28,9 @@ const createOffer: OfferAttributes = {
     title: 'Some offer',
 }
 
-export { factory, createOffer }
+const createCategory: CategoryAttributes = {
+    name: 'Sports',
+    deleted: false,
+}
+
+export { factory, createOffer, createCategory }
