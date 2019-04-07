@@ -98,9 +98,9 @@ function processQueryInput(queryParams: any): IServiceFilter {
         }
     }
     if (exchangeInstances) {
-        const parsedexchangeInstances: string[] = JSON.parse(exchangeInstances)
-        if (parsedexchangeInstances.length && parsedexchangeInstances.length > 0) {
-            filters.exchangeInstances = parsedexchangeInstances
+        const parsedExchangeInstances: string[] = JSON.parse(exchangeInstances)
+        if (parsedExchangeInstances.length && parsedExchangeInstances.length > 0) {
+            filters.exchangeInstances = parsedExchangeInstances
         }
     }
 

@@ -85,8 +85,8 @@ class Offer extends Model<Offer> {
         const where: { offer?: any, offerPrice?: any, order: Array<Array<string>> } = { offer: {}, offerPrice: {}, order: new Array() }
         if (filter.name) { where.offer.title = { $like: filter.name } }
         if (filter.paymentMethods) { where.offer.paymentMethod = { $in: filter.paymentMethods } }
-        if (filter.lowerPrice) { where.offerPrice.price = { $lt: filter.lowerPrice } }
-        if (filter.upperPrice) { where.offerPrice.price = { $gt: filter.upperPrice } }
+        if (filter.lowerPrice) { where.offerPrice.price = { $gt: filter.lowerPrice } }
+        if (filter.upperPrice) { where.offerPrice.price = { $lt: filter.upperPrice } }
         if (filter.lowerPrice && filter.upperPrice) { where.offerPrice.price = { $gt: filter.upperPrice, $lt: filter.lowerPrice } }
         if (filter.exchangeInstances) { where.offerPrice.frequency = { $in: filter.exchangeInstances } }
         switch (filter.orderBy) {
