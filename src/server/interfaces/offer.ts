@@ -52,7 +52,7 @@ export async function createAsync(body: OfferAttributes): Promise<Offer | null> 
         }
         if (body.categories) {
             await Promise.all(body.categories.map(async (c) => {
-                const cat = await CategoryInterface.getAsync(c)
+                const cat = await CategoryInterface.findOneAsync({ name: c })
                 if (!cat) { throw new ErrorPayload(404, 'Failed to get category') }
                 await OfferCategory.createAsync({ categoryId: cat.id, offerId: offerInstance.id })
             }))
