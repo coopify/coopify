@@ -25,6 +25,7 @@ interface IServiceFilter {
     lowerPrice?: number
     upperPrice?: number
     orderBy?: string
+    categories?: string[]
 }
 
 @Table({ timestamps: true })
@@ -44,9 +45,9 @@ class Offer extends Model<Offer> {
         const seqFilter = this.transformFilter(filter)
         return this.findAndCount<Offer>({
             where: seqFilter.offer, include: [
-                { model: OfferPrice , where: seqFilter.offerPrice, required: false },
+                { model: OfferPrice, where: seqFilter.offerPrice, required: false },
                 { model: User },
-                { model: Category },
+                { model: Category, where: seqFilter.categories, required: false },
             ],
             ['distinct' as any]: true,
             limit,
@@ -86,29 +87,46 @@ class Offer extends Model<Offer> {
         }
     }
 
-    private static transformFilter(filter: IServiceFilter): { offer?: any, offerPrice?: any, order: Array<Array<string>> } {
-        const where: { offer?: any, offerPrice?: any, order: Array<Array<string>> } = { offer: {}, offerPrice: {}, order: new Array() }
-        if (filter.name) { where.offer.title = { $like: `%${filter.name}%` } }
+    private static transformFilter(filter: IServiceFilter): { offer?: any, offerPrice?: any, categories?: any, order: Array<Array<string>> } {
+        const where: { offer?: any, offerPrice?: any, categories?: any, order: Array<Array<string>> } = { offer: {}, offerPrice: {}, order: new Array(), categories: {} }
+        if (filter.name) {
+            where.offer.title = { $ilike: `%${filter.name}%` }
+            where.offer.description = { $ilike: `%${filter.name}%` }
+        }
         if (filter.paymentMethods) { where.offer.paymentMethod = { $or: filter.paymentMethods } }
         if (filter.lowerPrice) { where.offerPrice.price = { $gt: filter.lowerPrice } }
         if (filter.upperPrice) { where.offerPrice.price = { $lt: filter.upperPrice } }
         if (filter.lowerPrice && filter.upperPrice) { where.offerPrice.price = { $lt: filter.upperPrice, $gt: filter.lowerPrice } }
         if (filter.exchangeMethods) { where.offerPrice.frequency = { $or: filter.exchangeMethods } }
+        if (filter.categories) { where.categories.name = { $in: filter.categories } }
         switch (filter.orderBy) {
-            //orderBy === 'price' || orderBy === 'rate' || orderBy === 'date'
-            case 'price':
+            /*case 'price':
                 where.order = where.order.concat([['prices', 'DESC']])
                 break
             case 'rating':
                 where.order = where.order.concat([['rating', 'DESC']])
-                break
+                break*/
             default:
                 where.order = where.order.concat([['createdAt', 'DESC']])
                 break
         }
-
         if (!where.offerPrice.price && !where.offerPrice.frequency) { delete where.offerPrice }
-
+        /*if (filter.paymentMethods) {
+            where.offer = {
+                $or: [],
+            }
+            if (filter.paymentMethods.indexOf('Exchange') > -1) { where.offer.$or.push({ paymentMethod: { $eq: 'Exchange' } }) }
+            if (filter.paymentMethods.indexOf('Coopy') > -1) { where.offer.$or.push({ paymentMethod: { $eq: 'Coopy' } }) }
+        }
+        if (filter.lowerPrice && filter.upperPrice) {
+            where.offerPrice = {
+                $and: {
+                    price: { $lt: filter.upperPrice, $gt: filter.lowerPrice },
+                    //frequency: { $in: ['Hour', 'Session ', 'FinalProduct'] },
+                },
+            }
+        }
+        logger.info(`Where => ${JSON.stringify(where)}`)*/
         return where
     }
 

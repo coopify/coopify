@@ -105,6 +105,13 @@ function processQueryInput(queryParams: any): IServiceFilter {
             filters.exchangeMethods = [exchangeMethods]
         }
     }
+    if (categories) {
+        if (categories  instanceof Array) {
+            filters.categories = categories
+        } else {
+            filters.categories = [categories]
+        }
+    }
 
     return filters
 }
