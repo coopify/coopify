@@ -1,9 +1,13 @@
-import { User, UserAttributes, UserUpateAttributes, Offer, OfferAttributes, Category,
+import {
+    User, UserAttributes, UserUpateAttributes, Offer, OfferAttributes, Category,
     CategoryAttributes, CategoryUpdateAttributes, OfferCategory, OfferCategoryAttributes, IServiceFilter, Message, MessageAttributes,
-    Conversation, ConversationAttributes } from './sequelize'
+    Conversation, ConversationAttributes, Question, QuestionAttributes, QuestionUpdateAttributes,
+} from './sequelize'
 
-export const seqModels = [User, Offer, Category, OfferCategory, Message, Conversation]
+export const seqModels = [User, Offer, Category, OfferCategory, Message, Conversation, Question]
 
-export { User, UserAttributes, UserUpateAttributes, OfferAttributes, Offer, Category,
+export {
+    User, UserAttributes, UserUpateAttributes, OfferAttributes, Offer, Category,
     CategoryAttributes, CategoryUpdateAttributes, OfferCategory, OfferCategoryAttributes, IServiceFilter, Message, MessageAttributes,
-    Conversation, ConversationAttributes }
+    Conversation, ConversationAttributes, Question, QuestionAttributes, QuestionUpdateAttributes,
+}
