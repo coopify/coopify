@@ -1,5 +1,5 @@
-import { User, UserAttributes, UserUpateAttributes, Offer, OfferAttributes, OfferPrice, OfferPriceAttributes, Category, CategoryAttributes, CategoryUpdateAttributes, OfferCategory, OfferCategoryAttributes, IServiceFilter } from './sequelize'
+import { User, UserAttributes, UserUpateAttributes, Offer, OfferAttributes, Category, CategoryAttributes, CategoryUpdateAttributes, OfferCategory, OfferCategoryAttributes, IServiceFilter } from './sequelize'
 
-export const seqModels = [User, Offer, OfferPrice, Category, OfferCategory]
+export const seqModels = [User, Offer, Category, OfferCategory]
 
-export { User, UserAttributes, UserUpateAttributes, OfferPrice, OfferAttributes, OfferPriceAttributes, Offer, Category, CategoryAttributes, CategoryUpdateAttributes, OfferCategory, OfferCategoryAttributes, IServiceFilter }
+export { User, UserAttributes, UserUpateAttributes, OfferAttributes, Offer, Category, CategoryAttributes, CategoryUpdateAttributes, OfferCategory, OfferCategoryAttributes, IServiceFilter }
