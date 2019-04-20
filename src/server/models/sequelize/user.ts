@@ -1,5 +1,6 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, AfterCreate } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, AfterCreate, HasMany } from 'sequelize-typescript'
 import { rdb } from '../../services'
+import { Conversation } from './conversation';
 
 interface IAttributes {
     email: string
@@ -142,6 +143,12 @@ class User extends Model<User> {
 
     @Column(DataType.STRING)
     public FBId
+
+    @HasMany(() => Conversation, 'fromId')
+    public fromConversations
+
+    @HasMany(() => Conversation, 'toId')
+    public toConversations
 
 }
 
