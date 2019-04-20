@@ -28,11 +28,11 @@ module.exports = {
                 onDelete: 'cascade'
             },
             text: {
-                type: Sequelize.STRING,
+                type: Sequelize.TEXT,
                 allowNull: false,
             },
             response: {
-                type: Sequelize.STRING,
+                type: Sequelize.TEXT,
                 allowNull: true,
             },
             createdAt: {

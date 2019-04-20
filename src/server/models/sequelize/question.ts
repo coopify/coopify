@@ -4,14 +4,14 @@ import { ErrorPayload } from '../../errorPayload'
 import { User } from './user'
 
 interface IAttributes {
-    authorId: number
+    authorId: string
     offerId: string
     text: string
     response?: string
 }
 
 interface IUpdateAttributes {
-    response?: string
+    response: string
 }
 
 @Table({ timestamps: true })
@@ -21,8 +21,13 @@ class Question extends Model<Question> {
         return this.findById<Question>(id)
     }
 
-    public static async getManyAsync(where: any): Promise<Question[] | null> {
-        return this.findAll<Question>({ where })
+    public static async getManyAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Question[], count: number } | null> {
+        return this.findAndCount<Question>({
+            where,
+            limit,
+            offset: skip,
+            order: [['createdAt', 'ASC']],
+        })
     }
 
     public static async getOneAsync(where: any): Promise<Question | null> {

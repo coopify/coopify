@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
-import { OfferInterface } from '../interfaces'
+import { OfferInterface, QuestionInterface } from '../interfaces'
 import { logger } from '../services'
-import { IServiceFilter, Offer } from '../models'
+import { IServiceFilter, Offer, Question } from '../models'
 import { ErrorPayload } from '../errorPayload'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
@@ -40,6 +40,22 @@ export async function getListAsync(request: Request, response: Response) {
         if (!offers) { throw new ErrorPayload(500, 'Failed to get offers') }
         const bodyResponse = { offers: offers.rows.map((o) => Offer.toDTO(o)), count: offers.count }
         response.status(200).json(bodyResponse)
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
+export async function getQuestionsListAsync(request: Request, response: Response) {
+    try {
+        let { limit, skip } = request.query
+        if (limit) { limit = parseInt(limit) }
+        if (skip) { skip = parseInt(skip) }
+        if (limit && skip) { skip = limit * skip }
+        const offerQuestions = await QuestionInterface.findAsync({ offerId: response.locals.offer.id }, limit, skip)
+        if (offerQuestions) {
+            const bodyResponse = { questions: offerQuestions.rows.map((q) => Question.toDTO(q)), count: offerQuestions.count }
+            response.status(200).json(bodyResponse)
+        }
     } catch (error) {
         handleError(error, response)
     }
@@ -102,7 +118,7 @@ function processQueryInput(queryParams: any): IServiceFilter {
         }
     }
     if (exchangeMethods) {
-        if (exchangeMethods  instanceof Array) {
+        if (exchangeMethods instanceof Array) {
             filters.exchangeMethods = exchangeMethods
         } else {
             filters.exchangeMethods = [exchangeMethods]

@@ -1,5 +1,5 @@
 import { factory } from 'factory-girl'
-import { User, UserAttributes, Offer, OfferAttributes, CategoryAttributes, Category } from '../../src/server/models'
+import { User, UserAttributes, Offer, OfferAttributes, Category, CategoryAttributes, Question, QuestionAttributes } from '../../src/server/models'
 
 factory.define('user', User, {
     email: factory.seq('User.email', (n) => `user${n}@example.com`),
@@ -19,8 +19,20 @@ factory.define('category', Category, {
     deleted: false,
 })
 
+factory.define('question', Question, {
+    authorId: factory.assoc('user', 'id'),
+    offerId: factory.assoc('offer', 'id'),
+    text: 'Some question here',
+})
+
 const createUser: UserAttributes = {
     email: 'sdfs@test.com',
+    password: 'cdelsur',
+    pictureURL: 'http://codigo.com',
+}
+
+const createUser2: UserAttributes = {
+    email: 'sdfs2@test.com',
     password: 'cdelsur',
     pictureURL: 'http://codigo.com',
 }
@@ -41,4 +53,10 @@ const createCategory: CategoryAttributes = {
     deleted: false,
 }
 
-export { factory, createUser, createOffer, createCategory }
+const createQuestion: QuestionAttributes = {
+    authorId: 'someId',
+    offerId: 'someOfferId',
+    text: 'Some text associated',
+}
+
+export { factory, createUser, createUser2, createOffer, createCategory, createQuestion }
