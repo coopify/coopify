@@ -6,10 +6,12 @@ import * as config from '../../../config'
 import { FacebookService } from './facebook'
 import { sendgrid } from './sendgrid'
 import { Blockchain } from './blockchain'
+import { PusherService } from './pusher'
 
 let facebook: FacebookService
 let logger: Logger
 let blockchain: Blockchain
+let pusher: PusherService
 
 export async function initExternalServices() {
 
@@ -50,6 +52,14 @@ export async function initExternalServices() {
     await sendgrid.initAsync(config.sendgrid.apikey)
 
     blockchain = new Blockchain(config.blockchain)
+
+    pusher = new PusherService({
+        appId: config.pusher.appId,
+        cluster: config.pusher.cluster,
+        useTLS: true,
+        key: config.pusher.apikey,
+        secret: config.pusher.secret,
+    })
 }
 
 /*
@@ -62,4 +72,4 @@ export function initWLogger() {
     logger = new Logger(logLevel)
 }
 
-export { logger, redisCache, rdb, facebook, googleAuth, sendgrid, blockchain }
+export { logger, redisCache, rdb, facebook, googleAuth, sendgrid, blockchain, pusher }
