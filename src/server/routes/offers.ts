@@ -5,6 +5,7 @@ const offerRoutes = Router()
 
 offerRoutes.get('/', offersController.getListAsync)
 offerRoutes.get('/:offerId', offersController.getOneAsync)
+offerRoutes.get('/questions/:offerId', offersController.getQuestionsListAsync)
 
 offerRoutes.post('/', usersController.authenticate, offersController.createAsync)
 

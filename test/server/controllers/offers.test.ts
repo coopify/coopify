@@ -4,7 +4,7 @@ import * as supertest from 'supertest'
 import * as _ from 'lodash'
 import { logInUser } from './helpers'
 import { app } from '../../../src/server'
-import { factory, createUser, createOffer, createCategory } from '../factory'
+import { factory, createUser, createOffer, createCategory, createQuestion } from '../factory'
 import { logger } from '../../../src/server/services'
 
 const request = supertest(app)
@@ -65,6 +65,46 @@ describe('Offer Tests', async () => {
             it('Should get an empty offer list', async () => {
                 const res = await request.get('/api/offers/').expect(200)
                 expect(res.body.offers.length).to.eq(15)
+            })
+        })
+        context('Pagination offer questions tests', async () => {
+            let offer, user, createOfferClone
+            beforeEach(async () =>  {
+                user = await factory.create('user', createUser)
+                createOfferClone = _.cloneDeep(createOffer)
+                createOfferClone.userId = user.id
+                offer = await factory.create('offer', createOfferClone)
+                for (let index = 0; index < 15; index++) {
+                    const createQuestionClone = _.cloneDeep(createQuestion)
+                    createQuestionClone.authorId = user.id
+                    createQuestionClone.offerId = offer.id
+                    createQuestionClone.text = 'Test question ' + index + 1
+                    await factory.create('question', createQuestionClone)
+                }
+            })
+            it('Should get the offer question list with five elements', async () => {
+                const res = await request.get(`/api/offers/questions/${offer.id}/?limit=5&skip=0`).expect(200)
+                expect(res.body.questions.length).to.eq(5)
+                expect(res.body.count).to.eq(15)
+            })
+            it('Should get the offer question list with five elements', async () => {
+                const res = await request.get(`/api/offers/questions/${offer.id}/?limit=5&skip=2`).expect(200)
+                expect(res.body.questions.length).to.eq(5)
+                expect(res.body.count).to.eq(15)
+            })
+            it('Should get the offer questionlist with none element', async () => {
+                const res = await request.get(`/api/offers/questions/${offer.id}/?limit=5&skip=4`).expect(200)
+                expect(res.body.questions.length).to.eq(0)
+                expect(res.body.count).to.eq(15)
+            })
+            it('Should get the offer question list with seven elements', async () => {
+                const res = await request.get(`/api/offers/questions/${offer.id}/?limit=8&skip=1`).expect(200)
+                expect(res.body.questions.length).to.eq(7)
+                expect(res.body.count).to.eq(15)
+            })
+            it('Should get a complete question offer list', async () => {
+                const res = await request.get(`/api/offers/questions/${offer.id}`).expect(200)
+                expect(res.body.questions.length).to.eq(15)
             })
         })
     })
