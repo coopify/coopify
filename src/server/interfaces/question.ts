@@ -54,7 +54,6 @@ export async function updateAsync(question: Question, body: QuestionUpdateAttrib
     try {
         const questionInstance = await Question.updateAsync(question.id, body)
         if (!questionInstance) { throw new ErrorPayload(500, 'Failed to update a question') }
-
         return questionInstance
     } catch (error) {
         logger.error(new Error(error))

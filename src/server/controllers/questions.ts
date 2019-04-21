@@ -70,7 +70,7 @@ export async function updateAsync(request: Request, response: Response, next: Ne
         const ownerQuestionUser = await QuestionInterface.getAsync(questionToUpdate.id)
 
         if (ownerQuestionUser && response.locals.loggedUser.id === ownerQuestionUser.authorId) {
-            const attributes = request.body.attributes.response
+            const attributes = request.body.attributes
             if (!attributes) { throw new ErrorPayload(403, 'Missing required data') }
             const question = await QuestionInterface.updateAsync(questionToUpdate, attributes)
             if (question) {
