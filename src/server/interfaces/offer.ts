@@ -1,4 +1,4 @@
-import { Offer, OfferAttributes, OfferCategory, OfferCategoryAttributes, OfferPrice, IServiceFilter } from '../models'
+import { Offer, OfferAttributes, OfferCategory, IServiceFilter } from '../models'
 import { validateStatus, validatePaymentMethod } from './helpers'
 import { logger } from '../services'
 import { ErrorPayload } from '../errorPayload'
@@ -44,12 +44,6 @@ export async function createAsync(body: OfferAttributes): Promise<Offer | null> 
         //TODO in future: validate categories
         const offerInstance = await Offer.createAsync(body)
         if (!offerInstance) { throw new ErrorPayload(500, 'Failed to create offer') }
-        if (body.prices) {
-            await Promise.all(body.prices.map(async (p) => {
-                p.offerId = offerInstance.id
-                await OfferPrice.createAsync(p)
-            }))
-        }
         if (body.categories) {
             await Promise.all(body.categories.map(async (c) => {
                 const cat = await CategoryInterface.findOneAsync({ name: c })
@@ -57,7 +51,6 @@ export async function createAsync(body: OfferAttributes): Promise<Offer | null> 
                 await OfferCategory.createAsync({ categoryId: cat.id, offerId: offerInstance.id })
             }))
         }
-
         return getAsync(offerInstance.id)
     } catch (error) {
         logger.error(new Error(error))

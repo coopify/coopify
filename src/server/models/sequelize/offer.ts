@@ -1,6 +1,5 @@
 import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo, BelongsToMany } from 'sequelize-typescript'
 import { User } from './user'
-import { OfferPrice, IAttributes as OfferPriceAttributes } from './offerPrice'
 import { OfferCategory } from './offerCategory'
 import { Category } from './category'
 
@@ -11,11 +10,13 @@ interface IAttributes {
     images: Array<{ url: string, default: boolean }>
     categories?: string[]
     paymentMethod: 'Coopy' | 'Exchange'
+    exchangeInstances: string[]
     startDate: Date
     finishDate?: Date
+    hourPrice?: number
+    sessionPrice?: number
+    finalProductPrice?: number
     status: 'Started' | 'Paused'
-    //tslint:disable:array-type
-    prices?: Array<OfferPriceAttributes>
 }
 
 interface IServiceFilter {
@@ -34,7 +35,6 @@ class Offer extends Model<Offer> {
     public static async getAsync(id: string): Promise<Offer | null> {
         return this.findById<Offer>(id, {
             include: [
-                { model: OfferPrice },
                 { model: User },
                 { model: Category },
             ],
@@ -45,11 +45,9 @@ class Offer extends Model<Offer> {
         const seqFilter = this.transformFilter(filter)
         return this.findAndCount<Offer>({
             where: seqFilter.offer, include: [
-                { model: OfferPrice, where: seqFilter.offerPrice, required: false },
                 { model: User },
-                { model: Category, where: seqFilter.categories, required: false },
+                { model: Category, where: seqFilter.categories, required: seqFilter.categories ? true : false },
             ],
-            ['distinct' as any]: true,
             limit,
             offset: skip,
             order: seqFilter.order,
@@ -58,11 +56,7 @@ class Offer extends Model<Offer> {
 
     public static async getOneAsync(filter: IServiceFilter): Promise<Offer | null> {
         const seqFilter = this.transformFilter(filter)
-        return this.findOne<Offer>({
-            where: seqFilter.offer, include: [{
-                model: OfferPrice,
-            }],
-        })
+        return this.findOne<Offer>({ where: seqFilter.offer })
     }
 
     public static async createAsync(params: IAttributes): Promise<Offer> {
@@ -82,51 +76,67 @@ class Offer extends Model<Offer> {
             startDate: offer.startDate,
             finishDate: offer.finishDate,
             status: offer.status,
-            prices: offer.prices ? offer.prices.map((price) => OfferPrice.toDTO(price)) : [],
-            by: offer.by.email, //TODO: Change this to name
+            by: offer.by.name,
+            hourPrice: offer.hourPrice,
+            sessionPrice: offer.sessionPrice,
+            finalProductPrice: offer.finalProductPrice,
         }
     }
-
-    private static transformFilter(filter: IServiceFilter): { offer?: any, offerPrice?: any, categories?: any, order: Array<Array<string>> } {
-        const where: { offer?: any, offerPrice?: any, categories?: any, order: Array<Array<string>> } = { offer: {}, offerPrice: {}, order: new Array(), categories: {} }
-        if (filter.name) {
-            where.offer.title = { $ilike: `%${filter.name}%` }
-            where.offer.description = { $ilike: `%${filter.name}%` }
+    //tslint:disable:array-type
+    private static transformFilter(filter: IServiceFilter): { offer?: any, categories?: any, order: Array<Array<string>> } {
+        const where: { offer?: any, categories?: any, order: Array<Array<string>> } = { offer: { $or: new Array() }, order: new Array(), categories: {} }
+        //tslint:enable:array-type
+        if (filter.name) { where.offer.$or = where.offer.$or.concat([ { title: { $ilike: `%${filter.name}%` } }, { description: { $ilike: `%${filter.name}%` } } ]) }
+        if (filter.paymentMethods) { where.offer.paymentMethod = { $eq: filter.paymentMethods[0] } }
+        let hourSelected, sessionSelected, finalProductSelected = -1
+        if (filter.exchangeMethods) {
+            hourSelected = filter.exchangeMethods.findIndex((s) => s === 'Hour')
+            sessionSelected = filter.exchangeMethods.findIndex((s) => s === 'Session')
+            finalProductSelected = filter.exchangeMethods.findIndex((s) => s === 'FinalProduct')
+            //where.offer.exchangeInstances = { $in: filter.exchangeMethods }
         }
-        if (filter.paymentMethods) { where.offer.paymentMethod = { $or: filter.paymentMethods } }
-        if (filter.lowerPrice) { where.offerPrice.price = { $gt: filter.lowerPrice } }
-        if (filter.upperPrice) { where.offerPrice.price = { $lt: filter.upperPrice } }
-        if (filter.lowerPrice && filter.upperPrice) { where.offerPrice.price = { $lt: filter.upperPrice, $gt: filter.lowerPrice } }
-        if (filter.exchangeMethods) { where.offerPrice.frequency = { $or: filter.exchangeMethods } }
-        if (filter.categories) { where.categories.name = { $in: filter.categories } }
+        if (filter.lowerPrice && filter.upperPrice) {
+            if (hourSelected > -1) { where.offer.hourPrice = { $lt: filter.upperPrice, $gt: filter.lowerPrice } }
+            if (sessionSelected > -1) { where.offer.sessionPrice = { $lt: filter.upperPrice, $gt: filter.lowerPrice } }
+            if (finalProductSelected > -1) { where.offer.finalProductPrice = { $lt: filter.upperPrice, $gt: filter.lowerPrice } }
+            if (hourSelected === -1 && sessionSelected === -1 && finalProductSelected === -1) {
+                where.offer.$or = where.offer.$or.concat([
+                    { hourPrice: { $lt: filter.upperPrice, $gt: filter.lowerPrice } },
+                    { sessionPrice: { $lt: filter.upperPrice, $gt: filter.lowerPrice } },
+                    { finalProductPrice: { $lt: filter.upperPrice, $gt: filter.lowerPrice },
+                }])
+            }
+        } else {
+            if (filter.lowerPrice) {
+                if (hourSelected > -1) { where.offer.hourPrice = { $gt: filter.lowerPrice } }
+                if (sessionSelected > -1) { where.offer.sessionPrice = { $gt: filter.lowerPrice } }
+                if (finalProductSelected > -1) { where.offer.finalProductPrice = { $gt: filter.lowerPrice } }
+                if (hourSelected === -1 && sessionSelected === -1 && finalProductSelected === -1) {
+                    where.offer.$or = where.offer.$or.concat([{ hourPrice: { $gt: filter.lowerPrice } }, { sessionPrice: { $gt: filter.lowerPrice } }, { finalProductPrice: { $gt: filter.lowerPrice } }])
+                }
+            }
+            if (filter.upperPrice) {
+                if (hourSelected > -1) { where.offer.hourPrice = { $lt: filter.upperPrice } }
+                if (sessionSelected > -1) { where.offer.sessionPrice = { $lt: filter.upperPrice } }
+                if (finalProductSelected > -1) { where.offer.finalProductPrice = { $lt: filter.upperPrice } }
+                if (hourSelected === -1 && sessionSelected === -1 && finalProductSelected === -1) {
+                    where.offer.$or = where.offer.$or.concat([{ hourPrice: { $lt: filter.upperPrice } }, { sessionPrice: { $lt: filter.upperPrice } }, { finalProductPrice: { $lt: filter.upperPrice } }])
+                }
+            }
+        }
+        if (filter.categories) { where.categories.name = { $in: filter.categories } } else { delete where.categories }
         switch (filter.orderBy) {
-            /*case 'price':
-                where.order = where.order.concat([['prices', 'DESC']])
+            case 'price':
+                where.order = where.order.concat([['hourPrice', 'DESC']])
                 break
-            case 'rating':
+            /*case 'rating':
                 where.order = where.order.concat([['rating', 'DESC']])
                 break*/
             default:
                 where.order = where.order.concat([['createdAt', 'DESC']])
                 break
         }
-        if (!where.offerPrice.price && !where.offerPrice.frequency) { delete where.offerPrice }
-        /*if (filter.paymentMethods) {
-            where.offer = {
-                $or: [],
-            }
-            if (filter.paymentMethods.indexOf('Exchange') > -1) { where.offer.$or.push({ paymentMethod: { $eq: 'Exchange' } }) }
-            if (filter.paymentMethods.indexOf('Coopy') > -1) { where.offer.$or.push({ paymentMethod: { $eq: 'Coopy' } }) }
-        }
-        if (filter.lowerPrice && filter.upperPrice) {
-            where.offerPrice = {
-                $and: {
-                    price: { $lt: filter.upperPrice, $gt: filter.lowerPrice },
-                    //frequency: { $in: ['Hour', 'Session ', 'FinalProduct'] },
-                },
-            }
-        }
-        logger.info(`Where => ${JSON.stringify(where)}`)*/
+        if (where.offer && where.offer.$or.length === 0) { delete where.offer.$or }
         return where
     }
 
@@ -165,11 +175,24 @@ class Offer extends Model<Offer> {
     @Column(DataType.DATE)
     public finishDate
 
+    @AllowNull(true)
+    @Column(DataType.ARRAY(DataType.STRING))
+    public exchangeInstances
+
+    @AllowNull(true)
+    @Column(DataType.INTEGER)
+    public hourPrice
+
+    @AllowNull(true)
+    @Column(DataType.INTEGER)
+    public sessionPrice
+
+    @AllowNull(true)
+    @Column(DataType.INTEGER)
+    public finalProductPrice
+
     @Column(DataType.STRING)
     public status
-
-    @HasMany(() => OfferPrice)
-    public prices
 
     @BelongsTo(() => User)
     public by
