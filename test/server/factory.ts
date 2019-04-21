@@ -32,6 +32,8 @@ const createOffer: OfferAttributes = {
     startDate: new Date(Date.now()),
     status: 'Started',
     title: 'Some offer',
+    exchangeInstances: ['Hour'],
+    hourPrice: 10,
 }
 
 const createCategory: CategoryAttributes = {
