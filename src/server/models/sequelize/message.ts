@@ -34,6 +34,7 @@ class Message extends Model<Message> {
             authorId: message.authorId,
             text: message.text,
             conversationId: message.conversationId,
+            createdAt: message.createdAt,
         }
     }
 

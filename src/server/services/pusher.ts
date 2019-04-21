@@ -7,6 +7,7 @@ export interface IMessageFields {
     from: any,
     text: string,
     conversationId: string,
+    authorId: string,
 }
 
 interface IOptions {

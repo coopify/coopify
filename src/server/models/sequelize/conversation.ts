@@ -34,6 +34,7 @@ class Conversation extends Model<Conversation> {
             id: conversation.id,
             to: conversation.to ? User.toDTO(conversation.to) : conversation.toId,
             from: conversation.from ? User.toDTO(conversation.from) : conversation.fromId,
+            createdAt: conversation.createdAt,
         }
     }
 
