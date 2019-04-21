@@ -31,6 +31,9 @@ class Message extends Model<Message> {
     public static toDTO(message: Message) {
         return {
             id: message.id,
+            authorId: message.authorId,
+            text: message.text,
+            conversationId: message.conversationId,
         }
     }
 
