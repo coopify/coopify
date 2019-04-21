@@ -6,6 +6,7 @@ import { RedisConfigs } from './redis'
 import { FacebookConfigs } from './facebook'
 import { SendgridConfigs } from './sendgrid'
 import { BlockchainConfigs } from './blockchain'
+import { PusherConfigs } from './pusher'
 
 const wLogger = new LoggerConfigs()
 const server = new ServerConfigs()
@@ -15,6 +16,7 @@ const facebook = new FacebookConfigs()
 const googleConfis = new GoogleConfigs()
 const sendgrid = new SendgridConfigs()
 const blockchain = new BlockchainConfigs()
+const pusher = new PusherConfigs()
 
 export function validateAll() {
     return [
@@ -26,7 +28,8 @@ export function validateAll() {
         googleConfis.validate(),
         sendgrid.validate(),
         blockchain.validate(),
+        pusher.validate(),
       ].filter((x) => x.hasErrors)
 }
 
-export { wLogger, server, redis, rdb, facebook, googleConfis, sendgrid, blockchain }
+export { wLogger, server, redis, rdb, facebook, googleConfis, sendgrid, blockchain, pusher }
