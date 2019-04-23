@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { OfferInterface, QuestionInterface } from '../interfaces'
 import { logger } from '../services'
-import { IServiceFilter, Offer, Question } from '../models'
+import { IServiceFilter, Offer, Question, User } from '../models'
 import { ErrorPayload } from '../errorPayload'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
@@ -37,6 +37,23 @@ export async function getListAsync(request: Request, response: Response) {
         if (limit && skip) { skip = limit * skip }
         const filterParams = processQueryInput(request.query)
         const offers = await OfferInterface.findAsync(filterParams, limit, skip)
+        if (!offers) { throw new ErrorPayload(500, 'Failed to get offers') }
+        const bodyResponse = { offers: offers.rows.map((o) => Offer.toDTO(o)), count: offers.count }
+        response.status(200).json(bodyResponse)
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
+export async function getFromUserAsync(request: Request, response: Response) {
+    try {
+        const user: User | undefined = response.locals.user
+        if (!user) { throw new ErrorPayload(404, 'User not found') }
+        let { limit, skip } = request.query
+        if (limit) { limit = parseInt(limit) }
+        if (skip) { skip = parseInt(skip) }
+        if (limit && skip) { skip = limit * skip }
+        const offers = await OfferInterface.findAsync({ userId: user.id }, limit, skip)
         if (!offers) { throw new ErrorPayload(500, 'Failed to get offers') }
         const bodyResponse = { offers: offers.rows.map((o) => Offer.toDTO(o)), count: offers.count }
         response.status(200).json(bodyResponse)

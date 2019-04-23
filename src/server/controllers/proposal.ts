@@ -61,13 +61,16 @@ export async function createAsync(request: Request, response: Response) {
     try {
         const loggedUser: User = response.locals.loggedUser
         const conversation: Conversation = response.locals.conversation
-        const { offerId, exchangeMethod } = request.body
+        const { offerId, exchangeMethod, proposedServiceId, exchangeInstance, proposedPrice } = request.body
         if (!offerId || !exchangeMethod) { throw new ErrorPayload(400, 'Missing required data') }
 
         const proposal = await ProposalInterface.createAsync(loggedUser, {
             conversationId: conversation.id,
             exchangeMethod,
             offerId,
+            proposedPrice,
+            exchangeInstance,
+            proposedServiceId,
             status: 'Waiting',
         })
 

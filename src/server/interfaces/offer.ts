@@ -15,7 +15,7 @@ export async function getAsync(id: string): Promise<Offer | null> {
     }
 }
 
-export async function findAsync(where: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
+export async function findAsync(where: IServiceFilter | any, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
     try {
         const offerInstances = await Offer.getManyAsync(where, limit, skip)
 
