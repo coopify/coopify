@@ -31,7 +31,7 @@ export async function getListAsync(request: Request, response: Response) {
     try {
         const loggedUser: User | null = response.locals.loggedUser
         if (!loggedUser) { throw new ErrorPayload(401, 'Unauthorized you need to provide a valid token') }
-        const conversations = await ConversationInterface.findAsync({ fromId: loggedUser.id, toId: loggedUser.id })
+        const conversations = await ConversationInterface.findAsync({ $or: [{ fromId: loggedUser.id }, { toId: loggedUser.id }] })
         if (!conversations) { throw new ErrorPayload(500, 'Failed to get conversations') }
 
         response.status(200).json({ conversations: conversations.map((c) => Conversation.toDTO(c)) })

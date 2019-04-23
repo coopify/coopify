@@ -65,6 +65,7 @@ export async function createAsync(request: Request, response: Response) {
             to,
             conversationId: conversation.id,
             text: message.text,
+            authorId: loggedUser.id,
         })
 
         if (!message) { throw new ErrorPayload(500, 'Failed to create a new category') }

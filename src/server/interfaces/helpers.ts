@@ -19,6 +19,13 @@ export function validateStatus(status: string) {
     }
 }
 
+export function validateProposalStatus(status: string) {
+    //'Waiting' | 'Rejected' | 'Confirmed'
+    if (status !== 'Waiting' && status !== 'Rejected' && status !== 'Confirmed') {
+        throw new ErrorPayload(400, 'Invalid status')
+    }
+}
+
 export function validatePaymentMethod(paymentMethod: string) {
     if (paymentMethod !== 'Coopy' && paymentMethod !== 'Exchange' ) {
         throw new ErrorPayload(400, 'Invalid payment method')
@@ -28,5 +35,13 @@ export function validatePaymentMethod(paymentMethod: string) {
 export function validateFrecuency(frequency: string) {
     if (frequency !== 'Hour' && frequency !== 'Session' && frequency !== 'FinalProduct' ) {
         throw new ErrorPayload(400, 'Invalid frecuency type')
+    }
+}
+
+export function handleError(error: Error | ErrorPayload): ErrorPayload {
+    if (error instanceof ErrorPayload) {
+        return error
+    } else {
+        return new ErrorPayload(500, 'Something went wrong', error)
     }
 }
