@@ -1,5 +1,5 @@
 import { Proposal, ProposalAttributes, User, Conversation } from '../models'
-import { validateStatus, handleError } from './helpers'
+import { validateProposalStatus, handleError } from './helpers'
 import { ErrorPayload } from '../errorPayload'
 import { OfferInterface, ConversationInterface } from '.'
 
@@ -45,7 +45,7 @@ export async function createAsync(user: User, body: ProposalAttributes): Promise
             const proposedOffer = await OfferInterface.getAsync(body.proposedServiceId)
             if (!proposedOffer) { throw new ErrorPayload(404, 'Offer not found') }
         }
-        if (body.status) { validateStatus(body.status) }
+        if (body.status) { validateProposalStatus(body.status) }
         const offer = await OfferInterface.getAsync(body.offerId)
         if (!offer) { throw new ErrorPayload(404, 'Offer not found') }
         if (offer.userId === user.id) { throw new ErrorPayload(401, 'You cant buy one of your services') }
