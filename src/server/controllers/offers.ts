@@ -36,7 +36,7 @@ export async function getListAsync(request: Request, response: Response) {
         if (skip) { skip = parseInt(skip) }
         if (limit && skip) { skip = limit * skip }
         const filterParams = processQueryInput(request.query)
-        const offers = await OfferInterface.findAsync(filterParams, limit, skip)
+        const offers = await OfferInterface.findFilteredAsync(filterParams, limit, skip)
         if (!offers) { throw new ErrorPayload(500, 'Failed to get offers') }
         const bodyResponse = { offers: offers.rows.map((o) => Offer.toDTO(o)), count: offers.count }
         response.status(200).json(bodyResponse)

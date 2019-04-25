@@ -41,7 +41,7 @@ class Offer extends Model<Offer> {
         })
     }
 
-    public static async getManyAsync(filter: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
+    public static async getFilteredAsync(filter: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
         const seqFilter = this.transformFilter(filter)
         return this.findAndCount<Offer>({
             where: seqFilter.offer, include: [
@@ -51,6 +51,17 @@ class Offer extends Model<Offer> {
             limit,
             offset: skip,
             order: seqFilter.order,
+        })
+    }
+
+    public static async getManyAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
+        return this.findAndCount<Offer>({
+            where, include: [
+                { model: User },
+                { model: Category },
+            ],
+            limit,
+            offset: skip,
         })
     }
 

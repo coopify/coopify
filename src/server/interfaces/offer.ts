@@ -15,7 +15,18 @@ export async function getAsync(id: string): Promise<Offer | null> {
     }
 }
 
-export async function findAsync(where: IServiceFilter | any, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
+export async function findFilteredAsync(where: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
+    try {
+        const offerInstances = await Offer.getFilteredAsync(where, limit, skip)
+
+        return offerInstances
+    } catch (error) {
+        logger.error(new Error(error) + JSON.stringify(error))
+        throw error
+    }
+}
+
+export async function findAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
     try {
         const offerInstances = await Offer.getManyAsync(where, limit, skip)
 
