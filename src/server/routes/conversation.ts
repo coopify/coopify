@@ -9,6 +9,6 @@ offerRoutes.get('/:conversationId', conversationController.getOneAsync)
 offerRoutes.post('/', usersController.authenticate, conversationController.createAsync)
 
 offerRoutes.param('offerId', conversationController.loadAsync)
-offerRoutes.param('conversarionId', conversationController.loadAsync)
+offerRoutes.param('conversationId', conversationController.loadAsync)
 
 export default offerRoutes
