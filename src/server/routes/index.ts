@@ -5,6 +5,7 @@ import categoryRoutes from './categories'
 import conversationRoutes from './conversation'
 import messageRoutes from './message'
 import questionRoutes from './questions'
+import proposalRoutes from './proposal'
 import { loadLoggedUser } from '../controllers/users'
 
 const router = Router()
@@ -17,5 +18,6 @@ router.use('/categories', categoryRoutes)
 router.use('/conversations', conversationRoutes)
 router.use('/messages', messageRoutes)
 router.use('/questions', questionRoutes)
+router.use('/proposals', proposalRoutes)
 
 export { router }
