@@ -73,7 +73,7 @@ describe('Questions Tests', async () => {
             it('Should not update the question due to an empty response', async () => {
                 const res = await request.put(`/api/questions/${questionId}`).set('Authorization', `bearer ${token}`)
                     .send({ attributes: { response: '' } }).expect(403)
-                expect(res.body.message).to.eq('Missing required data')
+                expect(res.body.message).to.eq('Should provide a response')
             })
             it('Should not update the question due to not be the offer ownership', async () => {
                 const user2 = await factory.create('user', createUser2)
