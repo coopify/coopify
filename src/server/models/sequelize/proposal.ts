@@ -14,6 +14,7 @@ interface IAttributes {
     exchangeInstance?: 'Hour' | 'Session' | 'FinalProduct'
     proposedPrice?: number
     proposedServiceId?: string
+    proposedService?: Offer
     status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed' | 'Cancelled'
 }
 
@@ -22,6 +23,7 @@ interface IUpdateAttributes {
     exchangeInstance?: 'Hour' | 'Session' | 'FinalProduct'
     proposedPrice?: number
     proposedServiceId?: string
+    proposedService?: Offer
     status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed' | 'Cancelled'
 }
 
@@ -61,8 +63,11 @@ class Proposal extends Model<Proposal> {
         return {
             id: proposal.id,
             offerId: proposal.offerId,
+            proposerId: proposal.proposerId,
             conversationId: proposal.conversationId,
             exchangeMethod: proposal.exchangeMethod,
+            purchasedOffer: proposal.purchasedOffer ? Offer.toDTO(proposal.purchasedOffer) : undefined,
+            proposedService: proposal.proposedService ? Offer.toDTO(proposal.proposedService) : undefined,
             exchangeInstance: proposal.exchangeInstance,
             proposedPrice: proposal.proposedPrice,
             proposedServiceId: proposal.proposedServiceId,
