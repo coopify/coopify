@@ -1,9 +1,17 @@
 import { logger } from '../services'
 import * as rp from 'request-promise'
+import { User, Offer, Proposal } from '../models'
 
 export interface IOptions {
     route: string
     port: string
+}
+
+export interface ITransfer {
+    from: User
+    to: User
+    offer: Offer
+    proposal: Proposal
 }
 
 export class Blockchain {
@@ -64,6 +72,24 @@ export class Blockchain {
             return res
         }).catch((err) => {
             logger.error(`Failed to obtain the transactions of the user  ${userId} - ${JSON.stringify(err)}`)
+        })
+        return transactions
+    }
+
+    public transfer(body: ITransfer): void {
+        const transactions = rp({
+            uri: `${this.options.route}:${this.options.port}/api/transfer`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body,
+            json: true,
+        }).then((res) => {
+            logger.info(`Made a payment for user => ${'user'}`)
+            return res
+        }).catch((err) => {
+            logger.error(`Failed to make a payment - ${JSON.stringify(err)}`)
         })
         return transactions
     }

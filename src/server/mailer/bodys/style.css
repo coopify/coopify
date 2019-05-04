@@ -1,0 +1,51 @@
+body {
+    background-color: #f9f9f9;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.title {
+    color: #7f7f7f;
+    text-align: center;
+    font-size: 28px;
+}
+
+.amount {
+    color: #07cc59;
+    font-size: 26px;
+    text-align: center;
+}
+
+.location {
+    color: #7f7f7f;
+    text-align: center;
+    font-size: 24px;
+}
+
+.address {
+    color: #7f7f7f;
+    text-align: center;
+    font-size: 22px;
+}
+
+.row {
+    display: flex;
+    color: #7f7f7f;
+    font-size: 16px;
+    padding: 0 calc((100% - 400px)/2);
+    width: 100%;
+}
+
+.child {
+    width: 200px;
+    text-align: left;
+}
+
+.num {
+    width: 200px;
+    text-align: right;
+}
+
+.brand {
+    margin-right: 5px;
+}

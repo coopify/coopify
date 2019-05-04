@@ -1,9 +1,12 @@
 import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { Offer } from './offer'
+import { User } from './user'
 import { Conversation } from './conversation'
+import { ErrorPayload } from '../../errorPayload'
 
 interface IAttributes {
     offerId: string
+    proposerId: string
     purchasedOffer?: Offer
     conversationId: string
     conversation?: Conversation
@@ -11,7 +14,15 @@ interface IAttributes {
     exchangeInstance?: 'Hour' | 'Session' | 'FinalProduct'
     proposedPrice?: number
     proposedServiceId?: string
-    status: 'Waiting' | 'Rejected' | 'Confirmed'
+    status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed' | 'Cancelled'
+}
+
+interface IUpdateAttributes {
+    exchangeMethod: 'Coopy' | 'Exchange'
+    exchangeInstance?: 'Hour' | 'Session' | 'FinalProduct'
+    proposedPrice?: number
+    proposedServiceId?: string
+    status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed' | 'Cancelled'
 }
 
 @Table({ timestamps: true })
@@ -22,7 +33,13 @@ class Proposal extends Model<Proposal> {
     }
 
     public static async getManyAsync(where: any): Promise<Proposal[] | null> {
-        return this.findAll<Proposal>({ where })
+        return this.findAll<Proposal>({
+            where,
+            include: [
+                { model: Offer, as: 'purchasedOffer' },
+                { model: Offer, as: 'proposedService', required: false },
+            ],
+        })
     }
 
     public static async getOneAsync(where: any): Promise<Proposal | null> {
@@ -32,6 +49,12 @@ class Proposal extends Model<Proposal> {
     public static async createAsync(params: IAttributes): Promise<Proposal> {
         const proposal: Proposal = await new Proposal(params)
         return proposal.save()
+    }
+
+    public static async updateAsync(id: string, params: IUpdateAttributes): Promise<Proposal> {
+        const proposal = await this.getAsync(id)
+        if (!proposal) { throw (new ErrorPayload(404, 'Category not found')) }
+        return proposal.update(params)
     }
 
     public static toDTO(proposal: Proposal) {
@@ -56,6 +79,11 @@ class Proposal extends Model<Proposal> {
     @AllowNull(false)
     @Column(DataType.UUID)
     public offerId
+
+    @ForeignKey(() => User)
+    @AllowNull(false)
+    @Column(DataType.UUID)
+    public proposerId
 
     @ForeignKey(() => Conversation)
     @AllowNull(false)
@@ -94,4 +122,4 @@ class Proposal extends Model<Proposal> {
 
 }
 
-export { IAttributes, Proposal }
+export { IAttributes, Proposal, IUpdateAttributes }

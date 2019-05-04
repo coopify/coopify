@@ -138,7 +138,7 @@ describe('Offer Tests', async () => {
                 createOfferClone.userId = user.id
                 createCategoryClone = _.cloneDeep(createCategory)
                 const cat = await factory.create('category', createCategoryClone)
-                categoryId = cat.id
+                categoryId = cat.name
             })
             it('Should create the new offer', async () => {
                 const token = (await logInUser(user)).accessToken
@@ -165,9 +165,8 @@ describe('Offer Tests', async () => {
                 const res = await request.post('/api/offers/').set('Authorization', `bearer ${token}`)
                     .send(createOfferClone).expect(200)
                 expect(res.body.offer.userId).to.eq(createOfferClone.userId)
-                expect(res.body.offer.categories[0].id).to.eq(categoryId)
+                expect(res.body.offer.categories[0].name).to.eq(categoryId)
                 expect(res.body.offer.status).to.eq(createOfferClone.status)
-                expect(res.body.offer.categories[0].id).to.eq(createOfferClone.categories[0])
             })
         })
     })

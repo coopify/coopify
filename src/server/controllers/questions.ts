@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { QuestionInterface } from '../interfaces'
 import { logger } from '../services'
-import { Question } from '../models'
+import { Question, QuestionUpdateAttributes } from '../models'
 import { ErrorPayload } from '../errorPayload'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
@@ -70,8 +70,9 @@ export async function updateAsync(request: Request, response: Response, next: Ne
         const ownerQuestionUser = await QuestionInterface.getAsync(questionToUpdate.id)
 
         if (ownerQuestionUser && response.locals.loggedUser.id === ownerQuestionUser.authorId) {
-            const attributes = request.body.attributes
+            const attributes: QuestionUpdateAttributes = request.body.attributes
             if (!attributes) { throw new ErrorPayload(403, 'Missing required data') }
+            if (attributes.response === '') { throw new ErrorPayload(403, 'Should provide a response') }
             const question = await QuestionInterface.updateAsync(questionToUpdate, attributes)
             if (question) {
                 response.status(200).json({ question: Question.toDTO(question) })

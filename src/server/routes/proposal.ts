@@ -9,6 +9,10 @@ proposalRoutes.get('/:proposalId', usersController.authenticate, proposalControl
 
 proposalRoutes.post('/:conversationId', usersController.authenticate, proposalController.createAsync)
 
+proposalRoutes.put('/:proposalId/accept', usersController.authenticate, proposalController.acceptAsync)
+proposalRoutes.put('/:proposalId/reject', usersController.authenticate, proposalController.rejectAsync)
+proposalRoutes.put('/:proposalId/cancel', usersController.authenticate, proposalController.cancelAsync)
+
 proposalRoutes.param('proposalId', proposalController.loadAsync)
 proposalRoutes.param('conversationId', conversationController.loadAsync)
 

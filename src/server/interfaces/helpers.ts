@@ -20,8 +20,8 @@ export function validateStatus(status: string) {
 }
 
 export function validateProposalStatus(status: string) {
-    //'Waiting' | 'Rejected' | 'Confirmed'
-    if (status !== 'Waiting' && status !== 'Rejected' && status !== 'Confirmed') {
+    //'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed'
+    if (status !== 'Waiting' && status !== 'Rejected' && status !== 'Confirmed' && status !== 'PaymentPending' && status !== 'PaymentFailed') {
         throw new ErrorPayload(400, 'Invalid status')
     }
 }
