@@ -87,7 +87,7 @@ class Offer extends Model<Offer> {
             startDate: offer.startDate,
             finishDate: offer.finishDate,
             status: offer.status,
-            by: offer.by.name,
+            by: offer.by ? offer.by.name : undefined,
             hourPrice: offer.hourPrice,
             sessionPrice: offer.sessionPrice,
             finalProductPrice: offer.finalProductPrice,
