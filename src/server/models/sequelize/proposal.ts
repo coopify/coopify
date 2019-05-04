@@ -6,7 +6,7 @@ import { ErrorPayload } from '../../errorPayload'
 
 interface IAttributes {
     offerId: string
-    offererId: string
+    proposerId: string
     purchasedOffer?: Offer
     conversationId: string
     conversation?: Conversation
@@ -83,7 +83,7 @@ class Proposal extends Model<Proposal> {
     @ForeignKey(() => User)
     @AllowNull(false)
     @Column(DataType.UUID)
-    public offererId
+    public proposerId
 
     @ForeignKey(() => Conversation)
     @AllowNull(false)

@@ -67,7 +67,7 @@ export async function createAsync(request: Request, response: Response) {
         if (!offerId || !exchangeMethod) { throw new ErrorPayload(400, 'Missing required data') }
 
         const proposal = await ProposalInterface.createAsync(loggedUser, {
-            offererId: loggedUser.id,
+            proposerId: loggedUser.id,
             conversationId: conversation.id,
             exchangeMethod,
             offerId,
@@ -91,7 +91,7 @@ export async function acceptAsync(request: Request, response: Response) {
         const conversation: Conversation = proposal.conversation
         if (proposal.status !== 'Waiting') { throw new ErrorPayload(400, 'You cant accept this proposal due to its state') }
         if (loggedUser.id !== conversation.fromId && loggedUser.id !== conversation.toId) { throw new ErrorPayload(400, 'Cant accept another user proposal') }
-        if (proposal.offererId === loggedUser.id) { throw new ErrorPayload(400, 'You cant propose and accept a proposal') }
+        if (proposal.proposerId === loggedUser.id) { throw new ErrorPayload(400, 'You cant propose and accept a proposal') }
         const from = await UserInterface.getAsync(proposal.conversation.fromId)
         const to = await UserInterface.getAsync(proposal.conversation.toId)
         const offer = await OfferInterface.getAsync(proposal.purchasedOffer.toId)
@@ -114,7 +114,7 @@ export async function rejectAsync(request: Request, response: Response) {
         const conversation: Conversation = proposal.conversation
         if (proposal.status !== 'Waiting') { throw new ErrorPayload(400, 'You cant reject this proposal due to its state') }
         if (loggedUser.id !== conversation.fromId && loggedUser.id !== conversation.toId) { throw new ErrorPayload(400, 'Cant reject another user proposal') }
-        if (proposal.offererId === loggedUser.id) { throw new ErrorPayload(400, 'You cant propose and reject a proposal') }
+        if (proposal.proposerId === loggedUser.id) { throw new ErrorPayload(400, 'You cant propose and reject a proposal') }
         const updatedProposal = await ProposalInterface.updateAsync(proposal.id, { ...proposal, status: 'Rejected' })
         //avisarle al otro usuario de la conversa
         proposalStatusChangedEmail({ email: loggedUser.email, name: loggedUser.name, state: 'Rejected' })
@@ -131,7 +131,7 @@ export async function cancelAsync(request: Request, response: Response) {
         const conversation: Conversation = proposal.conversation
         if (proposal.status !== 'Waiting') { throw new ErrorPayload(400, 'You cant cancel this proposal due to its state') }
         if (loggedUser.id !== conversation.fromId && loggedUser.id !== conversation.toId) { throw new ErrorPayload(400, 'Cant cancel another user proposal') }
-        if (proposal.offererId !== loggedUser.id) { throw new ErrorPayload(400, 'You cant propose and reject a proposal') }
+        if (proposal.proposerId !== loggedUser.id) { throw new ErrorPayload(400, 'You cant propose and reject a proposal') }
         const updatedProposal = await ProposalInterface.updateAsync(proposal.id, { ...proposal, status: 'Cancelled' })
         //avisarle al otro usuario de la conversa
         proposalStatusChangedEmail({ email: loggedUser.email, name: loggedUser.name, state: 'Cancelled' })
