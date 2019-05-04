@@ -61,7 +61,7 @@ export async function createAsync(user: User, body: ProposalAttributes): Promise
     }
 }
 
-export async function updateAsync(id: string, body: ProposalUpdateAttributes): Promise<Proposal> {
+export async function updateAsync(proposal: Proposal, body: ProposalUpdateAttributes): Promise<Proposal> {
     try {
         if (body.exchangeMethod === 'Coopy') {
             if (!body.proposedPrice) { throw new ErrorPayload(400, 'Should provide a price') }
@@ -72,7 +72,7 @@ export async function updateAsync(id: string, body: ProposalUpdateAttributes): P
             if (!proposedOffer) { throw new ErrorPayload(404, 'Offer not found') }
         }
         if (body.status) { validateProposalStatus(body.status) }
-        const proposalInstance = await Proposal.updateAsync(id, body)
+        const proposalInstance = await Proposal.updateAsync(proposal, body)
         if (!proposalInstance) { throw new ErrorPayload(500, 'Failed to update proposal') }
         return proposalInstance
     } catch (error) {

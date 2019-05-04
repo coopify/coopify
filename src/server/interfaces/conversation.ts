@@ -3,10 +3,10 @@ import { logger } from '../services'
 import { ErrorPayload } from '../errorPayload'
 import { UserInterface } from '.'
 
-export async function getAsync(id: string): Promise<Conversation | null> {
+export async function getAsync(id: string): Promise<Conversation> {
     try {
         const conversationInstance = await Conversation.getAsync(id)
-
+        if (!conversationInstance) { throw new ErrorPayload(404, 'Conversation not found') }
         return conversationInstance
     } catch (error) {
         logger.error(new Error(error))
