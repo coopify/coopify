@@ -40,7 +40,9 @@ class Proposal extends Model<Proposal> {
             include: [
                 { model: Offer, as: 'purchasedOffer' },
                 { model: Offer, as: 'proposedService', required: false },
+                { model: User },
             ],
+            order: [['createdAt', 'DESC']],
         })
     }
 
@@ -53,10 +55,9 @@ class Proposal extends Model<Proposal> {
         return proposal.save()
     }
 
-    public static async updateAsync(id: string, params: IUpdateAttributes): Promise<Proposal> {
-        const proposal = await this.getAsync(id)
-        if (!proposal) { throw (new ErrorPayload(404, 'Category not found')) }
-        return proposal.update(params)
+    public static async updateAsync(proposal: Proposal, params: IUpdateAttributes): Promise<Proposal> {
+        const p = await proposal.update(params)
+        return p.save()
     }
 
     public static toDTO(proposal: Proposal) {
@@ -64,6 +65,7 @@ class Proposal extends Model<Proposal> {
             id: proposal.id,
             offerId: proposal.offerId,
             proposerId: proposal.proposerId,
+            proposer: User.toDTO(proposal.proposer),
             conversationId: proposal.conversationId,
             exchangeMethod: proposal.exchangeMethod,
             purchasedOffer: proposal.purchasedOffer ? Offer.toDTO(proposal.purchasedOffer) : undefined,
@@ -124,6 +126,9 @@ class Proposal extends Model<Proposal> {
 
     @BelongsTo(() => Offer, 'proposedServiceId')
     public proposedService
+
+    @BelongsTo(() => User)
+    public proposer
 
 }
 

@@ -3,7 +3,7 @@ import { ProposalInterface, ConversationInterface, UserInterface, OfferInterface
 import { handleError } from './helpers'
 import { Proposal, Conversation, User } from '../models'
 import { ErrorPayload } from '../errorPayload'
-import { blockchain } from '../services'
+import { blockchain, logger } from '../services'
 import { proposalStatusChangedEmail } from '../mailer'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
@@ -88,19 +88,24 @@ export async function acceptAsync(request: Request, response: Response) {
     try {
         const loggedUser: User = response.locals.loggedUser
         const proposal: Proposal = response.locals.proposal
-        const conversation: Conversation = proposal.conversation
         if (proposal.status !== 'Waiting') { throw new ErrorPayload(400, 'You cant accept this proposal due to its state') }
+        const conversation = await ConversationInterface.getAsync(proposal.conversationId)
         if (loggedUser.id !== conversation.fromId && loggedUser.id !== conversation.toId) { throw new ErrorPayload(400, 'Cant accept another user proposal') }
         if (proposal.proposerId === loggedUser.id) { throw new ErrorPayload(400, 'You cant propose and accept a proposal') }
-        const from = await UserInterface.getAsync(proposal.conversation.fromId)
-        const to = await UserInterface.getAsync(proposal.conversation.toId)
-        const offer = await OfferInterface.getAsync(proposal.purchasedOffer.toId)
+        const from = await UserInterface.getAsync(conversation.fromId)
+        const to = await UserInterface.getAsync(conversation.toId)
+        const offer = await OfferInterface.getAsync(proposal.offerId)
         if (!from || !to) { throw new ErrorPayload(404, 'User not found') }
         if (!offer) { throw new ErrorPayload(404, 'Offer not found') }
-        blockchain.transfer({ from, to, offer, proposal })
-        const updatedProposal = await ProposalInterface.updateAsync(proposal.id, { ...proposal, status: 'PaymentPending' })
+        if (offer.paymentMethod === 'Coopy') {
+            blockchain.transfer({ from, to, offer, proposal })
+            proposal.status = 'PaymentPending'
+        } else {
+            proposal.status = 'Confirmed'
+        }
+        const updatedProposal = await ProposalInterface.updateAsync(proposal, proposal)
         //avisarle al otro usuario de la conversa
-        proposalStatusChangedEmail({ email: loggedUser.email, name: loggedUser.name, state: 'Accepted' })
+        proposalStatusChangedEmail({ email: loggedUser.email, name: loggedUser.name, status: 'Accepted' })
         response.status(200).json({ proposal: Proposal.toDTO(updatedProposal) })
     } catch (error) {
         handleError(error, response)
@@ -111,13 +116,14 @@ export async function rejectAsync(request: Request, response: Response) {
     try {
         const loggedUser: User = response.locals.loggedUser
         const proposal: Proposal = response.locals.proposal
-        const conversation: Conversation = proposal.conversation
+        const conversation = await ConversationInterface.getAsync(proposal.conversationId)
         if (proposal.status !== 'Waiting') { throw new ErrorPayload(400, 'You cant reject this proposal due to its state') }
         if (loggedUser.id !== conversation.fromId && loggedUser.id !== conversation.toId) { throw new ErrorPayload(400, 'Cant reject another user proposal') }
         if (proposal.proposerId === loggedUser.id) { throw new ErrorPayload(400, 'You cant propose and reject a proposal') }
-        const updatedProposal = await ProposalInterface.updateAsync(proposal.id, { ...proposal, status: 'Rejected' })
+        proposal.status = 'Rejected'
+        const updatedProposal = await ProposalInterface.updateAsync(proposal, proposal)
         //avisarle al otro usuario de la conversa
-        proposalStatusChangedEmail({ email: loggedUser.email, name: loggedUser.name, state: 'Rejected' })
+        proposalStatusChangedEmail({ email: loggedUser.email, name: loggedUser.name, status: 'Rejected' })
         response.status(200).json({ proposal: Proposal.toDTO(updatedProposal) })
     } catch (error) {
         handleError(error, response)
@@ -128,13 +134,14 @@ export async function cancelAsync(request: Request, response: Response) {
     try {
         const loggedUser: User = response.locals.loggedUser
         const proposal: Proposal = response.locals.proposal
-        const conversation: Conversation = proposal.conversation
         if (proposal.status !== 'Waiting') { throw new ErrorPayload(400, 'You cant cancel this proposal due to its state') }
+        const conversation = await ConversationInterface.getAsync(proposal.conversationId)
         if (loggedUser.id !== conversation.fromId && loggedUser.id !== conversation.toId) { throw new ErrorPayload(400, 'Cant cancel another user proposal') }
         if (proposal.proposerId !== loggedUser.id) { throw new ErrorPayload(400, 'You cant propose and reject a proposal') }
-        const updatedProposal = await ProposalInterface.updateAsync(proposal.id, { ...proposal, status: 'Cancelled' })
+        proposal.status = 'Cancelled'
+        const updatedProposal = await ProposalInterface.updateAsync(proposal, proposal)
         //avisarle al otro usuario de la conversa
-        proposalStatusChangedEmail({ email: loggedUser.email, name: loggedUser.name, state: 'Cancelled' })
+        proposalStatusChangedEmail({ email: loggedUser.email, name: loggedUser.name, status: 'Cancelled' })
         response.status(200).json({ proposal: Proposal.toDTO(updatedProposal) })
     } catch (error) {
         handleError(error, response)

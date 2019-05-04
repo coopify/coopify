@@ -2,6 +2,7 @@ import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany
 import { User } from './user'
 import { OfferCategory } from './offerCategory'
 import { Category } from './category'
+import { Proposal } from '..'
 
 interface IAttributes {
     userId: string
@@ -207,6 +208,12 @@ class Offer extends Model<Offer> {
 
     @BelongsTo(() => User)
     public by
+
+    @HasMany(() => Proposal)
+    public proposalsForThisService
+
+    @HasMany(() => Proposal)
+    public proposalsUsingThisService
 }
 
 export { IAttributes, Offer, IServiceFilter }

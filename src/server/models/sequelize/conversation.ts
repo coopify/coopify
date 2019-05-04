@@ -1,6 +1,7 @@
 import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey, HasMany, BelongsTo } from 'sequelize-typescript'
 import { User } from './user'
 import { Message } from './message'
+import { Proposal } from './proposal'
 
 interface IAttributes {
     fromId: string
@@ -13,11 +14,23 @@ interface IAttributes {
 class Conversation extends Model<Conversation> {
 
     public static async getAsync(id: string): Promise<Conversation | null> {
-        return this.findById<Conversation>(id, { include: [{ model: User, as: 'from' }, { model: User, as: 'to' }]  })
+        return this.findById<Conversation>(id, {
+            include: [
+                { model: User, as: 'from' },
+                { model: User, as: 'to' },
+            ],
+        })
     }
 
     public static async getManyAsync(where: any): Promise<Conversation[] | null> {
-        return this.findAll<Conversation>({ where, include: [{ model: User, as: 'from' }, { model: User, as: 'to' }]  })
+        return this.findAll<Conversation>({
+            where,
+            include: [
+                { model: User, as: 'from' },
+                { model: User, as: 'to' },
+            ],
+            order: [['createdAt', 'DESC']],
+        })
     }
 
     public static async getOneAsync(where: any): Promise<Conversation | null> {
@@ -58,6 +71,9 @@ class Conversation extends Model<Conversation> {
 
     @BelongsTo(() => User, 'toId')
     public to
+
+    @HasMany(() => Proposal)
+    public proposals
 
     @HasMany(() => Message)
     public messages

@@ -1,5 +1,6 @@
 import * as moment from 'moment'
 import { ErrorPayload } from '../errorPayload'
+import { logger } from '../services'
 
 export function validateBirthdate(date: Date) {
     moment.isDate(date)
@@ -21,7 +22,7 @@ export function validateStatus(status: string) {
 
 export function validateProposalStatus(status: string) {
     //'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed'
-    if (status !== 'Waiting' && status !== 'Rejected' && status !== 'Confirmed' && status !== 'PaymentPending' && status !== 'PaymentFailed') {
+    if (status !== 'Waiting' && status !== 'Rejected' && status !== 'Confirmed' && status !== 'PaymentPending' && status !== 'PaymentFailed' && status !== 'Cancelled') {
         throw new ErrorPayload(400, 'Invalid status')
     }
 }
@@ -40,8 +41,10 @@ export function validateFrecuency(frequency: string) {
 
 export function handleError(error: Error | ErrorPayload): ErrorPayload {
     if (error instanceof ErrorPayload) {
+        logger.info(`Handled error => ${JSON.stringify(error)}`)
         return error
     } else {
+        logger.error(`Unhandled error => ${JSON.stringify(error)} - ${error}`)
         return new ErrorPayload(500, 'Something went wrong', error)
     }
 }
