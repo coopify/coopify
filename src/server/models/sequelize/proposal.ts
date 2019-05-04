@@ -1,10 +1,12 @@
 import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { Offer } from './offer'
+import { User } from './user'
 import { Conversation } from './conversation'
 import { ErrorPayload } from '../../errorPayload'
 
 interface IAttributes {
     offerId: string
+    offererId: string
     purchasedOffer?: Offer
     conversationId: string
     conversation?: Conversation
@@ -12,7 +14,7 @@ interface IAttributes {
     exchangeInstance?: 'Hour' | 'Session' | 'FinalProduct'
     proposedPrice?: number
     proposedServiceId?: string
-    status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed'
+    status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed' | 'Cancelled'
 }
 
 interface IUpdateAttributes {
@@ -20,7 +22,7 @@ interface IUpdateAttributes {
     exchangeInstance?: 'Hour' | 'Session' | 'FinalProduct'
     proposedPrice?: number
     proposedServiceId?: string
-    status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed'
+    status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed' | 'Cancelled'
 }
 
 @Table({ timestamps: true })
@@ -77,6 +79,11 @@ class Proposal extends Model<Proposal> {
     @AllowNull(false)
     @Column(DataType.UUID)
     public offerId
+
+    @ForeignKey(() => User)
+    @AllowNull(false)
+    @Column(DataType.UUID)
+    public offererId
 
     @ForeignKey(() => Conversation)
     @AllowNull(false)

@@ -52,6 +52,7 @@ export async function createAsync(user: User, body: ProposalAttributes): Promise
         const conversation = await ConversationInterface.getAsync(body.conversationId)
         if (!conversation) { throw new ErrorPayload(404, 'Conversation not found') }
         if (conversation.toId !== user.id && conversation.fromId !== user.id) { throw new ErrorPayload(401, 'Cant buy services for other users') }
+        body.offererId = user.id
         const proposalInstance = await Proposal.createAsync(body)
         if (!proposalInstance) { throw new ErrorPayload(500, 'Failed to create proposal') }
         return proposalInstance
