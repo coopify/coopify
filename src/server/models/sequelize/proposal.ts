@@ -69,7 +69,7 @@ class Proposal extends Model<Proposal> {
             conversationId: proposal.conversationId,
             exchangeMethod: proposal.exchangeMethod,
             purchasedOffer: proposal.purchasedOffer ? Offer.toDTO(proposal.purchasedOffer) : undefined,
-            proposedService: proposal.proposedService ? Offer.toDTO(proposal.proposedService) : undefined,
+            proposedService: proposal.proposedService != undefined && proposal.proposedService != null ? Offer.toDTO(proposal.proposedService) : undefined,
             exchangeInstance: proposal.exchangeInstance,
             proposedPrice: proposal.proposedPrice,
             proposedServiceId: proposal.proposedServiceId,
