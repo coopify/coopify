@@ -47,7 +47,13 @@ class Proposal extends Model<Proposal> {
     }
 
     public static async getOneAsync(where: any): Promise<Proposal | null> {
-        return this.findOne<Proposal>({ where })
+        return this.findOne<Proposal>({
+            where, include: [
+                { model: Offer, as: 'purchasedOffer' },
+                { model: Offer, as: 'proposedService', required: false },
+                { model: User },
+            ],
+        })
     }
 
     public static async createAsync(params: IAttributes): Promise<Proposal> {

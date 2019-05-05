@@ -4,7 +4,7 @@ import { proposalController, usersController, conversationController } from '../
 const proposalRoutes = Router()
 
 proposalRoutes.get('/', usersController.authenticate, proposalController.getListAsync)
-proposalRoutes.get('/:conversationId', usersController.authenticate, proposalController.getListOfAConversationAsync)
+proposalRoutes.get('/:conversationId', usersController.authenticate, proposalController.getProposalOfAConversationAsync)
 proposalRoutes.get('/:proposalId', usersController.authenticate, proposalController.getOneAsync)
 
 proposalRoutes.post('/:conversationId', usersController.authenticate, proposalController.createAsync)
