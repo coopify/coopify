@@ -2,6 +2,7 @@ import { Proposal, ProposalAttributes, User, Conversation, ProposalUpdateAttribu
 import { validateProposalStatus, handleError } from './helpers'
 import { ErrorPayload } from '../errorPayload'
 import { OfferInterface, ConversationInterface } from '.'
+import { proposalStatusChangedEmail } from '../mailer';
 
 export async function getAsync(id: string): Promise<Proposal | null> {
     try {
@@ -53,7 +54,9 @@ export async function createAsync(user: User, body: ProposalAttributes): Promise
         if (!conversation) { throw new ErrorPayload(404, 'Conversation not found') }
         if (conversation.toId !== user.id && conversation.fromId !== user.id) { throw new ErrorPayload(401, 'Cant buy services for other users') }
         body.proposerId = user.id
-        const proposalInstance = await Proposal.createAsync(body)
+        let proposalInstance: Proposal | null = await Proposal.createAsync(body)
+        if (!proposalInstance) { throw new ErrorPayload(500, 'Failed to create proposal') }
+        proposalInstance = await Proposal.getAsync(proposalInstance.id)
         if (!proposalInstance) { throw new ErrorPayload(500, 'Failed to create proposal') }
         return proposalInstance
     } catch (error) {

@@ -31,7 +31,13 @@ interface IUpdateAttributes {
 class Proposal extends Model<Proposal> {
 
     public static async getAsync(id: string): Promise<Proposal | null> {
-        return this.findById<Proposal>(id)
+        return this.findById<Proposal>(id, {
+            include: [
+                { model: Offer, as: 'purchasedOffer' },
+                { model: Offer, as: 'proposedService', required: false },
+                { model: User },
+            ]
+        })
     }
 
     public static async getManyAsync(where: any): Promise<Proposal[] | null> {
@@ -47,7 +53,13 @@ class Proposal extends Model<Proposal> {
     }
 
     public static async getOneAsync(where: any): Promise<Proposal | null> {
-        return this.findOne<Proposal>({ where })
+        return this.findOne<Proposal>({
+            where, include: [
+                { model: Offer, as: 'purchasedOffer' },
+                { model: Offer, as: 'proposedService', required: false },
+                { model: User },
+            ],
+        })
     }
 
     public static async createAsync(params: IAttributes): Promise<Proposal> {
@@ -65,7 +77,7 @@ class Proposal extends Model<Proposal> {
             id: proposal.id,
             offerId: proposal.offerId,
             proposerId: proposal.proposerId,
-            proposer: User.toDTO(proposal.proposer),
+            proposer: proposal.proposer ? User.toDTO(proposal.proposer) : undefined,
             conversationId: proposal.conversationId,
             exchangeMethod: proposal.exchangeMethod,
             purchasedOffer: proposal.purchasedOffer ? Offer.toDTO(proposal.purchasedOffer) : undefined,

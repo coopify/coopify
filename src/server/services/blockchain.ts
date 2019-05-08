@@ -1,6 +1,7 @@
 import { logger } from '../services'
 import * as rp from 'request-promise'
 import { User, Offer, Proposal } from '../models'
+import { ErrorPayload } from '../errorPayload'
 
 export interface IOptions {
     route: string
@@ -12,6 +13,7 @@ export interface ITransfer {
     to: User
     offer: Offer
     proposal: Proposal
+    amount: number
 }
 
 export class Blockchain {
@@ -76,9 +78,10 @@ export class Blockchain {
         return transactions
     }
 
-    public transfer(body: ITransfer): void {
-        const transactions = rp({
-            uri: `${this.options.route}:${this.options.port}/api/transfer`,
+    public transfer(body: ITransfer) {
+        const uri = `${this.options.route}:${this.options.port}/api/users/pay`
+        return rp({
+            uri,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -86,11 +89,11 @@ export class Blockchain {
             body,
             json: true,
         }).then((res) => {
-            logger.info(`Made a payment for user => ${'user'}`)
+            logger.info(`User: ${body.from.email} paid user: ${body.to} ${body.amount} for the service ${body.offer.title}`)
             return res
         }).catch((err) => {
-            logger.error(`Failed to make a payment - ${JSON.stringify(err)}`)
+            const message = `Failed to make a payment`
+            throw new ErrorPayload(500, message, err)
         })
-        return transactions
     }
 }

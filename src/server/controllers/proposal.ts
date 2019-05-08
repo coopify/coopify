@@ -43,17 +43,16 @@ export async function getListAsync(request: Request, response: Response) {
     }
 }
 
-export async function getListOfAConversationAsync(request: Request, response: Response) {
+export async function getProposalOfAConversationAsync(request: Request, response: Response) {
     try {
         const loggedUser: User = response.locals.loggedUser
         const conversation: Conversation = response.locals.conversation
         if (!loggedUser) { throw new ErrorPayload(403, 'You need to be logged in') }
         if (!conversation) { throw new ErrorPayload(404, 'Conversation not found') }
-        const conversations = await ConversationInterface.findAsync({ $or: [{ fromId: loggedUser.id }, { toId: loggedUser.id }], conversationId: conversation.id })
-        if (!conversations) { throw new ErrorPayload(500, 'Failed to get conversations') }
-        const proposals = await ProposalInterface.findAsync({ id: { $in: conversations.map((c) => c.id) } })
-        if (!proposals) { throw new ErrorPayload(500, 'Failed to get offers') }
-        response.status(200).json({ proposals: proposals.map((p) => Proposal.toDTO(p)) })
+        const proposal = await ProposalInterface.findOneAsync({ conversationId: conversation.id, status: 'Waiting' })
+        if (!proposal) { throw new ErrorPayload(404, 'Failed to get waiting proposal') }
+
+        response.status(200).json({ proposal: Proposal.toDTO(proposal) })
     } catch (error) {
         handleError(error, response)
     }
@@ -65,6 +64,9 @@ export async function createAsync(request: Request, response: Response) {
         const conversation: Conversation = response.locals.conversation
         const { offerId, exchangeMethod, proposedServiceId, exchangeInstance, proposedPrice } = request.body
         if (!offerId || !exchangeMethod) { throw new ErrorPayload(400, 'Missing required data') }
+
+        const proposals = await ProposalInterface.findOneAsync({ conversationId: conversation.id, status: 'Waiting' })
+        if (proposals && proposals != null) { throw new ErrorPayload(403, 'The conversation already has a proposal in waiting status') }
 
         const proposal = await ProposalInterface.createAsync(loggedUser, {
             proposerId: loggedUser.id,
@@ -98,7 +100,7 @@ export async function acceptAsync(request: Request, response: Response) {
         if (!from || !to) { throw new ErrorPayload(404, 'User not found') }
         if (!offer) { throw new ErrorPayload(404, 'Offer not found') }
         if (offer.paymentMethod === 'Coopy') {
-            blockchain.transfer({ from, to, offer, proposal })
+            await blockchain.transfer({ from, to, offer, proposal, amount: proposal.proposedPrice })
             proposal.status = 'PaymentPending'
         } else {
             proposal.status = 'Confirmed'
