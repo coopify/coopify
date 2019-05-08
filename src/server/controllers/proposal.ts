@@ -65,8 +65,8 @@ export async function createAsync(request: Request, response: Response) {
         const { offerId, exchangeMethod, proposedServiceId, exchangeInstance, proposedPrice } = request.body
         if (!offerId || !exchangeMethod) { throw new ErrorPayload(400, 'Missing required data') }
 
-        const proposals = await ProposalInterface.findAsync({ id: conversation.id, status: 'Waiting' })
-        if (proposals && proposals != null && proposals.length > 0) { throw new ErrorPayload(403, 'The conversation already has a proposal in waiting status') }
+        const proposals = await ProposalInterface.findOneAsync({ conversationId: conversation.id, status: 'Waiting' })
+        if (proposals && proposals != null) { throw new ErrorPayload(403, 'The conversation already has a proposal in waiting status') }
 
         const proposal = await ProposalInterface.createAsync(loggedUser, {
             proposerId: loggedUser.id,
