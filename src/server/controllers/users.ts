@@ -109,21 +109,23 @@ export async function getBalanceAsync(request: Request, response: Response, next
 export async function getTransactionsAsync(request: Request, response: Response, next: NextFunction) {
     try {
         const transactions = await blockchain.getTransactionsAsync(response.locals.user.id)
+        if (!transactions) { throw new ErrorPayload(500, 'Failed to get transaction') }
         const userTransactions = transactions.filter((t) => t.from !== 'Coopify' && t.to !== 'Coopify' )
         const coopifyTransactions = transactions.filter((t) => t.from === 'Coopify' || t.to === 'Coopify' )
         if (userTransactions) {
+            //TODO: Get proposal based on the proposalId of the response
             const usersIds = userTransactions.map((t) => t.from !== response.locals.user.id ? t.from : t.to)
             const users = await UserInterface.findAsync({ id: { $in: usersIds } })
             if (!users) { throw new ErrorPayload(500, 'No users found') }
             userTransactions.map((t) => {
-                const user = users.find((u) => u === response.locals.user.id !== t.from ? t.from : t.to)
+                const user = users.find((u) => u.id  === (response.locals.user.id !== t.from ? t.from : t.to))
                 if (!user) { throw new ErrorPayload(404, 'User not found') }
                 if (t.from === response.locals.user.id) {
                     t.from = response.locals.user.name
                     t.to = user.name
                 } else {
-                    t.from = response.locals.user.name
-                    t.to = user.name
+                    t.to = response.locals.user.name
+                    t.from = user.name
                 }
             })
         }
@@ -133,8 +135,8 @@ export async function getTransactionsAsync(request: Request, response: Response,
                     t.from = response.locals.user.name
                     t.to = 'Coopify'
                 } else {
-                    t.from = 'Coopify'
-                    t.to = response.locals.user.name
+                    t.to = 'Coopify'
+                    t.from = response.locals.user.name
                 }
             })
         }

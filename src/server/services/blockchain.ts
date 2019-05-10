@@ -16,6 +16,16 @@ export interface ITransfer {
     amount: number
 }
 
+export interface ITransaction {
+    date: string,
+    coopies: number,
+    from: string,
+    to: string,
+    inOut: string,
+    description: string,
+    proposalId: string,
+}
+
 export class Blockchain {
     public isConnected: boolean
     private options: IOptions
@@ -59,10 +69,10 @@ export class Blockchain {
         return balance
     }
 
-    public async getTransactionsAsync(userId: string): Promise<any> {
+    public async getTransactionsAsync(userId: string): Promise<ITransaction[] | null> {
         //We dont wait for this cause it has to make some transactions on a Blockchain Network and that does not happen quickly
         //TODO: Mock this calls so we can test what depends on this nock (https://github.com/nock/nock)
-        const transactions = await rp({
+        const transactions: ITransaction[] | null = await rp({
             uri: `${this.options.route}:${this.options.port}/api/users/${userId}/transactions`,
             method: 'GET',
             headers: {
