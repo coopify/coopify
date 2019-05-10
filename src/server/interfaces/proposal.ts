@@ -25,10 +25,9 @@ export async function findAsync(where: any): Promise<Proposal[]> {
     }
 }
 
-export async function findOneAsync(where: any): Promise<Proposal> {
+export async function findOneAsync(where: any): Promise<Proposal | null> {
     try {
         const proposalInstances = await Proposal.getOneAsync(where)
-        if (!proposalInstances) { throw new ErrorPayload(500, 'Failed to get an offer') }
 
         return proposalInstances
     } catch (error) {
