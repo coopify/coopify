@@ -2,7 +2,6 @@ import {
     Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, AfterCreate,
     HasMany, BelongsToMany,
 } from 'sequelize-typescript'
-import { rdb } from '../../services'
 import { Conversation } from './conversation'
 import { UserGoal } from './userGoal'
 import { Goal } from './goal'
@@ -45,7 +44,11 @@ interface IUpdateAttributes {
 class User extends Model<User> {
 
     public static async getAsync(id: string): Promise<User | null> {
-        return this.findById<User>(id)
+        return this.findById<User>(id, {
+            include: [
+                { model: Goal },
+            ],
+        })
     }
 
     public static async getManyAsync(where: any): Promise<User[] | null> {
@@ -53,7 +56,10 @@ class User extends Model<User> {
     }
 
     public static async getOneAsync(where: any): Promise<User | null> {
-        return this.findOne<User>({ where })
+        return this.findOne<User>({ where, include: [
+                { model: Goal },
+            ],
+        })
     }
 
     public static async createAsync(params: IAttributes): Promise<User> {
@@ -80,6 +86,9 @@ class User extends Model<User> {
             address: user.address,
             phone: user.phone,
             interests: user.interests,
+            goals: user.goals && user.goals.length > 0 ? user.goals.map((g) => {
+                return { ...Goal.toDTO(g), quantity: g.UserGoal.quantity }
+            }) : [],
         }
     }
 

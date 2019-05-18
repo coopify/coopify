@@ -2,7 +2,7 @@
 
 module.exports = {
     up: (queryInterface, Sequelize) => {
-        return queryInterface.createTable('Goal', {
+        return queryInterface.createTable('UserGoal', {
             id: {
                 type: Sequelize.UUID,
                 primaryKey: true
@@ -43,6 +43,6 @@ module.exports = {
     },
 
     down: (queryInterface) => {
-        return queryInterface.dropTable('Goal');
+        return queryInterface.dropTable('UserGoal');
     }
 };

@@ -1,10 +1,8 @@
-import { compare, genSalt, hash } from 'bcrypt-nodejs'
 import { NextFunction, Request, Response } from 'express'
-import * as moment from 'moment'
 import { GoalInterface } from '../interfaces'
-import { logger, redisCache, facebook, googleAuth, sendgrid } from '../services'
-import { Category, Goal } from '../models'
+import { Goal } from '../models'
 import { ErrorPayload } from '../errorPayload'
+import { handleError } from './helpers'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
@@ -60,13 +58,9 @@ export async function getUserGoalsAsync(request: Request, response: Response) {
         if (skip) { skip = parseInt(skip) }
         if (limit && skip) { skip = limit * skip }
 
-        const userGoals = await GoalInterface.findUserGoalsAsync({ where: { userId: loggedUser.userId } }, limit, skip)
+        const userGoals = await GoalInterface.findUserGoalsAsync({ userId: loggedUser.userId })
         if (!userGoals) { throw new ErrorPayload(500, 'Failed to get user goals') }
-
-        if (userGoals) {
-            const bodyResponse = { goals: userGoals.rows.map((g) => Goal.toDTO(g)), count: userGoals.count }
-            response.status(200).json(bodyResponse)
-        }
+        response.status(200).json(userGoals)
     } catch (error) {
         handleError(error, response)
     }
@@ -94,11 +88,3 @@ export async function createAsync(request: Request, response: Response) {
     }
 }
 
-function handleError(error: ErrorPayload | Error, response: Response) {
-    logger.error(error + ' - ' + JSON.stringify(error))
-    if (error instanceof ErrorPayload) {
-        response.status(error.code).json(error)
-    } else {
-        response.status(500).json(new ErrorPayload(500, 'Something went wrong', error))
-    }
-}
