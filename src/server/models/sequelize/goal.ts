@@ -24,8 +24,23 @@ class Goal extends Model<Goal> {
         return this.findById<Goal>(id)
     }
 
-    public static async getManyAsync(where: any): Promise<Goal[] | null> {
-        return this.findAll<Goal>({ where })
+    public static async getManyAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Goal[], count: number } | null> {
+        return this.findAndCount<Goal>({
+            where,
+            limit,
+            offset: skip,
+        })
+    }
+
+    public static async getManyUserGoalsAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Goal[], count: number } | null> {
+        return this.findAndCount<Goal>({
+            where, include: [
+                { model: User },
+                { model: UserGoal },
+            ],
+            limit,
+            offset: skip,
+        })
     }
 
     public static async getOneAsync(where: any): Promise<Goal | null> {

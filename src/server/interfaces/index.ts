@@ -5,5 +5,9 @@ import * as ConversationInterface from './conversation'
 import * as MessageInterface from './message'
 import * as QuestionInterface from './question'
 import * as ProposalInterface from './proposal'
+import * as GoalInterface from './goal'
 
-export { UserInterface, OfferInterface, CategoryInterface, ConversationInterface, MessageInterface, QuestionInterface, ProposalInterface }
+export {
+    UserInterface, OfferInterface, CategoryInterface, ConversationInterface, MessageInterface,
+    QuestionInterface, ProposalInterface, GoalInterface,
+}
