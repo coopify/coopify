@@ -10,6 +10,7 @@ interface IAttributes {
     name: string
     description: string
     amount: number
+    code: string
 }
 
 interface IUpdateAttributes {
@@ -82,6 +83,10 @@ class Goal extends Model<Goal> {
     @AllowNull(false)
     @Column(DataType.INTEGER)
     public amount
+
+    @AllowNull(false)
+    @Column(DataType.STRING)
+    public code
 
     @BelongsToMany(() => User, () => UserGoal)
     public users

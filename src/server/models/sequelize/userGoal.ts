@@ -6,6 +6,7 @@ interface IAttributes {
     userId: string
     goalId: string
     quantity: number
+    code: string
 }
 
 @Table({ timestamps: true })
@@ -34,6 +35,7 @@ class UserGoal extends Model<UserGoal> {
             userId: userGoal.userId,
             goalId: userGoal.goalId,
             quantity: userGoal.quantity,
+            code: userGoal.code,
         }
     }
 
@@ -55,6 +57,10 @@ class UserGoal extends Model<UserGoal> {
     @AllowNull(false)
     @Column(DataType.INTEGER)
     public quantity
+
+    @AllowNull(false)
+    @Column(DataType.STRING)
+    public code
 }
 
 export { IAttributes, UserGoal }
