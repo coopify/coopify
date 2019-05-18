@@ -1,15 +1,14 @@
 import { IReward } from './IReward'
 import { blockchain } from '../services'
-import { User, Offer } from '../models'
-import { ErrorPayload } from '../errorPayload'
-import { OfferInterface } from '../interfaces'
+import { User, Offer, UserGoal } from '../models'
+import { OfferInterface, GoalInterface } from '../interfaces'
 import { SignupReward } from './signupReward'
 
 interface IShareRewardParams {
     code: string,
     user: User,
     offer: Offer,
-    userGoals: any[]
+    userGoals: UserGoal[]
 }
 
 export class ShareReward implements IReward {
@@ -52,14 +51,21 @@ export class ShareReward implements IReward {
     }
 
     public async markRewardAsync(rewardParams: IShareRewardParams) {
-        const rewardToUpdate = rewardParams.userGoals.find((r) => r.userId === rewardParams.user.id && r.code === this.rewardCode)
-        if (!rewardToUpdate) {
-            //TODO: reevaluar esto, puede que haya q crearla
-            throw new ErrorPayload(404, 'Goal not found')
+        const userGoalToUpdate = rewardParams.userGoals.find((r) => r.userId === rewardParams.user.id && r.code === this.rewardCode)
+        if (!userGoalToUpdate) {
+            const goal = await GoalInterface.findOneAsync({ code: this.rewardCode })
+            if (goal) {
+                await GoalInterface.addUserGoalAsync({
+                    code: this.rewardCode,
+                    goalId: goal.id,
+                    quantity: 1,
+                    userId: rewardParams.user.id,
+                })
+            }
         } else {
             await OfferInterface.updateAsync(rewardParams.offer, { shared: true })
-            //rewardToUpdate.achieved = true
-            //rewardToUpdate.save()
+            userGoalToUpdate.quantity = userGoalToUpdate.quantity + 1
+            await GoalInterface.updateUserGoalAsync(userGoalToUpdate, userGoalToUpdate)
         }
     }
 
