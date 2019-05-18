@@ -16,6 +16,12 @@ export interface ITransfer {
     amount: number
 }
 
+export interface IReward {
+    to: User
+    amount: number
+    concept: string
+}
+
 export interface ITransaction {
     date: string,
     coopies: number,
@@ -103,6 +109,25 @@ export class Blockchain {
             return res
         }).catch((err) => {
             const message = `Failed to make a payment`
+            throw new ErrorPayload(500, message, err)
+        })
+    }
+
+    public reward(body: IReward) {
+        const uri = `${this.options.route}:${this.options.port}/api/users/pay`
+        return rp({
+            uri,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body,
+            json: true,
+        }).then((res) => {
+            logger.info(`Rewarded: ${body.to} for ${body.amount} for the concept of ${body.concept}`)
+            return res
+        }).catch((err) => {
+            const message = `Failed to process a reward`
             throw new ErrorPayload(500, message, err)
         })
     }
