@@ -5,7 +5,7 @@ const goalRoutes = Router()
 
 goalRoutes.get('/', goalsController.getListAsync)
 goalRoutes.get('/:goalId', goalsController.getOneAsync)
-goalRoutes.get('/:userId', goalsController.getUserGoalsAsync)
+goalRoutes.get('/:userId', usersController.authenticate, goalsController.getUserGoalsAsync)
 
 goalRoutes.param('userId', usersController.loadAsync)
 goalRoutes.param('goalId', goalsController.loadAsync)
