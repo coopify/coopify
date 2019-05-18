@@ -34,10 +34,7 @@ class Goal extends Model<Goal> {
 
     public static async getManyUserGoalsAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Goal[], count: number } | null> {
         return this.findAndCount<Goal>({
-            where, include: [
-                { model: User },
-                { model: UserGoal },
-            ],
+            where,
             limit,
             offset: skip,
         })

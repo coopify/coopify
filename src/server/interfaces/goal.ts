@@ -35,9 +35,9 @@ export async function findOneAsync(where: object): Promise<Goal | null> {
     }
 }
 
-export async function findUserGoalsAsync(where: object, limit?: number, skip?: number): Promise<{ rows: Goal[], count: number } | null> {
+export async function findUserGoalsAsync(where: object): Promise<UserGoal[] | null> {
     try {
-        const goalInstances = await Goal.getManyUserGoalsAsync(where, limit, skip)
+        const goalInstances = await UserGoal.getManyAsync(where)
 
         return goalInstances
     } catch (error) {
