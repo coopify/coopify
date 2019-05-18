@@ -1,5 +1,5 @@
 import { User, IAttributes as UserAttributes, IUpdateAttributes as UserUpateAttributes } from './user'
-import { Offer, IAttributes as OfferAttributes, IServiceFilter } from './offer'
+import { Offer, IAttributes as OfferAttributes, IServiceFilter, IUpdateAttributes as OfferUpdateAttributes } from './offer'
 import { Category, IAttributes as CategoryAttributes, IUpdateAttributes as CategoryUpdateAttributes } from './category'
 import { OfferCategory, IAttributes as OfferCategoryAttributes } from './offerCategory'
 import { Proposal, IAttributes as ProposalAttributes, IUpdateAttributes as ProposalUpdateAttributes } from './proposal'
@@ -14,5 +14,5 @@ export {
     CategoryAttributes, CategoryUpdateAttributes, OfferCategory, OfferCategoryAttributes, IServiceFilter, Message,
     MessageAttributes, Conversation, ConversationAttributes, Question, QuestionAttributes, QuestionUpdateAttributes,
     Proposal, ProposalAttributes, ProposalUpdateAttributes, Goal, GoalAttributes, GoalUpdateAttributes,
-    UserGoal, UserGoalAttributes,
+    UserGoal, UserGoalAttributes, OfferUpdateAttributes,
 }

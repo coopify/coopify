@@ -18,6 +18,16 @@ interface IAttributes {
     sessionPrice?: number
     finalProductPrice?: number
     status: 'Started' | 'Paused'
+    shared?: boolean
+}
+
+interface IUpdateAttributes {
+    title?: string
+    description?: Text
+    images?: Array<{ url: string, default: boolean }>
+    finishDate?: Date
+    status?: 'Started' | 'Paused'
+    shared?: boolean
 }
 
 interface IServiceFilter {
@@ -74,6 +84,10 @@ class Offer extends Model<Offer> {
     public static async createAsync(params: IAttributes): Promise<Offer> {
         const offer: Offer = await new Offer(params)
         return offer.save()
+    }
+
+    public static async updateAsync(offer: Offer, params: IUpdateAttributes): Promise<Offer> {
+        return offer.update(params)
     }
 
     public static toDTO(offer: Offer) {
@@ -203,6 +217,11 @@ class Offer extends Model<Offer> {
     @Column(DataType.INTEGER)
     public finalProductPrice
 
+    @AllowNull(false)
+    @Default(false)
+    @Column(DataType.BOOLEAN)
+    public shared
+
     @Column(DataType.STRING)
     public status
 
@@ -216,4 +235,4 @@ class Offer extends Model<Offer> {
     public proposalsUsingThisService
 }
 
-export { IAttributes, Offer, IServiceFilter }
+export { IAttributes, Offer, IServiceFilter, IUpdateAttributes }
