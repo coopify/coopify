@@ -9,6 +9,13 @@ interface IAttributes {
     code: string
 }
 
+interface IUpdateAttributes {
+    userId: string
+    goalId: string
+    quantity: number
+    code: string
+}
+
 @Table({ timestamps: true })
 class UserGoal extends Model<UserGoal> {
 
@@ -27,6 +34,10 @@ class UserGoal extends Model<UserGoal> {
     public static async createAsync(params: IAttributes): Promise<UserGoal> {
         const userGoal: UserGoal = await new UserGoal(params)
         return userGoal.save()
+    }
+
+    public static async updateAsync(userGoal: UserGoal, params: IUpdateAttributes): Promise<UserGoal> {
+        return userGoal.update(params)
     }
 
     public static toDTO(userGoal: UserGoal) {
@@ -63,4 +74,4 @@ class UserGoal extends Model<UserGoal> {
     public code
 }
 
-export { IAttributes, UserGoal }
+export { IAttributes, UserGoal, IUpdateAttributes }
