@@ -87,4 +87,3 @@ export async function createAsync(request: Request, response: Response) {
         handleError(error, response)
     }
 }
-
