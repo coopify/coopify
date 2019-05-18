@@ -1,6 +1,11 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, AfterCreate, HasMany } from 'sequelize-typescript'
+import {
+    Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, AfterCreate,
+    HasMany, BelongsToMany,
+} from 'sequelize-typescript'
 import { rdb } from '../../services'
-import { Conversation } from './conversation';
+import { Conversation } from './conversation'
+import { UserGoal } from './userGoal'
+import { Goal } from './goal'
 
 interface IAttributes {
     email: string
@@ -150,6 +155,8 @@ class User extends Model<User> {
     @HasMany(() => Conversation, 'toId')
     public toConversations
 
+    @BelongsToMany(() => Goal, () => UserGoal)
+    public goals
 }
 
 export { IAttributes, IUpdateAttributes, User }
