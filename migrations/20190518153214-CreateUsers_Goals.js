@@ -27,7 +27,7 @@ module.exports = {
                 onUpdate: 'cascade',
                 onDelete: 'cascade'
             },
-            goalProgress: {
+            quantity: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },

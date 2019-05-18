@@ -13,9 +13,9 @@ export async function getAsync(id: string): Promise<Goal | null> {
     }
 }
 
-export async function findAsync(where: object): Promise<Goal[] | null> {
+export async function findAsync(where: object, limit?: number, skip?: number): Promise<{ rows: Goal[], count: number } | null> {
     try {
-        const goalInstances = await Goal.getManyAsync(where)
+        const goalInstances = await Goal.getManyAsync(where, limit, skip)
 
         return goalInstances
     } catch (error) {
@@ -35,9 +35,9 @@ export async function findOneAsync(where: object): Promise<Goal | null> {
     }
 }
 
-export async function findUserGoalsAsync(where: object): Promise<UserGoal[] | null> {
+export async function findUserGoalsAsync(where: object, limit?: number, skip?: number): Promise<{ rows: Goal[], count: number } | null> {
     try {
-        const goalInstances = await Goal.getManyUserGoalsAsync(where)
+        const goalInstances = await Goal.getManyUserGoalsAsync(where, limit, skip)
 
         return goalInstances
     } catch (error) {

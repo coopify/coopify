@@ -33,11 +33,40 @@ export async function getOneAsync(request: Request, response: Response) {
 
 export async function getListAsync(request: Request, response: Response) {
     try {
-        const goals = await GoalInterface.findAsync({})
-        if (!goals) { throw new ErrorPayload(500, 'Failed to get goals') }
+        let { limit, skip } = request.query
+        if (limit) { limit = parseInt(limit) }
+        if (skip) { skip = parseInt(skip) }
+        if (limit && skip) { skip = limit * skip }
 
-        const bodyResponse = { goals: goals.map((g) => Goal.toDTO(g)) }
-        response.status(200).json(bodyResponse)
+        const goals = await GoalInterface.findAsync({}, limit, skip)
+        if (!goals) { throw new ErrorPayload(500, 'Failed to get user goals') }
+
+        if (goals) {
+            const bodyResponse = { goals: goals.rows.map((g) => Goal.toDTO(g)), count: goals.count }
+            response.status(200).json(bodyResponse)
+        }
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
+export async function getUserGoalsAsync(request: Request, response: Response) {
+    try {
+        const loggedUser = response.locals.loggedUser
+        if (!loggedUser) { throw new ErrorPayload(404, 'User not found') }
+
+        let { limit, skip } = request.query
+        if (limit) { limit = parseInt(limit) }
+        if (skip) { skip = parseInt(skip) }
+        if (limit && skip) { skip = limit * skip }
+
+        const userGoals = await GoalInterface.findUserGoalsAsync({ where: { userId: loggedUser.userId } }, limit, skip)
+        if (!userGoals) { throw new ErrorPayload(500, 'Failed to get user goals') }
+
+        if (userGoals) {
+            const bodyResponse = { goals: userGoals.rows.map((g) => Goal.toDTO(g)), count: userGoals.count }
+            response.status(200).json(bodyResponse)
+        }
     } catch (error) {
         handleError(error, response)
     }
@@ -63,17 +92,6 @@ export async function createAsync(request: Request, response: Response) {
     } catch (error) {
         handleError(error, response)
     }
-}
-
-export async function getUserGoalsAsync(request: Request, response: Response) {
-    const loggedUser = response.locals.loggedUser
-    if (!loggedUser) { throw new ErrorPayload(404, 'User not found') }
-
-    const userGoals = await GoalInterface.findUserGoalsAsync({ where: { userId: loggedUser.userId } })
-    if (!userGoals) { throw new ErrorPayload(500, 'Failed to get goals') }
-
-    const bodyResponse = { goals: userGoals.map((g) => Goal.toDTO(g)) }
-    response.status(200).json(bodyResponse)
 }
 
 function handleError(error: ErrorPayload | Error, response: Response) {

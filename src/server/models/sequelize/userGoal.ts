@@ -5,7 +5,7 @@ import { Goal } from './goal'
 interface IAttributes {
     userId: string
     goalId: string
-    goalProgress: number
+    quantity: number
 }
 
 @Table({ timestamps: true })
@@ -33,7 +33,7 @@ class UserGoal extends Model<UserGoal> {
             id: userGoal.id,
             userId: userGoal.userId,
             goalId: userGoal.goalId,
-            goalProgress: userGoal.goalProgress,
+            quantity: userGoal.quantity,
         }
     }
 
@@ -54,7 +54,7 @@ class UserGoal extends Model<UserGoal> {
 
     @AllowNull(false)
     @Column(DataType.INTEGER)
-    public goalProgress
+    public quantity
 }
 
 export { IAttributes, UserGoal }
