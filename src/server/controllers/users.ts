@@ -78,6 +78,17 @@ export async function syncFBAccountAsync(request: Request, response: Response) {
     }
 }
 
+export async function shareFBAsync(request: Request, response) {
+    try {
+        const user: User = response.locals.loggedUser
+        //recompensar usuario
+        response.status(200).json({ user: User.toDTO(user) })
+        response.send()
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
 export async function signupAsync(request: Request, response: Response, next: NextFunction) {
     try {
         const { email, referalCode } = request.body
