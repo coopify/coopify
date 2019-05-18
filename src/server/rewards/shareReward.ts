@@ -3,8 +3,10 @@ import { blockchain } from '../services'
 import { User, Offer } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { OfferInterface } from '../interfaces'
+import { SignupReward } from './signupReward'
 
 interface IShareRewardParams {
+    code: string,
     user: User,
     offer: Offer,
     userGoals: any[]
@@ -20,12 +22,12 @@ export class ShareReward implements IReward {
         this.rewardCode = 'share'
         this.rewardAmount = 20
         this.handledReward = false
-        //this.successor = new ShareReward()
+        this.successor = new SignupReward()
     }
 
     public shouldReward(rewardParams: IShareRewardParams): boolean {
         //Check the previous userGoals and check that the goal was not met
-        const result = rewardParams.offer.shared
+        const result = rewardParams.offer.shared && rewardParams.code === this.rewardCode
         return result
     }
 

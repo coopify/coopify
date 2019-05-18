@@ -17,6 +17,7 @@ userRoutes.post('/google/signup', usersController.googleAPIExchangeCodeForTokenA
 userRoutes.post('/google/login', usersController.googleLoginAsync, usersController.generateTokenAsync)
 userRoutes.post('/login', usersController.loginAsync, usersController.generateTokenAsync)
 userRoutes.post('/:userId/logout', usersController.logoutAsync)
+userRoutes.post('/:userId/share', usersController.authenticate, usersController.didShareActionAsync)
 
 userRoutes.param('userId', usersController.loadAsync)
 
