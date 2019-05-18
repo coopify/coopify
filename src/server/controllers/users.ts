@@ -182,10 +182,9 @@ export async function loginAsync(request: Request, response: Response, next: Nex
 
     try {
         if (!isValidEmail(request.body.email)) { return response.status(404).json(new ErrorPayload(400, 'Invalid email')) }
-        const users =  await UserInterface.findAsync({ email : request.body.email })
+        const user =  await UserInterface.findOneAsync({ email : request.body.email })
 
-        if (!users || users.length === 0) { return response.status(404).json(new ErrorPayload(404, 'User not found')) }
-        const user = users[0]
+        if (!user) { return response.status(404).json(new ErrorPayload(404, 'User not found')) }
         if (user.password !== request.body.password) { return response.status(401).json(new ErrorPayload(403, 'Wrong password')) }
 
         response.locals.user = user

@@ -6,6 +6,7 @@ import conversationRoutes from './conversation'
 import messageRoutes from './message'
 import questionRoutes from './questions'
 import proposalRoutes from './proposal'
+import goalRoutes from './goals'
 import { loadLoggedUser } from '../controllers/users'
 
 const router = Router()
@@ -19,5 +20,6 @@ router.use('/conversations', conversationRoutes)
 router.use('/messages', messageRoutes)
 router.use('/questions', questionRoutes)
 router.use('/proposals', proposalRoutes)
+router.use('/goals', goalRoutes)
 
 export { router }

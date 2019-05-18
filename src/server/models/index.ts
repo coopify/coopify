@@ -2,14 +2,14 @@ import {
     User, UserAttributes, UserUpateAttributes, Offer, OfferAttributes, Category,
     CategoryAttributes, CategoryUpdateAttributes, OfferCategory, OfferCategoryAttributes, IServiceFilter, Message, MessageAttributes,
     Conversation, ConversationAttributes, Question, QuestionAttributes, QuestionUpdateAttributes, Proposal, ProposalAttributes,
-    ProposalUpdateAttributes,
+    ProposalUpdateAttributes, Goal, GoalAttributes, GoalUpdateAttributes, UserGoal, UserGoalAttributes,
 } from './sequelize'
 
-export const seqModels = [User, Offer, Category, OfferCategory, Message, Conversation, Question, Proposal]
+export const seqModels = [User, Offer, Category, OfferCategory, Message, Conversation, Question, Proposal, Goal, UserGoal]
 
 export {
     User, UserAttributes, UserUpateAttributes, OfferAttributes, Offer, Category,
     CategoryAttributes, CategoryUpdateAttributes, OfferCategory, OfferCategoryAttributes, IServiceFilter, Message, MessageAttributes,
     Conversation, ConversationAttributes, Question, QuestionAttributes, QuestionUpdateAttributes, Proposal, ProposalAttributes,
-    ProposalUpdateAttributes,
+    ProposalUpdateAttributes, Goal, GoalAttributes, GoalUpdateAttributes, UserGoal, UserGoalAttributes,
 }
