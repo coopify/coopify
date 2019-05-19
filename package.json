@@ -73,6 +73,7 @@
     "pug": "^2.0.3",
     "pusher": "^2.2.0",
     "pusher-js": "^4.4.0",
+    "random-string": "^0.2.0",
     "reflect-metadata": "^0.1.10",
     "request-promise": "^4.2.4",
     "sequelize": "^4.37.10",
