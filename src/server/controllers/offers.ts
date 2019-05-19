@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { OfferInterface, QuestionInterface } from '../interfaces'
-import { logger } from '../services'
+import { logger, facebook } from '../services'
 import { IServiceFilter, Offer, Question, User } from '../models'
 import { ErrorPayload } from '../errorPayload'
 
@@ -73,6 +73,18 @@ export async function getQuestionsListAsync(request: Request, response: Response
             const bodyResponse = { questions: offerQuestions.rows.map((q) => Question.toDTO(q)), count: offerQuestions.count }
             response.status(200).json(bodyResponse)
         }
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
+export async function countInteractionsAsync(request: Request, response: Response) {
+    try {
+        const user: User = response.locals.loggedUser
+        const { uri } = request.body
+        if (!uri) { throw new ErrorPayload(400, 'Missing required data') }
+        const count = await facebook.getPostStatsAsync(user.FBAccessToken, uri)
+        response.status(200).json({ count })
     } catch (error) {
         handleError(error, response)
     }
