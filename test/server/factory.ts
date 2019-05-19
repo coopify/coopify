@@ -29,12 +29,14 @@ const createUser: UserAttributes = {
     email: 'sdfs@test.com',
     password: 'cdelsur',
     pictureURL: 'http://codigo.com',
+    referalCode: 'someString',
 }
 
 const createUser2: UserAttributes = {
     email: 'sdfs2@test.com',
     password: 'cdelsur',
     pictureURL: 'http://codigo.com',
+    referalCode: 'someString2',
 }
 
 const createOffer: OfferAttributes = {
