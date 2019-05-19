@@ -60,7 +60,7 @@ export async function exchangeFacebookCodeAsync(request: Request, response: Resp
 
 export async function signupAsync(request: Request, response: Response, next: NextFunction) {
     try {
-        const { email } = request.body
+        const { email, referalCode } = request.body
         if (!email) { throw new ErrorPayload(400, 'Missing required data') }
         if (!isValidEmail(request.body.email)) { throw new ErrorPayload(400, 'Invalid email') }
         const users = await UserInterface.findAsync({ email : request.body.email })
@@ -78,6 +78,10 @@ export async function signupAsync(request: Request, response: Response, next: Ne
             html: '<strong>We are glad to have you</strong>',
         })
         response.locals.user = user
+        if (referalCode) {
+            const referral = await UserInterface.findOneAsync({ referalCode })
+            if (referral) { handleRequest('referral', referral) }
+        }
         next()
     } catch (error) {
         handleError(error, response)
