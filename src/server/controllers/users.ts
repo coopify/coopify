@@ -68,7 +68,7 @@ export async function syncFBAccountAsync(request: Request, response: Response) {
         const userData = facebook.transform(userDataRaw)
         user.FBId = userData.FBId
         user.FBAccessToken = tokens.access_token
-        user.FBAccessToken = tokens.refresh_token
+        user.FBRefreshToken = tokens.refresh_token
         const updatedUser = await UserInterface.updateAsync(user, user)
         response.locals.user = updatedUser
         response.status(200).json({ user: User.toDTO(user) })
