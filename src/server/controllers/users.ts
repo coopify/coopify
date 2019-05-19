@@ -58,6 +58,37 @@ export async function exchangeFacebookCodeAsync(request: Request, response: Resp
     }
 }
 
+export async function syncFBAccountAsync(request: Request, response: Response) {
+    try {
+        const user: User = response.locals.loggedUser
+        const code = request.body.code
+        if (!code) { throw new ErrorPayload(400, 'Should provide a code to exchange') }
+        const tokens = await facebook.exchangeCodeAsync(code)
+        const userDataRaw = await facebook.getUserDataAsync(tokens.access_token)
+        const userData = facebook.transform(userDataRaw)
+        user.FBId = userData.FBId
+        user.FBAccessToken = tokens.access_token
+        user.FBRefreshToken = tokens.refresh_token
+        const updatedUser = await UserInterface.updateAsync(user, user)
+        response.locals.user = updatedUser
+        response.status(200).json({ user: User.toDTO(user) })
+        response.send()
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
+export async function shareFBAsync(request: Request, response) {
+    try {
+        const user: User = response.locals.loggedUser
+        //recompensar usuario
+        response.status(200).json({ user: User.toDTO(user) })
+        response.send()
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
 export async function signupAsync(request: Request, response: Response, next: NextFunction) {
     try {
         const { email, referalCode } = request.body

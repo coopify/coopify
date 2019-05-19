@@ -2,6 +2,7 @@ import * as FB from 'fb'
 import { ErrorPayload } from '../errorPayload'
 import { logger } from '../services'
 import * as moment from 'moment'
+import { User, Offer } from '../models'
 
 export interface IOptions {
     apikey: string,
@@ -33,7 +34,7 @@ export class FacebookService {
             appId: this.options.apikey,
             appSecret: this.options.secret,
             version: 'v3.2',
-            scope: 'user_birthday, user_gender, email, public_profile',
+            scope: 'user_birthday, user_gender, email, public_profile', //, publish_actions, manage_pages',
         }
     }
 
