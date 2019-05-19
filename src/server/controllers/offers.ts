@@ -81,7 +81,7 @@ export async function getQuestionsListAsync(request: Request, response: Response
 export async function countInteractionsAsync(request: Request, response: Response) {
     try {
         const user: User = response.locals.loggedUser
-        const { uri } = request.body
+        const { uri } = request.query
         if (!uri) { throw new ErrorPayload(400, 'Missing required data') }
         const count = await facebook.getPostStatsAsync(user.FBAccessToken, uri)
         response.status(200).json({ count })
