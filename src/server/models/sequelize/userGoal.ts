@@ -37,7 +37,8 @@ class UserGoal extends Model<UserGoal> {
     }
 
     public static async updateAsync(userGoal: UserGoal, params: IUpdateAttributes): Promise<UserGoal> {
-        return userGoal.update(params)
+        const updatedGoal = await userGoal.update(params)
+        return updatedGoal.save()
     }
 
     public static toDTO(userGoal: UserGoal) {
