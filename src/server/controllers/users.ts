@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
-import { UserInterface } from '../interfaces'
+import { UserInterface, OfferInterface } from '../interfaces'
 import { logger, redisCache, facebook, googleAuth, sendgrid, blockchain } from '../services'
 import { User } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { isValidEmail } from '../../../lib/validations'
+import { handleRequest } from '../rewards'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
@@ -24,6 +25,19 @@ export async function getFacebookAuthURLAsync(request: Request, response: Respon
         const url = facebook.generateAuthUrl()
         response.status(200).json({ url })
         response.send()
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
+export async function didShareActionAsync(request: Request, response: Response) {
+    try {
+        const user = response.locals.loggedUser
+        const { offerId } = request.body
+        if (!offerId) { throw new ErrorPayload(400, 'missing required data') }
+        const offer = await OfferInterface.getAsync(offerId)
+        if (!offer) { throw new ErrorPayload(404, 'Offer not found') }
+        handleRequest('share', user, offer)
     } catch (error) {
         handleError(error, response)
     }

@@ -67,8 +67,8 @@ export async function getUserGoalsAsync(request: Request, response: Response) {
 
 export async function createAsync(request: Request, response: Response) {
     try {
-        const { name, description, amount } = request.body
-        if (!name || !description || !amount) {
+        const { name, description, amount, code } = request.body
+        if (!name || !description || !amount || !code) {
             throw new ErrorPayload(400, 'Missing required data')
         }
 
@@ -76,6 +76,7 @@ export async function createAsync(request: Request, response: Response) {
             name,
             description,
             amount,
+            code,
         })
 
         if (!goalToCreate) { throw new ErrorPayload(500, 'Failed to create a new goal') }

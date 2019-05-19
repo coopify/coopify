@@ -1,4 +1,4 @@
-import { Offer, OfferAttributes, OfferCategory, IServiceFilter } from '../models'
+import { Offer, OfferAttributes, OfferUpdateAttributes, OfferCategory, IServiceFilter } from '../models'
 import { validateStatus, validatePaymentMethod } from './helpers'
 import { logger } from '../services'
 import { ErrorPayload } from '../errorPayload'
@@ -53,6 +53,7 @@ export async function createAsync(body: OfferAttributes): Promise<Offer | null> 
         if (body.paymentMethod) { validatePaymentMethod(body.paymentMethod) }
         if (body.status) { validateStatus(body.status) }
         //TODO in future: validate categories
+        body.shared = false
         const offerInstance = await Offer.createAsync(body)
         if (!offerInstance) { throw new ErrorPayload(500, 'Failed to create offer') }
         if (body.categories) {
@@ -63,6 +64,16 @@ export async function createAsync(body: OfferAttributes): Promise<Offer | null> 
             }))
         }
         return getAsync(offerInstance.id)
+    } catch (error) {
+        logger.error(new Error(error))
+        throw error
+    }
+}
+
+export async function updateAsync(offer: Offer, body: OfferUpdateAttributes): Promise<Offer | null> {
+    try {
+        const userInstance = await Offer.updateAsync(offer, body)
+        return userInstance
     } catch (error) {
         logger.error(new Error(error))
         throw error

@@ -1,4 +1,4 @@
-import { Goal, GoalAttributes, UserGoal } from '../models'
+import { Goal, GoalAttributes, UserGoal, UserGoalAttributes, UserGoalUpdatedAttributes } from '../models'
 import { logger } from '../services'
 import { ErrorPayload } from '../errorPayload'
 
@@ -52,6 +52,28 @@ export async function createAsync(body: GoalAttributes): Promise<Goal> {
         if (!goalInstance) { throw new ErrorPayload(500, 'Failed to create offer') }
 
         return goalInstance
+    } catch (error) {
+        logger.error(new Error(error))
+        throw error
+    }
+}
+
+export async function addUserGoalAsync(body: UserGoalAttributes): Promise<UserGoal> {
+    try {
+        const userGoalInstance = await UserGoal.createAsync(body)
+        if (!userGoalInstance) { throw new ErrorPayload(500, 'Failed to create offer') }
+        return userGoalInstance
+    } catch (error) {
+        logger.error(new Error(error))
+        throw error
+    }
+}
+
+export async function updateUserGoalAsync(userGoal: UserGoal, body: UserGoalUpdatedAttributes): Promise<UserGoal> {
+    try {
+        const userGoalInstance = await UserGoal.updateAsync(userGoal, body)
+        if (!userGoalInstance) { throw new ErrorPayload(500, 'Failed to update user goal') }
+        return userGoalInstance
     } catch (error) {
         logger.error(new Error(error))
         throw error

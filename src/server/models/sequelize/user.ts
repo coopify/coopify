@@ -86,6 +86,7 @@ class User extends Model<User> {
             address: user.address,
             phone: user.phone,
             interests: user.interests,
+            FBSync: user.FBId ? true : false,
             goals: user.goals && user.goals.length > 0 ? user.goals.map((g) => {
                 return { ...Goal.toDTO(g), quantity: g.UserGoal.quantity }
             }) : [],
