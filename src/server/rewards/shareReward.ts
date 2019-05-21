@@ -26,7 +26,7 @@ export class ShareReward implements IReward {
 
     public shouldReward(rewardParams: IShareRewardParams): boolean {
         //Check the previous userGoals and check that the goal was not met
-        const result = rewardParams.offer ? rewardParams.offer.shared && rewardParams.code === this.rewardCode : false
+        const result = rewardParams.offer ? !rewardParams.offer.shared && rewardParams.code === this.rewardCode : false
         return result
     }
 
