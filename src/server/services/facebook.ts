@@ -89,9 +89,8 @@ export class FacebookService {
     }
 
     public async getPostStatsAsync(token: string, uri: string): Promise<any> {
-        FB.setAccessToken(token)
         return new Promise((resolve, reject) => {
-            FB.api(`/v3.2/?id=${uri}&fields=engagement&access_token=${token}`, (res) => {
+            FB.api(`/v3.2/?id=${uri}&fields=engagement&access_token=${this.options.apikey}|${this.options.secret}`, (res) => {
                 if (!res || res.error) {
                     logger.error(!res ? 'error occurred' : res.error)
                     throw new ErrorPayload(500, 'Facebook error', res.error)
