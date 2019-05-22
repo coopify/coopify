@@ -28,10 +28,13 @@ export class ReferReward implements IReward {
 
     public handleRequest(rewardParams: IReferRewardParams) {
         if (this.shouldReward(rewardParams)) {
+            logger.info(`Applying the reward for refering an user`)
             this.applyReward(rewardParams)
         } else {
             if (!this.handledReward && this.successor) {
                 this.successor.handleRequest(rewardParams)
+            } else {
+                logger.error(`Failed to react to a stimulus for reward => ${JSON.stringify(rewardParams)}`)
             }
         }
     }

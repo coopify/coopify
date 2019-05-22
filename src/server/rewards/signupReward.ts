@@ -33,6 +33,7 @@ export class SignupReward implements IReward {
 
     public handleRequest(rewardParams: ISignUpRewardParams) {
         if (this.shouldReward(rewardParams)) {
+            logger.info(`Applying the reward for signing up`)
             this.applyReward(rewardParams)
         } else {
             if (!this.handledReward && this.successor) {

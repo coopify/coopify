@@ -32,6 +32,7 @@ export class ShareReward implements IReward {
 
     public handleRequest(rewardParams: IShareRewardParams) {
         if (this.shouldReward(rewardParams)) {
+            logger.info(`Applying the reward for sharing a offer`)
             this.applyReward(rewardParams)
         } else {
             if (!this.handledReward && this.successor) {
