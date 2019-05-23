@@ -69,7 +69,8 @@ class User extends Model<User> {
     }
 
     public static async updateAsync(userToEdit: User, params: IUpdateAttributes): Promise<User> {
-        return userToEdit.update(params)
+        const updateUser = await userToEdit.update(params)
+        return updateUser.save()
     }
 
     public static toDTO(user: User) {
