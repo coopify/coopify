@@ -100,7 +100,7 @@ export async function acceptAsync(request: Request, response: Response) {
         if (!from || !to) { throw new ErrorPayload(404, 'User not found') }
         if (!offer) { throw new ErrorPayload(404, 'Offer not found') }
         if (offer.paymentMethod === 'Coopy') {
-            await blockchain.transfer({ from, to, offer, proposal, amount: proposal.proposedPrice })
+            await blockchain.transfer({ from, to, offer, proposal, amount: proposal.proposedPrice, concept: `Payment for ${offer.title}` })
             proposal.status = 'PaymentPending'
         } else {
             proposal.status = 'Confirmed'

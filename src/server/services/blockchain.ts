@@ -14,6 +14,7 @@ export interface ITransfer {
     offer: Offer
     proposal: Proposal
     amount: number
+    concept: string
 }
 
 export interface IReward {
@@ -115,7 +116,7 @@ export class Blockchain {
     }
 
     public reward(body: IReward) {
-        const uri = `${this.options.route}:${this.options.port}/api/users/pay`
+        const uri = `${this.options.route}:${this.options.port}/api/users/reward`
         return rp({
             uri,
             method: 'POST',
