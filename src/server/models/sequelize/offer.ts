@@ -87,7 +87,8 @@ class Offer extends Model<Offer> {
     }
 
     public static async updateAsync(offer: Offer, params: IUpdateAttributes): Promise<Offer> {
-        return offer.update(params)
+        const updatedOffer = await offer.update(params)
+        return updatedOffer.save()
     }
 
     public static toDTO(offer: Offer) {

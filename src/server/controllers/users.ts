@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
 import { UserInterface, OfferInterface } from '../interfaces'
 import { logger, redisCache, facebook, googleAuth, sendgrid, blockchain } from '../services'
-import { User } from '../models'
+import { User, Offer } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { isValidEmail } from '../../../lib/validations'
 import { handleRequest } from '../rewards'
@@ -37,7 +37,11 @@ export async function didShareActionAsync(request: Request, response: Response) 
         if (!offerId) { throw new ErrorPayload(400, 'missing required data') }
         const offer = await OfferInterface.getAsync(offerId)
         if (!offer) { throw new ErrorPayload(404, 'Offer not found') }
-        handleRequest('share', user, offer)
+        if (user.id === offer.userId) {
+            handleRequest('share', user, offer)
+        }
+        response.status(200).json({ user: User.toDTO(user) })
+        response.send()
     } catch (error) {
         handleError(error, response)
     }
@@ -71,17 +75,6 @@ export async function syncFBAccountAsync(request: Request, response: Response) {
         user.FBRefreshToken = tokens.refresh_token
         const updatedUser = await UserInterface.updateAsync(user, user)
         response.locals.user = updatedUser
-        response.status(200).json({ user: User.toDTO(user) })
-        response.send()
-    } catch (error) {
-        handleError(error, response)
-    }
-}
-
-export async function shareFBAsync(request: Request, response) {
-    try {
-        const user: User = response.locals.loggedUser
-        //recompensar usuario
         response.status(200).json({ user: User.toDTO(user) })
         response.send()
     } catch (error) {
