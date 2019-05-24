@@ -44,11 +44,7 @@ export class SignupReward implements IReward {
 
     public applyReward(rewardParams: ISignUpRewardParams) {
         try {
-            blockchain.reward({
-                amount: this.rewardAmount,
-                concept: 'Payment for signing up',
-                to: rewardParams.user,
-            })
+            blockchain.signUp(rewardParams.user.id)
             this.handledReward = true
             this.markRewardAsync(rewardParams)
         } catch (error) {

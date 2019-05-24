@@ -93,7 +93,7 @@ export async function signupAsync(request: Request, response: Response, next: Ne
 
         const user =  await UserInterface.createAsync(request.body)
         if (!user) { return response.status(404).json(new ErrorPayload(404, 'Failed to create user')) }
-        blockchain.signUp(user.id) //Call the blockchain to generate the wallet, etc.
+        handleRequest('signup', user)
         await sendgrid.sendEmail({
             from: 'coopify@dev.com',
             subject: 'Welcome to Coopify',
