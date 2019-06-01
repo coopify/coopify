@@ -7,6 +7,8 @@ import { UserAttributes, UserUpateAttributes, User } from '../../../src/server/m
 import { app } from '../../../src/server'
 import { factory } from '../factory'
 import * as moment from 'moment'
+import { mockURL, mockURLWithErrorResponse } from '../mocks'
+import * as uuid from 'uuid'
 
 const request = supertest(app)
 const createUser: UserAttributes = {
@@ -98,6 +100,56 @@ describe('User Tests', async () => {
             it('Should not create a new user due to a taken email', async () => {
                 const res = await request.put(`/api/users/${user.id}`).set('Authorization', `bearer ${token}`).send({ attributes: { birthdate: new Date(Date.now()) } }).expect(400)
                 expect(res.body.message).to.eq(`You must be over 18 years old`)
+            })
+        })
+    })
+    describe('#GET /api/users/facebookURL', async () => {
+        context('', async () => {
+            it('', async () => {
+                const res = await request.get('/api/users/facebookURL').expect(200)
+                expect(res.body.url).to.exist('No url returned')
+            })
+        })
+    })
+    describe('#GET /api/users/googleURL', async () => {
+        context('', async () => {
+            it('', async () => {
+                const res = await request.get('/api/users/googleURL').expect(200)
+                expect(res.body.url).to.exist('No url returned')
+            })
+        })
+    })
+    describe('#GET /api/users/:userId/balance', async () => {
+        let user: User
+        let accessToken: string
+        context('', async () => {
+            beforeEach(async () =>  {
+                user = await factory.create('user', createUser)
+                accessToken = (await logInUser(user)).accessToken
+                mockURL(user.id)
+            })
+            it('1', async () => {
+                const res = await request.get(`/api/users/${user.id}/balance`).set('Authorization', `bearer ${accessToken}`).expect(200)
+                expect(res.body.balance).to.exist('No balance returned returned')
+            })
+            it('2', async () => {
+                const res = await request.get(`/api/users/${user.id}/balance`).expect(403)
+                expect(res.body.message).to.eq('Unauthorised. You need to provide a valid bearer token')
+            })
+            it('3', async () => {
+                const res = await request.get(`/api/users/${uuid()}/balance`).set('Authorization', `bearer ${accessToken}`).expect(404)
+                expect(res.body.message).to.eq('User not found')
+            })
+        })
+        context('', async () => {
+            beforeEach(async () =>  {
+                user = await factory.create('user', createUser)
+                accessToken = (await logInUser(user)).accessToken
+                mockURLWithErrorResponse(user.id)
+            })
+            it('5', async () => {
+                const res = await request.get(`/api/users/${user.id}/balance`).set('Authorization', `bearer ${accessToken}`).expect(500)
+                expect(res.body.message).to.eq('Failed to get balance')
             })
         })
     })

@@ -141,12 +141,12 @@ export async function googleAPIURLAsync(request: Request, response: Response, ne
 
 export async function getBalanceAsync(request: Request, response: Response, next: NextFunction) {
     try {
-        const balance = await blockchain.getBalanceAsync(response.locals.user.id)
+        const balance = await blockchain.getBalanceAsync(response.locals.loggedUser.id)
         response.status(200).json(balance)
         response.send()
     } catch (error) {
         logger.error(error)
-        response.status(400).json(new ErrorPayload(400, error, error))
+        handleError(error, response)
     }
 }
 

@@ -7,7 +7,7 @@ export async function logInUser(user: User | undefined) {
     const loggedInUser: User = user ? user : await factory.create('user')
     const accessToken = sign({ userId: loggedInUser.id }, 'someKeyToSubstitute')
     await redisCache.saveAccessTokenAsync(loggedInUser.id + '', accessToken)
-    logger.info(`Logged in User ${loggedInUser.id}`)
+    logger.info(`Simulated log in by user ${loggedInUser.id}`)
     return {
         loggedInUser, accessToken,
     }
