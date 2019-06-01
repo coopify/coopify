@@ -1,10 +1,15 @@
 import { factory } from 'factory-girl'
 import { User, UserAttributes, Offer, OfferAttributes, Category, CategoryAttributes, Question, QuestionAttributes,
-    Goal, GoalAttributes, UserGoal, UserGoalAttributes } from '../../src/server/models'
+    Goal, GoalAttributes, UserGoal, UserGoalAttributes, ConversationAttributes, MessageAttributes, Conversation, Message  } from '../../src/server/models'
 
 factory.define('user', User, {
     email: factory.seq('User.email', (n) => `user${n}@example.com`),
     password: 'dadsaasd',
+})
+
+factory.define('user2', User, {
+    email: factory.seq('User.email', (n) => `user${n}@example.com`),
+    password: 'lklklklkl',
 })
 
 factory.define('offer', Offer, {
@@ -38,6 +43,17 @@ factory.define('userGoal', UserGoal, {
     goalId: factory.assoc('goal', 'id'),
     quantity: 3,
     code: 'someCode',
+})
+
+factory.define('conversation', Conversation, {
+    fromId: factory.assoc('user', 'fromId'),
+    toId: factory.assoc('user2', 'toId'),
+})
+
+factory.define('message', Message, {
+    authorId: factory.assoc('user', 'id'),
+    conversationId: factory.assoc('conversation', 'id'),
+    text: 'Some text sent in the message',
 })
 
 const createUser: UserAttributes = {
@@ -76,6 +92,7 @@ const createQuestion: QuestionAttributes = {
     text: 'Some text associated',
 }
 
+<<<<<<< HEAD
 const createGoal: GoalAttributes = {
     name: 'Some name',
     description: 'Some description',
@@ -91,3 +108,17 @@ const createUserGoal: UserGoalAttributes = {
 }
 
 export { factory, createUser, createUser2, createOffer, createCategory, createQuestion, createGoal, createUserGoal }
+=======
+const createConversation: ConversationAttributes = {
+    fromId: 'someFromId',
+    toId: 'someToId',
+}
+
+const createMessage: MessageAttributes = {
+    authorId: 'someAuthorId',
+    conversationId: 'someConversationId',
+    text: 'Some text sent in the message',
+}
+
+export { factory, createUser, createUser2, createOffer, createCategory, createQuestion, createConversation, createMessage }
+>>>>>>> First approach to message tests
