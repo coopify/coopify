@@ -17,6 +17,20 @@ export function mockGetBalanceErrorRequest(userId) {
     logger.info(`Mocking failure balance request for user ${userId} `)
 }
 
+export function mockPayRewardOkRequest(userId) {
+    nock(`${blockchain.route}:${blockchain.port}`)
+        .post(`/api/users/reward`)
+        .reply(200, {})
+    logger.info(`Mocking successful balance request for user ${userId} `)
+}
+
+export function mockPayRewardErrorRequest(userId) {
+    nock(`${blockchain.route}:${blockchain.port}`)
+        .post(`/api/users/reward`)
+        .reply(500, {})
+    logger.info(`Mocking failure balance request for user ${userId} `)
+}
+
 export function mockGetTransactionsOkRequest(userId: string, toId: string, fromId: string) {
     nock(`${blockchain.route}:${blockchain.port}`)
         .get(`/api/users/${userId}/transactions`)

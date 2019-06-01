@@ -311,10 +311,10 @@ export async function loadLoggedUser(request: Request, response: Response, next:
 export function authenticate(request: Request, response: Response, next: NextFunction) {
     try {
         if (!response.locals.loggedUser) { throw new ErrorPayload(403, `Unauthorised. You need to provide a valid bearer token`) }
+        next()
     } catch (error) {
         handleError(error, response)
     }
-    next()
 }
 
 export function validateOwner(request: Request, response: Response, next: NextFunction) {

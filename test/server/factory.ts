@@ -1,6 +1,8 @@
 import { factory } from 'factory-girl'
 import { User, UserAttributes, Offer, OfferAttributes, Category, CategoryAttributes, Question, QuestionAttributes,
-    Goal, GoalAttributes, UserGoal, UserGoalAttributes, ConversationAttributes, MessageAttributes, Conversation, Message  } from '../../src/server/models'
+    Goal, GoalAttributes, Proposal, ProposalAttributes, UserGoal, UserGoalAttributes, ConversationAttributes, MessageAttributes,
+    Conversation, Message,
+} from '../../src/server/models'
 
 factory.define('user', User, {
     email: factory.seq('User.email', (n) => `user${n}@example.com`),
@@ -51,11 +53,31 @@ factory.define('message', Message, {
     text: 'Some text sent in the message',
 })
 
+factory.define('proposal', Proposal, {
+    proposerId: factory.assoc('user', 'id'),
+    offerId: factory.assoc('offer', 'id'),
+    status: 'Waiting',
+    conversationId: factory.assoc('conversation', 'id'),
+    exchangeMethod: 'Coopy',
+    exchangeInstance: 'Hour',
+    proposedPrice: 50,
+})
+
 const createUser: UserAttributes = {
     email: 'sdfs@test.com',
     password: 'cdelsur',
     pictureURL: 'http://codigo.com',
     referalCode: 'someString',
+}
+
+const createProposal: ProposalAttributes = {
+    offerId: 'someId',
+    proposerId: 'someProposerId',
+    status: 'Waiting',
+    conversationId: 'conversationId',
+    exchangeMethod: 'Coopy',
+    exchangeInstance: 'Hour',
+    proposedPrice: 50,
 }
 
 const createUser2: UserAttributes = {
@@ -120,4 +142,4 @@ const createMessage: MessageAttributes = {
 }
 
 export { factory, createUser, createUser2, createUser3, createOffer, createCategory, createQuestion, createConversation,
-    createMessage, createGoal, createUserGoal }
+    createMessage, createGoal, createUserGoal, createProposal }

@@ -5,11 +5,10 @@ import * as _ from 'lodash'
 import { logInUser } from './helpers'
 import { UserAttributes, UserUpateAttributes, User } from '../../../src/server/models'
 import { app } from '../../../src/server'
-import { factory } from '../factory'
+import { factory, createProposal, createOffer } from '../factory'
 import * as moment from 'moment'
-import { mockGetBalanceOkRequest, mockGetBalanceErrorRequest, mockGetTransactionsOkRequest, mockGetTransactionsErrorRequest } from '../mocks'
+import { mockGetBalanceOkRequest, mockGetBalanceErrorRequest, mockGetTransactionsOkRequest, mockGetTransactionsErrorRequest, mockPayRewardOkRequest } from '../mocks'
 import * as uuid from 'uuid'
-import { logger } from '../../../src/server/services';
 
 const request = supertest(app)
 const createUser: UserAttributes = {
@@ -219,6 +218,46 @@ describe('User Tests', async () => {
             it('5', async () => {
                 const res = await request.get(`/api/users/${user1.id}/transactions`).set('Authorization', `bearer ${accessToken}`).expect(500)
                 expect(res.body.message).to.eq('Failed to get transactions')
+            })
+        })
+    })
+    describe('#POST /api/users/:userId/share', async () => {
+        context('Users already registered', async () => {
+            let user1: User
+            let user2: User
+            let proposal, accessToken, offer, accessToken2
+            beforeEach(async () =>  {
+                const createUserClone = _.cloneDeep(createUser)
+                createUserClone.email = 'u@1.com'
+                user1 = await factory.create('user', createUserClone)
+                accessToken = (await logInUser(user1)).accessToken
+                createUserClone.email = 'u@2.com'
+                user2 = await factory.create('user', createUserClone)
+                accessToken2 = (await logInUser(user2)).accessToken
+                const createOfferClone = _.cloneDeep(createOffer)
+                createOfferClone.userId = user1.id
+                offer = await factory.create('offer', createOfferClone)
+                const conversation = await factory.create('conversation', { fromId: user1.id, toId: user2.id })
+                const createProposalClone = _.cloneDeep(createProposal)
+                createProposalClone.conversationId = conversation.id
+                createProposalClone.offerId = offer.id
+                createProposalClone.proposerId = user1.id
+                proposal = await factory.create('proposal', createProposalClone)
+                mockPayRewardOkRequest(user1.id)
+            })
+            it('1', async () => {
+                const res = await request.post(`/api/users/${user1.id}/share`).send({ offerId: offer.id }).set({ Authorization: `Bearer ${accessToken}` }).expect(200)
+                expect(res.body.user).to.exist('No user returned')
+                //TODO: esto solo prueba q se dispare el completar la goal, no se fija q la goal se marque como completa o no. Habria q incluir alguna prueba unitaria para la CHOR
+            })
+            it('2', async () => {
+                const res = await request.post(`/api/users/${user1.id}/share`).send({  }).set({ Authorization: `Bearer ${accessToken}` }).expect(400)
+                expect(res.body.message).to.eq('missing required data')
+            })
+            it('3', async () => {
+                const res = await request.post(`/api/users/${user1.id}/share`).send({ offerId: offer.id }).set({ Authorization: `Bearer ${accessToken2}` }).expect(200)
+                expect(res.body.user).to.exist('No user returned')
+                //TODO: esto solo prueba q se dispare el completar la goal, no se fija q la goal se marque como completa o no. Habria q incluir alguna prueba unitaria para la CHOR
             })
         })
     })
