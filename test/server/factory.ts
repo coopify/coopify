@@ -7,11 +7,6 @@ factory.define('user', User, {
     password: 'dadsaasd',
 })
 
-factory.define('user2', User, {
-    email: factory.seq('User.email', (n) => `user${n}@example.com`),
-    password: 'lklklklkl',
-})
-
 factory.define('offer', Offer, {
     userId: factory.assoc('user', 'id'),
     images: [],
@@ -67,7 +62,7 @@ const createUser2: UserAttributes = {
     email: 'sdfs2@test.com',
     password: 'cdelsur',
     pictureURL: 'http://codigo.com',
-    referalCode: 'someString2',
+    referalCode: 'someString22',
 }
 
 const createOffer: OfferAttributes = {
