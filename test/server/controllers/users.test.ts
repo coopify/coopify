@@ -7,8 +7,9 @@ import { UserAttributes, UserUpateAttributes, User } from '../../../src/server/m
 import { app } from '../../../src/server'
 import { factory } from '../factory'
 import * as moment from 'moment'
-import { mockURL, mockURLWithErrorResponse } from '../mocks'
+import { mockGetBalanceOkRequest, mockGetBalanceErrorRequest, mockGetTransactionsOkRequest, mockGetTransactionsErrorRequest } from '../mocks'
 import * as uuid from 'uuid'
+import { logger } from '../../../src/server/services';
 
 const request = supertest(app)
 const createUser: UserAttributes = {
@@ -126,7 +127,7 @@ describe('User Tests', async () => {
             beforeEach(async () =>  {
                 user = await factory.create('user', createUser)
                 accessToken = (await logInUser(user)).accessToken
-                mockURL(user.id)
+                mockGetBalanceOkRequest(user.id)
             })
             it('1', async () => {
                 const res = await request.get(`/api/users/${user.id}/balance`).set('Authorization', `bearer ${accessToken}`).expect(200)
@@ -145,11 +146,79 @@ describe('User Tests', async () => {
             beforeEach(async () =>  {
                 user = await factory.create('user', createUser)
                 accessToken = (await logInUser(user)).accessToken
-                mockURLWithErrorResponse(user.id)
+                mockGetBalanceErrorRequest(user.id)
             })
             it('5', async () => {
                 const res = await request.get(`/api/users/${user.id}/balance`).set('Authorization', `bearer ${accessToken}`).expect(500)
                 expect(res.body.message).to.eq('Failed to get balance')
+            })
+        })
+    })
+    describe('#GET /api/users/:userId/transactions', async () => {
+        let user1: User
+        let user2: User
+        let accessToken: string
+        context('', async () => {
+            beforeEach(async () =>  {
+                const createUserClone = _.cloneDeep(createUser)
+                createUserClone.email = 'user1@example.com'
+                createUserClone.name = 'user1'
+                user1 = await factory.create('user', createUserClone)
+                createUserClone.email = 'user2@example.com'
+                createUserClone.name = 'user2'
+                user2 = await factory.create('user', createUserClone)
+                accessToken = (await logInUser(user1)).accessToken
+                mockGetTransactionsOkRequest(user1.id, user1.id, user2.id)
+            })
+            it('1', async () => {
+                const res = await request.get(`/api/users/${user1.id}/transactions`).set('Authorization', `bearer ${accessToken}`).expect(200)
+                expect(res.body.length).to.exist('No length returned')
+                expect(res.body.length).to.eq(1)
+                expect(res.body[0].from).to.eq('user2')
+                expect(res.body[0].to).to.eq('user1')
+            })
+            it('2', async () => {
+                const res = await request.get(`/api/users/${user1.id}/transactions`).expect(403)
+                expect(res.body.message).to.eq('Unauthorised. You need to provide a valid bearer token')
+            })
+            it('3', async () => {
+                const res = await request.get(`/api/users/${uuid()}/transactions`).set('Authorization', `bearer ${accessToken}`).expect(404)
+                expect(res.body.message).to.eq('User not found')
+            })
+        })
+        context('', async () => {
+            const otherUUID: string = uuid()
+            beforeEach(async () =>  {
+                const createUserClone = _.cloneDeep(createUser)
+                createUserClone.email = 'user1@example.com'
+                createUserClone.name = 'user1'
+                user1 = await factory.create('user', createUserClone)
+                createUserClone.email = 'user2@example.com'
+                createUserClone.name = 'user2'
+                user2 = await factory.create('user', createUserClone)
+                accessToken = (await logInUser(user1)).accessToken
+                mockGetTransactionsOkRequest(user1.id, user1.id, otherUUID)
+            })
+            it('4', async () => {
+                const res = await request.get(`/api/users/${user1.id}/transactions`).set('Authorization', `bearer ${accessToken}`).expect(404)
+                expect(res.body.message).to.eq('User not found')
+            })
+        })
+        context('', async () => {
+            beforeEach(async () =>  {
+                const createUserClone = _.cloneDeep(createUser)
+                createUserClone.email = 'user1@example.com'
+                createUserClone.name = 'user1'
+                user1 = await factory.create('user', createUserClone)
+                createUserClone.email = 'user2@example.com'
+                createUserClone.name = 'user2'
+                user2 = await factory.create('user', createUserClone)
+                accessToken = (await logInUser(user1)).accessToken
+                mockGetTransactionsErrorRequest(user1.id)
+            })
+            it('5', async () => {
+                const res = await request.get(`/api/users/${user1.id}/transactions`).set('Authorization', `bearer ${accessToken}`).expect(500)
+                expect(res.body.message).to.eq('Failed to get transactions')
             })
         })
     })

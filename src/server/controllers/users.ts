@@ -153,7 +153,7 @@ export async function getBalanceAsync(request: Request, response: Response, next
 export async function getTransactionsAsync(request: Request, response: Response, next: NextFunction) {
     try {
         const transactions = await blockchain.getTransactionsAsync(response.locals.user.id)
-        if (!transactions) { throw new ErrorPayload(500, 'Failed to get transaction') }
+        if (!transactions) { throw new ErrorPayload(500, 'Failed to get transactions') }
         const userTransactions = transactions.filter((t) => t.from !== 'Coopify' && t.to !== 'Coopify' )
         const coopifyTransactions = transactions.filter((t) => t.from === 'Coopify' || t.to === 'Coopify' )
         if (userTransactions) {
@@ -187,8 +187,7 @@ export async function getTransactionsAsync(request: Request, response: Response,
         response.status(200).json(coopifyTransactions.concat(userTransactions))
         response.send()
     } catch (error) {
-        logger.error(error)
-        response.status(400).json(new ErrorPayload(400, error, error))
+        handleError(error, response)
     }
 }
 

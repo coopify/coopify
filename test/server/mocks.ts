@@ -1,17 +1,40 @@
 import * as nock from 'nock'
 import { blockchain } from '../../config'
-import { logger } from '../../src/server/services';
+import { logger } from '../../src/server/services'
+import moment = require('moment')
 
-export function mockURL(userId) {
+export function mockGetBalanceOkRequest(userId) {
     nock(`${blockchain.route}:${blockchain.port}`)
         .get(`/api/users/${userId}/balance`)
         .reply(200, { balance: 200 })
-    logger.info(`Mocking balance URL for user ${userId} `)
+    logger.info(`Mocking successful balance request for user ${userId} `)
 }
 
-export function mockURLWithErrorResponse(userId) {
+export function mockGetBalanceErrorRequest(userId) {
     nock(`${blockchain.route}:${blockchain.port}`)
         .get(`/api/users/${userId}/balance`)
         .reply(500, {  })
-    logger.info(`Mocking balance URL for user ${userId} `)
+    logger.info(`Mocking failure balance request for user ${userId} `)
+}
+
+export function mockGetTransactionsOkRequest(userId: string, toId: string, fromId: string) {
+    nock(`${blockchain.route}:${blockchain.port}`)
+        .get(`/api/users/${userId}/transactions`)
+        .reply(200, [{
+            date: moment(Date.now()).toDate(),
+            coopies: 40,
+            from: fromId,
+            to: toId,
+            inOut: 'in',
+            description: 'Description',
+            proposalId: 'proposalId',
+        }])
+    logger.info(`Mocking successful transcations request for user ${userId} `)
+}
+
+export function mockGetTransactionsErrorRequest(userId: string) {
+    nock(`${blockchain.route}:${blockchain.port}`)
+        .get(`/api/users/${userId}/transactions`)
+        .reply(500, {  })
+    logger.info(`Mocking failure transcations request for user ${userId} `)
 }
