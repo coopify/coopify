@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
-import { UserInterface } from '../interfaces'
+import { UserInterface, OfferInterface } from '../interfaces'
 import { logger, redisCache, facebook, googleAuth, sendgrid, blockchain } from '../services'
-import { User } from '../models'
+import { User, Offer } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { isValidEmail } from '../../../lib/validations'
+import { handleRequest } from '../rewards'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
@@ -29,6 +30,23 @@ export async function getFacebookAuthURLAsync(request: Request, response: Respon
     }
 }
 
+export async function didShareActionAsync(request: Request, response: Response) {
+    try {
+        const user = response.locals.loggedUser
+        const { offerId } = request.body
+        if (!offerId) { throw new ErrorPayload(400, 'missing required data') }
+        const offer = await OfferInterface.getAsync(offerId)
+        if (!offer) { throw new ErrorPayload(404, 'Offer not found') }
+        if (user.id === offer.userId) {
+            handleRequest('share', user, offer)
+        }
+        response.status(200).json({ user: User.toDTO(user) })
+        response.send()
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
 export async function exchangeFacebookCodeAsync(request: Request, response: Response, next: NextFunction) {
     try {
         const code = request.body.code
@@ -44,9 +62,29 @@ export async function exchangeFacebookCodeAsync(request: Request, response: Resp
     }
 }
 
+export async function syncFBAccountAsync(request: Request, response: Response) {
+    try {
+        const user: User = response.locals.loggedUser
+        const code = request.body.code
+        if (!code) { throw new ErrorPayload(400, 'Should provide a code to exchange') }
+        const tokens = await facebook.exchangeCodeAsync(code)
+        const userDataRaw = await facebook.getUserDataAsync(tokens.access_token)
+        const userData = facebook.transform(userDataRaw)
+        user.FBId = userData.FBId
+        user.FBAccessToken = tokens.access_token
+        user.FBRefreshToken = tokens.refresh_token
+        const updatedUser = await UserInterface.updateAsync(user, user)
+        response.locals.user = updatedUser
+        response.status(200).json({ user: User.toDTO(user) })
+        response.send()
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
 export async function signupAsync(request: Request, response: Response, next: NextFunction) {
     try {
-        const { email } = request.body
+        const { email, referalCode } = request.body
         if (!email) { throw new ErrorPayload(400, 'Missing required data') }
         if (!isValidEmail(request.body.email)) { throw new ErrorPayload(400, 'Invalid email') }
         const users = await UserInterface.findAsync({ email : request.body.email })
@@ -55,7 +93,7 @@ export async function signupAsync(request: Request, response: Response, next: Ne
 
         const user =  await UserInterface.createAsync(request.body)
         if (!user) { return response.status(404).json(new ErrorPayload(404, 'Failed to create user')) }
-        blockchain.signUp(user.id) //Call the blockchain to generate the wallet, etc.
+        handleRequest('signup', user)
         await sendgrid.sendEmail({
             from: 'coopify@dev.com',
             subject: 'Welcome to Coopify',
@@ -64,6 +102,10 @@ export async function signupAsync(request: Request, response: Response, next: Ne
             html: '<strong>We are glad to have you</strong>',
         })
         response.locals.user = user
+        if (referalCode) {
+            const referral = await UserInterface.findOneAsync({ referalCode })
+            if (referral) { handleRequest('referral', referral) }
+        }
         next()
     } catch (error) {
         handleError(error, response)

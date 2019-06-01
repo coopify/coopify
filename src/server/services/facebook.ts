@@ -2,6 +2,7 @@ import * as FB from 'fb'
 import { ErrorPayload } from '../errorPayload'
 import { logger } from '../services'
 import * as moment from 'moment'
+import { User, Offer } from '../models'
 
 export interface IOptions {
     apikey: string,
@@ -33,7 +34,7 @@ export class FacebookService {
             appId: this.options.apikey,
             appSecret: this.options.secret,
             version: 'v3.2',
-            scope: 'user_birthday, user_gender, email, public_profile',
+            scope: 'user_birthday, user_gender, email, public_profile', //, publish_actions, manage_pages',
         }
     }
 
@@ -87,4 +88,16 @@ export class FacebookService {
         }
     }
 
+    public async getPostStatsAsync(token: string, uri: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            FB.api(`/v3.2/?id=${uri}&fields=engagement&access_token=${this.options.apikey}|${this.options.secret}`, (res) => {
+                if (!res || res.error) {
+                    logger.error(!res ? 'error occurred' : res.error)
+                    throw new ErrorPayload(500, 'Facebook error', res.error)
+                }
+                const engagement: number = res.engagement && res.engagement.share_count ? res.engagement.share_count : 0
+                return resolve(engagement)
+            })
+        })
+    }
 }

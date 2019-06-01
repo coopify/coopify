@@ -14,6 +14,13 @@ export interface ITransfer {
     offer: Offer
     proposal: Proposal
     amount: number
+    concept: string
+}
+
+export interface IReward {
+    to: User
+    amount: number
+    concept: string
 }
 
 export interface ITransaction {
@@ -102,7 +109,28 @@ export class Blockchain {
             logger.info(`User: ${body.from.email} paid user: ${body.to} ${body.amount} for the service ${body.offer.title}`)
             return res
         }).catch((err) => {
+            logger.error(`Failed to make a payment => ${JSON.stringify(err)}`)
             const message = `Failed to make a payment`
+            throw new ErrorPayload(500, message, err)
+        })
+    }
+
+    public reward(body: IReward) {
+        const uri = `${this.options.route}:${this.options.port}/api/users/reward`
+        return rp({
+            uri,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body,
+            json: true,
+        }).then((res) => {
+            logger.info(`Rewarded: ${body.to} for ${body.amount} for the concept of ${body.concept}`)
+            return res
+        }).catch((err) => {
+            logger.error(`Failed to process a reward => ${JSON.stringify(err)}`)
+            const message = `Failed to process a reward`
             throw new ErrorPayload(500, message, err)
         })
     }

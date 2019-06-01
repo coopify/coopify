@@ -42,12 +42,14 @@ const createUser: UserAttributes = {
     email: 'sdfs@test.com',
     password: 'cdelsur',
     pictureURL: 'http://codigo.com',
+    referalCode: 'someString',
 }
 
 const createUser2: UserAttributes = {
     email: 'sdfs2@test.com',
     password: 'cdelsur',
     pictureURL: 'http://codigo.com',
+    referalCode: 'someString2',
 }
 
 const createOffer: OfferAttributes = {
@@ -76,12 +78,14 @@ const createGoal: GoalAttributes = {
     name: 'Some name',
     description: 'Some description',
     amount: 20,
+    code: 'someCode',
 }
 
 const createUserGoal: UserGoalAttributes = {
     userId: 'someUserId',
     goalId: 'someGoalId',
     quantity: 3,
+    code: 'someCode',
 }
 
 export { factory, createUser, createUser2, createOffer, createCategory, createQuestion, createGoal, createUserGoal }

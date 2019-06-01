@@ -3,6 +3,7 @@ import { logger } from '../services'
 import { validateBirthdate, validateGender } from './helpers'
 import { IUserData as GoogleUserData } from '../services/googleAuthentication'
 import { IUserData as FBUserData } from '../services/facebook'
+import * as randomString from 'random-string'
 
 export async function getAsync(id: string): Promise<User | null> {
     try {
@@ -42,6 +43,7 @@ export async function createAsync(body: UserAttributes): Promise<User | null> {
         //See if it corresponds
         if (body.gender) { validateGender(body.gender) }
         if (body.birthdate) { validateBirthdate(body.birthdate) }
+        body.referalCode = randomString(8)
         const userInstance = await User.createAsync(body)
 
         return userInstance
@@ -54,8 +56,8 @@ export async function createAsync(body: UserAttributes): Promise<User | null> {
 export async function createFromFBAsync(body: FBUserData, tokens: { access_token: string, refresh_token: string } ): Promise<User | null> {
     try {
         if (body.gender) { validateGender(body.gender) }
-        const payload = { ...body, password: 'default', FBAccessToken: tokens.access_token, FBRefreshToken: tokens.refresh_token }
-        logger.info(`payload => ${JSON.stringify(payload)}`)
+        const payload = { ...body, password: 'default', FBAccessToken: tokens.access_token, FBRefreshToken: tokens.refresh_token, referalCode: randomString(8) }
+
         const userInstance = await User.createAsync(payload)
 
         return userInstance
@@ -67,7 +69,7 @@ export async function createFromFBAsync(body: FBUserData, tokens: { access_token
 
 export async function createFromGoogleAsync(body: GoogleUserData, tokens: { access_token: string, refresh_token: string }): Promise<User | null> {
     try {
-        const params = { ...body, password: 'default', googleAccessToken: tokens.access_token, googleRefreshToken: tokens.refresh_token, isVerified: true }
+        const params = { ...body, password: 'default', googleAccessToken: tokens.access_token, googleRefreshToken: tokens.refresh_token, isVerified: true, referalCode: randomString(8) }
         const userInstance = await User.createAsync(params)
 
         return userInstance

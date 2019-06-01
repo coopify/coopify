@@ -9,6 +9,7 @@ import { Goal } from './goal'
 interface IAttributes {
     email: string
     password: string
+    referalCode: string
     pictureURL?: string
     FBId?: string
     FBAccessToken?: string
@@ -68,7 +69,8 @@ class User extends Model<User> {
     }
 
     public static async updateAsync(userToEdit: User, params: IUpdateAttributes): Promise<User> {
-        return userToEdit.update(params)
+        const updateUser = await userToEdit.update(params)
+        return updateUser.save()
     }
 
     public static toDTO(user: User) {
@@ -86,6 +88,8 @@ class User extends Model<User> {
             address: user.address,
             phone: user.phone,
             interests: user.interests,
+            FBSync: user.FBId ? true : false,
+            referalCode: user.referalCode,
             goals: user.goals && user.goals.length > 0 ? user.goals.map((g) => {
                 return { ...Goal.toDTO(g), quantity: g.UserGoal.quantity }
             }) : [],
@@ -148,6 +152,10 @@ class User extends Model<User> {
     @Default(false)
     @Column(DataType.BOOLEAN)
     public isVerified
+
+    @AllowNull(false)
+    @Column(DataType.STRING)
+    public referalCode
 
     @Column(DataType.STRING)
     public FBAccessToken

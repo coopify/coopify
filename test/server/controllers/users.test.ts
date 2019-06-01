@@ -13,6 +13,7 @@ const createUser: UserAttributes = {
     email : 'sdfs@test.com',
     password: 'cdelsur',
     pictureURL : 'http://codigo.com',
+    referalCode: 'someString',
 }
 const updateUser: UserUpateAttributes = {
     name: 'Default',
