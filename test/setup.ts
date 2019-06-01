@@ -18,7 +18,7 @@ before(async () => {
     logger.info('TESTS => Services initialized')
 })
 
-beforeEach('cleanDatabase', async function() {
-    this.timeout(5000)
+beforeEach('cleanDatabase', async () => {
+    //this.timeout(5000)
     await rdb.sequelize.truncate({ cascade: true })
 })

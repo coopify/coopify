@@ -80,13 +80,13 @@ describe('Goal Tests', async () => {
 describe('User Goal Tests', async () => {
     describe('#GET /api/goals/user/:userId', async () => {
         context('User and Goal already created', async () => {
-            let createGoalClone, createUserGoalClone, user, token, goal, userGoal
+            let createUserGoalClone, user, token, goal, userGoal
             beforeEach(async () => {
                 user = await factory.create('user', createUser)
                 token = (await logInUser(user)).accessToken
             })
             it('Should get the goal list with one element', async () => {
-                createGoalClone = _.cloneDeep(createGoal)
+                const createGoalClone = _.cloneDeep(createGoal)
                 goal = await factory.create('goal', createGoalClone)
 
                 createUserGoalClone = _.cloneDeep(createUserGoal)

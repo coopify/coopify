@@ -30,12 +30,14 @@ factory.define('goal', Goal, {
     name: 'Shared service',
     description: 'Shared service in social networks',
     amount: 20,
+    code: 'someCode',
 })
 
 factory.define('userGoal', UserGoal, {
     userId: factory.assoc('user', 'id'),
     goalId: factory.assoc('goal', 'id'),
-    amount: 3,
+    quantity: 3,
+    code: 'someCode',
 })
 
 const createUser: UserAttributes = {
