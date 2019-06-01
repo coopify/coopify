@@ -58,15 +58,9 @@ export async function getUserGoalsAsync(request: Request, response: Response) {
         if (limit) { limit = parseInt(limit) }
         if (skip) { skip = parseInt(skip) }
         if (limit && skip) { skip = limit * skip }
-<<<<<<< HEAD
 
         const userGoals = await GoalInterface.findUserGoalsAsync({ userId: loggedUser.id })
-        logger.info(`LU => ${JSON.stringify(loggedUser)}`)
-=======
-        const userGoals = await GoalInterface.findUserGoalsAsync({ userId: loggedUser.id })
->>>>>>> a5c92557608c2c7fe937f6ef30be4be4957b8fb8
         if (!userGoals) { throw new ErrorPayload(500, 'Failed to get user goals') }
-        logger.info(`UG => ${JSON.stringify(userGoals)}`)
         response.status(200).json(userGoals)
     } catch (error) {
         handleError(error, response)
