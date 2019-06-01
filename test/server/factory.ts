@@ -35,7 +35,7 @@ factory.define('goal', Goal, {
     code: 'someCode',
 })
 
-factory.define('userGoal', UserGoal, {
+factory.define('usergoal', UserGoal, {
     userId: factory.assoc('user', 'id'),
     goalId: factory.assoc('goal', 'id'),
     quantity: 3,

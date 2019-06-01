@@ -30,10 +30,9 @@ export class ShareReward implements IReward {
         return result
     }
 
-    public handleRequest(rewardParams: IShareRewardParams) {
+    public async handleRequest(rewardParams: IShareRewardParams): Promise<void> {
         if (this.shouldReward(rewardParams)) {
-            logger.info(`Applying the reward for sharing a offer`)
-            this.applyReward(rewardParams)
+            return await this.applyReward(rewardParams)
         } else {
             if (!this.handledReward && this.successor) {
                 this.successor.handleRequest(rewardParams)
@@ -41,14 +40,14 @@ export class ShareReward implements IReward {
         }
     }
 
-    public applyReward(rewardParams: IShareRewardParams) {
+    public async applyReward(rewardParams: IShareRewardParams): Promise<void> {
         blockchain.reward({
             amount: this.rewardAmount,
             concept: 'Payment for sharing a service on social media',
             to: rewardParams.user,
         })
         this.handledReward = true
-        this.markRewardAsync(rewardParams)
+        return this.markRewardAsync(rewardParams)
     }
 
     public async markRewardAsync(rewardParams: IShareRewardParams) {
@@ -65,11 +64,11 @@ export class ShareReward implements IReward {
                     })
                 }
             } else {
-                if (rewardParams.offer) {
-                    await OfferInterface.updateAsync(rewardParams.offer, { shared: true })
-                }
                 userGoalToUpdate.quantity = userGoalToUpdate.quantity + 1
                 await GoalInterface.updateUserGoalAsync(userGoalToUpdate, userGoalToUpdate)
+            }
+            if (rewardParams.offer) {
+                await OfferInterface.updateAsync(rewardParams.offer, { shared: true })
             }
         } catch (error) {
             logger.error(`ShareReward markRewardAsync => ${JSON.stringify(error)}`)

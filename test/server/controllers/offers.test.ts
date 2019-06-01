@@ -171,7 +171,7 @@ describe('Offer Tests', async () => {
         })
     })
 
-    describe.only('#GET /api/offers/user/:userId', async () => {
+    describe('#GET /api/offers/user/:userId', async () => {
         context('Offer already created', async () => {
             let createOfferClone, user1, user2
             beforeEach(async () => {

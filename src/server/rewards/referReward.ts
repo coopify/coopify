@@ -26,10 +26,10 @@ export class ReferReward implements IReward {
         return rewardParams.code === this.rewardCode
     }
 
-    public handleRequest(rewardParams: IReferRewardParams) {
+    public async handleRequest(rewardParams: IReferRewardParams): Promise<void> {
         if (this.shouldReward(rewardParams)) {
             logger.info(`Applying the reward for refering an user`)
-            this.applyReward(rewardParams)
+            return await this.applyReward(rewardParams)
         } else {
             if (!this.handledReward && this.successor) {
                 this.successor.handleRequest(rewardParams)
@@ -39,7 +39,7 @@ export class ReferReward implements IReward {
         }
     }
 
-    public applyReward(rewardParams: IReferRewardParams) {
+    public async applyReward(rewardParams: IReferRewardParams): Promise<void> {
         try {
             blockchain.reward({
                 amount: this.rewardAmount,
@@ -47,7 +47,7 @@ export class ReferReward implements IReward {
                 to: rewardParams.user,
             })
             this.handledReward = true
-            this.markRewardAsync(rewardParams)
+            return this.markRewardAsync(rewardParams)
         } catch (error) {
             logger.error(`ReferReward applyReward => ${JSON.stringify(error)}`)
         }
