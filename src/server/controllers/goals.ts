@@ -3,6 +3,7 @@ import { GoalInterface } from '../interfaces'
 import { Goal } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { handleError } from './helpers'
+import { logger } from '../services'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
@@ -58,8 +59,10 @@ export async function getUserGoalsAsync(request: Request, response: Response) {
         if (skip) { skip = parseInt(skip) }
         if (limit && skip) { skip = limit * skip }
 
-        const userGoals = await GoalInterface.findUserGoalsAsync({ userId: loggedUser.userId })
+        const userGoals = await GoalInterface.findUserGoalsAsync({ userId: loggedUser.id })
+        logger.info(`LU => ${JSON.stringify(loggedUser)}`)
         if (!userGoals) { throw new ErrorPayload(500, 'Failed to get user goals') }
+        logger.info(`UG => ${JSON.stringify(userGoals)}`)
         response.status(200).json(userGoals)
     } catch (error) {
         handleError(error, response)

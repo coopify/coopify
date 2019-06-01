@@ -1,5 +1,6 @@
 import { factory } from 'factory-girl'
-import { User, UserAttributes, Offer, OfferAttributes, Category, CategoryAttributes, Question, QuestionAttributes, Goal, GoalAttributes } from '../../src/server/models'
+import { User, UserAttributes, Offer, OfferAttributes, Category, CategoryAttributes, Question, QuestionAttributes,
+    Goal, GoalAttributes, UserGoal, UserGoalAttributes } from '../../src/server/models'
 
 factory.define('user', User, {
     email: factory.seq('User.email', (n) => `user${n}@example.com`),
@@ -29,6 +30,12 @@ factory.define('goal', Goal, {
     name: 'Shared service',
     description: 'Shared service in social networks',
     amount: 20,
+})
+
+factory.define('userGoal', UserGoal, {
+    userId: factory.assoc('user', 'id'),
+    goalId: factory.assoc('goal', 'id'),
+    amount: 3,
 })
 
 const createUser: UserAttributes = {
@@ -71,4 +78,10 @@ const createGoal: GoalAttributes = {
     amount: 20,
 }
 
-export { factory, createUser, createUser2, createOffer, createCategory, createQuestion, createGoal }
+const createUserGoal: UserGoalAttributes = {
+    userId: 'someUserId',
+    goalId: 'someGoalId',
+    quantity: 3,
+}
+
+export { factory, createUser, createUser2, createOffer, createCategory, createQuestion, createGoal, createUserGoal }
