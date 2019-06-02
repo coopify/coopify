@@ -1,10 +1,13 @@
 import {
     Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, AfterCreate,
-    HasMany, BelongsToMany,
+    HasMany, BelongsToMany, BeforeCreate,
 } from 'sequelize-typescript'
 import { Conversation } from './conversation'
 import { UserGoal } from './userGoal'
+import * as bcrypt from 'bcrypt-nodejs'
 import { Goal } from './goal'
+import { logger } from '../../services'
+import { ErrorPayload } from '../../errorPayload';
 
 interface IAttributes {
     email: string
@@ -43,6 +46,22 @@ interface IUpdateAttributes {
 
 @Table({ timestamps: true })
 class User extends Model<User> {
+
+    @BeforeCreate
+    public static async encryptPassword(instance: User) {
+        try {
+            bcrypt.hash(instance.password, null, null, (err, result) => {
+                if (!err) {
+                    instance.password = result
+                } else {
+                    throw new ErrorPayload(500, 'Failed to generate password', err)
+                }
+            })
+            logger.info(`Instance => ${JSON.stringify(instance)}`)
+        } catch (error) {
+            logger.error(`USER MODEL => encryptPassword() for ${instance.id} failed with error: ${JSON.stringify(error)}`)
+        }
+    }
 
     public static async getAsync(id: string): Promise<User | null> {
         return this.findById<User>(id, {
@@ -174,6 +193,16 @@ class User extends Model<User> {
 
     @BelongsToMany(() => Goal, () => UserGoal)
     public goals
+
+    public async isValidPassword(password: string): Promise<boolean> {
+        return new Promise<boolean>((resolve) => {
+            bcrypt.compare(password, this.password, (err, res: boolean) => {
+                if (!err) { resolve(res) } else {
+                    throw new ErrorPayload(400, 'Wrong password')
+                }
+            })
+        })
+    }
 }
 
 export { IAttributes, IUpdateAttributes, User }

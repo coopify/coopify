@@ -2,10 +2,11 @@ import { NextFunction, Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
 import { UserInterface, OfferInterface } from '../interfaces'
 import { logger, redisCache, facebook, googleAuth, sendgrid, blockchain } from '../services'
-import { User, Offer } from '../models'
+import { User, UserAttributes } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { isValidEmail } from '../../../lib/validations'
 import { handleRequest } from '../rewards'
+import { handleError } from './helpers'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
@@ -84,14 +85,15 @@ export async function syncFBAccountAsync(request: Request, response: Response) {
 
 export async function signupAsync(request: Request, response: Response, next: NextFunction) {
     try {
-        const { email, referalCode } = request.body
-        if (!email) { throw new ErrorPayload(400, 'Missing required data') }
-        if (!isValidEmail(request.body.email)) { throw new ErrorPayload(400, 'Invalid email') }
-        const users = await UserInterface.findAsync({ email : request.body.email })
+        const userData: UserAttributes = request.body
+        const referalCode = request.body.referalCode
+        if (!userData.email || !userData.password) { throw new ErrorPayload(400, 'Missing required data') }
+        if (!isValidEmail(userData.email)) { throw new ErrorPayload(400, 'Invalid email') }
+        const userWithThatEmail = await UserInterface.findOneAsync({ email : userData.email })
 
-        if (users && users.length > 0) { return response.status(400).json(new ErrorPayload(400, 'Email already in use')) }
+        if (userWithThatEmail) { return response.status(400).json(new ErrorPayload(400, 'Email already in use')) }
 
-        const user =  await UserInterface.createAsync(request.body)
+        const user =  await UserInterface.createAsync(userData)
         if (!user) { return response.status(404).json(new ErrorPayload(404, 'Failed to create user')) }
         handleRequest('signup', user)
         await sendgrid.sendEmail({
@@ -223,11 +225,12 @@ export async function generateTokenAsync(request: Request, response: Response, n
 export async function loginAsync(request: Request, response: Response, next: NextFunction) {
 
     try {
-        if (!isValidEmail(request.body.email)) { return response.status(404).json(new ErrorPayload(400, 'Invalid email')) }
+        if (!isValidEmail(request.body.email)) { throw new ErrorPayload(400, 'Invalid email') }
         const user =  await UserInterface.findOneAsync({ email : request.body.email })
 
-        if (!user) { return response.status(404).json(new ErrorPayload(404, 'User not found')) }
-        if (user.password !== request.body.password) { return response.status(401).json(new ErrorPayload(403, 'Wrong password')) }
+        if (!user) { throw new ErrorPayload(404, 'User not found') }
+        const validPassword = !(await user.isValidPassword(request.body.password))
+        if (validPassword) { throw new ErrorPayload(403, 'Wrong password') }
 
         response.locals.user = user
         next()
@@ -267,8 +270,7 @@ export async function logoutAsync(request: Request, response: Response, next: Ne
         const logged = response.locals.loggedUser as User
         const user = response.locals.user as User
         if (logged && user && logged.id && user.id && logged.id.toString() === user.id.toString()) {
-            const authHeader = request.header('authorization') || ''
-            const token = authHeader.split(' ')[0]
+            const token = extractAuthBearerToken(request)
             redisCache.deleteAccessTokenAsync(token)
             response.status(200)
             response.send()
@@ -295,7 +297,7 @@ export async function loadLoggedUser(request: Request, response: Response, next:
         const loggedUser = await UserInterface.getAsync(id)
         if (!loggedUser) {
             logger.error(`USER Ctrl => User not found with id: ${id}`)
-            return response.status(403).json(new ErrorPayload(404, 'User not found'))
+            throw new ErrorPayload(404, 'User not found')
         }
 
         logger.info(`USER Ctrl => Loaded logged user ${loggedUser.email}`)
@@ -331,13 +333,4 @@ function extractAuthBearerToken(request: Request): string {
     const authHeader = request.header('authorization') || ''
     const token = authHeader.split(' ')[1]
     return token
-}
-
-function handleError(error: ErrorPayload | Error, response: Response) {
-    logger.error(error + ' - ' + JSON.stringify(error))
-    if (error instanceof ErrorPayload) {
-        response.status(error.code).json(error)
-    } else {
-        response.status(500).json(new ErrorPayload(500, 'Something went wrong', error))
-    }
 }

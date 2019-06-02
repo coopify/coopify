@@ -83,7 +83,6 @@ export async function updateAsync(user: User, body: UserUpateAttributes): Promis
     try {
         if (body.gender) { validateGender(body.gender) }
         if (body.birthdate) { validateBirthdate(body.birthdate) } //TODO: validate 18 or older?
-        //validateInterests(body.interests) //TODO: validate dynamically against a table or similar
         const userInstance = await User.updateAsync(user, body)
         return userInstance
     } catch (error) {
