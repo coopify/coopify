@@ -51,7 +51,7 @@ describe('Messages Tests', async () => {
                 user = await factory.create('user', createUser)
                 user2 = await factory.create('user', createUser2)
             })
-            it.only('Should send the message to the conversation', async () => {
+            it('Should send the message to the conversation', async () => {
                 const token = (await logInUser(user)).accessToken
                 createConversationClone = _.cloneDeep(createConversation)
                 createConversationClone.fromId = user.id
@@ -65,7 +65,7 @@ describe('Messages Tests', async () => {
                 expect(res.body.message.conversationId).to.eq(conversation.id)
                 expect(res.body.message.text).to.eq(createMessageClone.text)
             })
-            it.only('Should send a two way message to the conversation', async () => {
+            it('Should send a two way message to the conversation', async () => {
                 const token = (await logInUser(user)).accessToken
                 const token2 = (await logInUser(user2)).accessToken
                 createConversationClone = _.cloneDeep(createConversation)
