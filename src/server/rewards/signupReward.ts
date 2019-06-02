@@ -8,7 +8,7 @@ import { ReferReward } from './referReward'
 interface ISignUpRewardParams {
     code: string,
     user: User,
-    offer: Offer,
+    offer?: Offer,
     userGoals: UserGoal[]
 }
 
@@ -27,14 +27,14 @@ export class SignupReward implements IReward {
 
     public shouldReward(rewardParams: ISignUpRewardParams): boolean {
         //Check the previous userGoals and check that the goal was not met
-        const result = moment(rewardParams.user.createdAt).diff(moment(Date.now()), 'minutes') < 1
-        return result && rewardParams.code === this.rewardCode
+        const diff = moment(rewardParams.user.createdAt).diff(moment(Date.now()), 'minutes')
+        return diff >= 0 && rewardParams.code === this.rewardCode
     }
 
-    public handleRequest(rewardParams: ISignUpRewardParams) {
+    public async handleRequest(rewardParams: ISignUpRewardParams): Promise<void> {
         if (this.shouldReward(rewardParams)) {
             logger.info(`Applying the reward for signing up`)
-            this.applyReward(rewardParams)
+            await this.applyReward(rewardParams)
         } else {
             if (!this.handledReward && this.successor) {
                 this.successor.handleRequest(rewardParams)
@@ -42,17 +42,17 @@ export class SignupReward implements IReward {
         }
     }
 
-    public applyReward(rewardParams: ISignUpRewardParams) {
+    public async applyReward(rewardParams: ISignUpRewardParams): Promise<void> {
         try {
             blockchain.signUp(rewardParams.user.id)
             this.handledReward = true
-            this.markRewardAsync(rewardParams)
+            await this.markRewardAsync(rewardParams)
         } catch (error) {
             logger.error(`SignupReward applyReward => ${JSON.stringify(error)}`)
         }
     }
 
-    public async markRewardAsync(rewardParams: ISignUpRewardParams) {
+    public async markRewardAsync(rewardParams: ISignUpRewardParams): Promise<void> {
         try {
             const rewardToUpdate = rewardParams.userGoals.find((r) => r.userId === rewardParams.user.id && r.code === this.rewardCode)
             if (!rewardToUpdate) {

@@ -5,8 +5,8 @@ import { factory, createUser, createGoal, createUserGoal, createOffer } from '..
 import { UserGoal, Offer } from '../../../src/server/models'
 import { expect } from 'chai'
 import * as _ from 'lodash'
-import { mockPayRewardOkRequest } from '../mocks'
-import { logger } from '../../../src/server/services'
+import * as uuid from 'uuid'
+import { mockPayRewardOkRequest, mockPayRewardErrorRequest, mockSignUpOkRequest, mockSignUpErrorRequest } from '../mocks'
 
 const refer = new ReferReward()
 const share = new ShareReward()
@@ -14,7 +14,7 @@ const signup = new SignupReward()
 
 describe('Reward engine ests', async () => {
     describe('Refer reward', async () => {
-        context('Category already created', async () => {
+        context('The ethereum BE is reachable', async () => {
             let user, goal
             beforeEach(async () => {
                 const createUserClone = _.cloneDeep(createUser)
@@ -25,7 +25,7 @@ describe('Reward engine ests', async () => {
                 goal = await factory.create('goal', createGoalClone)
                 mockPayRewardOkRequest(user.id)
             })
-            it('This one', async () => {
+            it('OK case', async () => {
                 const userGoals = await UserGoal.getManyAsync({ userId: user.id })
                 if (!userGoals) { return }
                 await refer.handleRequest({ code: 'referral', user, userGoals })
@@ -33,7 +33,7 @@ describe('Reward engine ests', async () => {
                 if (!updatedUserGoals) { return }
                 expect(updatedUserGoals[0].quantity).to.eq(1)
             })
-            it('This one', async () => {
+            it('OK case with prexistent UserGoal', async () => {
                 await factory.create('usergoal', { code: 'referral', goalId: goal.id, userId: user.id, quantity: 2 })
                 const userGoals = await UserGoal.getManyAsync({ userId: user.id })
                 if (!userGoals) { return }
@@ -42,7 +42,7 @@ describe('Reward engine ests', async () => {
                 if (!updatedUserGoals) { return }
                 expect(updatedUserGoals[0].quantity).to.eq(3)
             })
-            it('This one', async () => {
+            it('Fail case due to an invalid stimulus', async () => {
                 await factory.create('usergoal', { code: 'referral', goalId: goal.id, userId: user.id, quantity: 2 })
                 const userGoals = await UserGoal.getManyAsync({ userId: user.id })
                 if (!userGoals) { return }
@@ -52,9 +52,30 @@ describe('Reward engine ests', async () => {
                 expect(updatedUserGoals[0].quantity).to.eq(2)
             })
         })
+        context('The ethereum BE isn´t reachable', async () => {
+            let user
+            beforeEach(async () => {
+                const createUserClone = _.cloneDeep(createUser)
+                const createGoalClone = _.cloneDeep(createGoal)
+                user = await factory.create('user', createUserClone)
+                createGoalClone.amount = 40
+                createGoalClone.code = 'referral'
+                await factory.create('goal', createGoalClone)
+                mockPayRewardErrorRequest(user.id)
+            })
+            it('Fail case due to not being able to communicate with the Ethereum component', async () => {
+                //TODO:Ahora esta generando la recompensa pero no está llevando control sobre si la recompensa se completa o no. Eso seria deseable
+                const userGoals = await UserGoal.getManyAsync({ userId: user.id })
+                if (!userGoals) { return }
+                await refer.handleRequest({ code: 'referral', user, userGoals })
+                const updatedUserGoals = await UserGoal.getManyAsync({ userId: user.id })
+                if (!updatedUserGoals) { return }
+                expect(updatedUserGoals[0].quantity).to.eq(1)
+            })
+        })
     })
-    describe('share reward', async () => {
-        context('Category already created', async () => {
+    describe('Share reward', async () => {
+        context('The ethereum BE is reachable', async () => {
             let user, goal, offer
             beforeEach(async () => {
                 const createUserClone = _.cloneDeep(createUser)
@@ -68,7 +89,7 @@ describe('Reward engine ests', async () => {
                 goal = await factory.create('goal', createGoalClone)
                 mockPayRewardOkRequest(user.id)
             })
-            it('This one', async () => {
+            it('OK case', async () => {
                 const userGoals = await UserGoal.getManyAsync({ userId: user.id })
                 if (!userGoals) { return }
                 await share.handleRequest({ code: 'share', user, offer, userGoals })
@@ -78,7 +99,7 @@ describe('Reward engine ests', async () => {
                 expect(updatedUserGoals[0].quantity).to.eq(1)
                 expect(updatedOffer.shared).to.eq(true)
             })
-            it('This one', async () => {
+            it('OK case with pre existent UserGoal', async () => {
                 await factory.create('usergoal', { code: 'share', goalId: goal.id, userId: user.id, quantity: 2 })
                 const userGoals = await UserGoal.getManyAsync({ userId: user.id })
                 if (!userGoals) { return }
@@ -89,7 +110,7 @@ describe('Reward engine ests', async () => {
                 expect(updatedUserGoals[0].quantity).to.eq(3)
                 expect(updatedOffer.shared).to.eq(true)
             })
-            it('This one', async () => {
+            it('Fail case with an already shared offer', async () => {
                 const createOfferClone = _.cloneDeep(createOffer)
                 createOfferClone.userId = user.id
                 createOfferClone.shared = true
@@ -103,7 +124,7 @@ describe('Reward engine ests', async () => {
                 expect(updatedUserGoals.length).to.eq(0)
                 expect(updatedOffer.shared).to.eq(true)
             })
-            it('This one', async () => {
+            it('Fail case with wrong stimulus', async () => {
                 await factory.create('usergoal', { code: 'share', goalId: goal.id, userId: user.id, quantity: 2 })
                 const userGoals = await UserGoal.getManyAsync({ userId: user.id })
                 if (!userGoals) { return }
@@ -112,15 +133,84 @@ describe('Reward engine ests', async () => {
                 if (!updatedUserGoals) { return }
                 expect(updatedUserGoals[0].quantity).to.eq(2)
             })
-            it('This one', async () => {
-                await factory.create('usergoal', { code: 'share', goalId: goal.id, userId: user.id, quantity: 2 })
+        })
+        context('The ethereum BE isn´t reachable', async () => {
+            let user, offer
+            beforeEach(async () => {
+                const createUserClone = _.cloneDeep(createUser)
+                const createGoalClone = _.cloneDeep(createGoal)
+                const createOfferClone = _.cloneDeep(createOffer)
+                user = await factory.create('user', createUserClone)
+                createOfferClone.userId = user.id
+                offer = await factory.create('offer', createOfferClone)
+                createGoalClone.amount = 40
+                createGoalClone.code = 'share'
+                factory.create('goal', createGoalClone)
+                mockPayRewardErrorRequest(user.id)
+            })
+            it('Fail case due to not being able to communicate with the Ethereum component', async () => {
                 const userGoals = await UserGoal.getManyAsync({ userId: user.id })
                 if (!userGoals) { return }
-                await share.handleRequest({ code: 'sharel', user, userGoals })
+                await share.handleRequest({ code: 'share', user, offer, userGoals })
                 const updatedUserGoals = await UserGoal.getManyAsync({ userId: user.id })
-                if (!updatedUserGoals) { return }
-                expect(updatedUserGoals[0].quantity).to.eq(2)
+                const updatedOffer = await Offer.getAsync(offer.id)
+                if (!updatedUserGoals || !updatedOffer) { return }
+                expect(updatedUserGoals[0].quantity).to.eq(1)
+                expect(updatedOffer.shared).to.eq(true)
             })
         })
     })
+    describe('Signup reward', async () => {
+        context('The ethereum BE is reachable', async () => {
+            let user
+            beforeEach(async () => {
+                const createUserClone: any = _.cloneDeep(createUser)
+                const createGoalClone = _.cloneDeep(createGoal)
+                user = await factory.create('user', createUserClone)
+                createGoalClone.code = 'signup'
+                const goal = await factory.create('goal', createGoalClone)
+                mockSignUpOkRequest()
+            })
+            it('OK case', async () => {
+                await signup.handleRequest({ code: 'signup', user, userGoals: [] })
+                const updatedUserGoals = await UserGoal.getManyAsync({ userId: user.id })
+                if (!updatedUserGoals) { return }
+                expect(updatedUserGoals[0].quantity).to.eq(1)
+            })
+            it('Fail case due to old user', async () => {
+                const createUserClone: any = _.cloneDeep(createUser)
+                createUserClone.email = 'old@user.com'
+                createUserClone.createdAt = '2019-06-01 19:52:00.578-03'
+                const oldUser = await factory.create('user', createUserClone)
+                await signup.handleRequest({ code: 'signup', user: oldUser, userGoals: [] })
+                const updatedUserGoals = await UserGoal.getManyAsync({ userId: user.id })
+                if (!updatedUserGoals) { return }
+                expect(updatedUserGoals.length).to.eq(0)
+            })
+            it('Fail case due to invalid stimulus', async () => {
+                await signup.handleRequest({ code: 'signuppp', user, userGoals: [] })
+                const updatedUserGoals = await UserGoal.getManyAsync({ userId: user.id })
+                if (!updatedUserGoals) { return }
+                expect(updatedUserGoals.length).to.eq(0)
+            })
+        })
+        context('The ethereum BE isn´t reachable', async () => {
+            let user
+            beforeEach(async () => {
+                const createUserClone: any = _.cloneDeep(createUser)
+                const createGoalClone = _.cloneDeep(createGoal)
+                user = await factory.create('user', createUserClone)
+                createGoalClone.code = 'signup'
+                await factory.create('goal', createGoalClone)
+                mockSignUpErrorRequest()
+            })
+            it('Fail case due to not being able to communicate with the Ethereum component', async () => {
+                await signup.handleRequest({ code: 'signup', user, userGoals: [] })
+                const updatedUserGoals = await UserGoal.getManyAsync({ userId: user.id })
+                if (!updatedUserGoals) { return }
+                expect(updatedUserGoals[0].quantity).to.eq(1)
+            })
+        })
+    })
+    //TODO: Probar el mecanismo de delegacion entre eslabones de la cadena
 })
