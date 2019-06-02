@@ -6,6 +6,7 @@ import { logInUser } from './helpers'
 import { app } from '../../../src/server'
 import { factory, createUser, createUser2, createConversation } from '../factory'
 import { logger } from '../../../src/server/services'
+import * as uuid from 'uuid'
 
 const request = supertest(app)
 
@@ -59,18 +60,19 @@ describe('Conversation Tests', async () => {
             })
         })
         context('No conversation previously created', async () => {
-            let createConversationClone, conversationId, user, user2
+            let createConversationClone, user, user2
             beforeEach(async () => {
                 user = await factory.create('user', createUser)
                 user2 = await factory.create('user', createUser2)
                 createConversationClone = _.cloneDeep(createConversation)
                 createConversationClone.fromId = user.id
                 createConversationClone.toId = user2.id
-                conversationId = '07fff370-afff-4374-ba61-93b33d0b8857'
             })
             it.only('Should not get the conversation', async () => {
+                const conversationId: string = uuid()
                 const token = (await logInUser(user)).accessToken
                 const res = await request.get(`/api/conversations/${conversationId}`).expect(404)
+                expect(res.body.message).to.eq('Conversation not found')
             })
         })
     })
