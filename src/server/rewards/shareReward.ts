@@ -32,7 +32,7 @@ export class ShareReward implements IReward {
 
     public async handleRequest(rewardParams: IShareRewardParams): Promise<void> {
         if (this.shouldReward(rewardParams)) {
-            return await this.applyReward(rewardParams)
+            return this.applyReward(rewardParams)
         } else {
             if (!this.handledReward && this.successor) {
                 this.successor.handleRequest(rewardParams)

@@ -29,7 +29,7 @@ export class ReferReward implements IReward {
     public async handleRequest(rewardParams: IReferRewardParams): Promise<void> {
         if (this.shouldReward(rewardParams)) {
             logger.info(`Applying the reward for refering an user`)
-            return await this.applyReward(rewardParams)
+            return this.applyReward(rewardParams)
         } else {
             if (!this.handledReward && this.successor) {
                 this.successor.handleRequest(rewardParams)

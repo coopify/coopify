@@ -34,7 +34,7 @@ export class SignupReward implements IReward {
     public async handleRequest(rewardParams: ISignUpRewardParams): Promise<void> {
         if (this.shouldReward(rewardParams)) {
             logger.info(`Applying the reward for signing up`)
-            await this.applyReward(rewardParams)
+            return this.applyReward(rewardParams)
         } else {
             if (!this.handledReward && this.successor) {
                 this.successor.handleRequest(rewardParams)
@@ -46,7 +46,7 @@ export class SignupReward implements IReward {
         try {
             blockchain.signUp(rewardParams.user.id)
             this.handledReward = true
-            await this.markRewardAsync(rewardParams)
+            return this.markRewardAsync(rewardParams)
         } catch (error) {
             logger.error(`SignupReward applyReward => ${JSON.stringify(error)}`)
         }
