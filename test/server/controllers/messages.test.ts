@@ -4,7 +4,7 @@ import * as supertest from 'supertest'
 import * as _ from 'lodash'
 import { logInUser } from './helpers'
 import { app } from '../../../src/server'
-import { factory, createUser, createUser2, createConversation, createMessage } from '../factory'
+import { factory, createUser, createUser2, createUser3, createConversation, createMessage } from '../factory'
 import { logger } from '../../../src/server/services'
 
 const request = supertest(app)
@@ -87,6 +87,34 @@ describe('Messages Tests', async () => {
                 expect(res.body.messages[1].conversationId).to.eq(conversation.id)
                 expect(res.body.messages[0].text).to.eq(createMessageClone.text)
                 expect(res.body.messages[1].text).to.eq(createMessageClone.text)
+            })
+            it('Should not send the message due to not be part of the conversation', async () => {
+                const user3 = await factory.create('user', createUser3)
+                const tokenUser3 = (await logInUser(user3)).accessToken
+                createConversationClone = _.cloneDeep(createConversation)
+                createConversationClone.fromId = user.id
+                createConversationClone.toId = user2.id
+                const conversation = await factory.create('conversation', createConversationClone)
+                createMessageClone = _.cloneDeep(createMessage)
+                createMessageClone.authorId = user3.id
+                createMessageClone.conversationId = conversation.id
+                const res = await request.post(`/api/messages/${conversation.id}`).set('Authorization', `bearer ${tokenUser3}`)
+                    .send(createMessageClone).expect(403)
+                expect(res.body.message).to.eq('Cant make a comment on other users conversations')
+            })
+            it('Should not send the message due to an empty text', async () => {
+                const token = (await logInUser(user)).accessToken
+                createConversationClone = _.cloneDeep(createConversation)
+                createConversationClone.fromId = user.id
+                createConversationClone.toId = user2.id
+                const conversation = await factory.create('conversation', createConversationClone)
+                createMessageClone = _.cloneDeep(createMessage)
+                createMessageClone.authorId = user.id
+                createMessageClone.conversationId = conversation.id
+                createMessageClone.text = ''
+                const res = await request.post(`/api/messages/${conversation.id}`).set('Authorization', `bearer ${token}`)
+                    .send(createMessageClone).expect(400)
+                expect(res.body.message).to.eq('Missing required data')
             })
         })
     })

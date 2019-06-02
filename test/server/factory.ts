@@ -65,6 +65,13 @@ const createUser2: UserAttributes = {
     referalCode: 'someString22',
 }
 
+const createUser3: UserAttributes = {
+    email: 'sdfs3@test.com',
+    password: 'cdelsur',
+    pictureURL: 'http://codigo.com',
+    referalCode: 'someString3',
+}
+
 const createOffer: OfferAttributes = {
     userId: 'someId',
     images: new Array(),
@@ -87,7 +94,6 @@ const createQuestion: QuestionAttributes = {
     text: 'Some text associated',
 }
 
-<<<<<<< HEAD
 const createGoal: GoalAttributes = {
     name: 'Some name',
     description: 'Some description',
@@ -102,8 +108,6 @@ const createUserGoal: UserGoalAttributes = {
     code: 'someCode',
 }
 
-export { factory, createUser, createUser2, createOffer, createCategory, createQuestion, createGoal, createUserGoal }
-=======
 const createConversation: ConversationAttributes = {
     fromId: 'someFromId',
     toId: 'someToId',
@@ -115,5 +119,5 @@ const createMessage: MessageAttributes = {
     text: 'Some text sent in the message',
 }
 
-export { factory, createUser, createUser2, createOffer, createCategory, createQuestion, createConversation, createMessage }
->>>>>>> First approach to message tests
+export { factory, createUser, createUser2, createUser3, createOffer, createCategory, createQuestion, createConversation,
+    createMessage, createGoal, createUserGoal }
