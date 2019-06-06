@@ -92,7 +92,7 @@ describe('User Goal Tests', async () => {
                 createUserGoalClone = _.cloneDeep(createUserGoal)
                 createUserGoalClone.userId = user.id
                 createUserGoalClone.goalId = goal.id
-                userGoal = await factory.create('userGoal', createUserGoalClone)
+                userGoal = await factory.create('usergoal', createUserGoalClone)
 
                 const res = await request.get(`/api/goals/user/${user.id}`).set('Authorization', `bearer ${token}`).expect(200)
                 expect(res.body.length).to.eq(1)

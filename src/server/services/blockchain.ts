@@ -72,6 +72,7 @@ export class Blockchain {
             return res
         }).catch((err) => {
             logger.error(`Failed to obtain the balance of the user  ${userId} - ${JSON.stringify(err)}`)
+            throw new ErrorPayload(500, 'Failed to get balance')
         })
         return balance
     }

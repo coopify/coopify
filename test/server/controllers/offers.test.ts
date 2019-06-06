@@ -170,4 +170,41 @@ describe('Offer Tests', async () => {
             })
         })
     })
+
+    describe('#GET /api/offers/user/:userId', async () => {
+        context('Offer already created', async () => {
+            let createOfferClone, user1, user2
+            beforeEach(async () => {
+                const createUserClone = _.cloneDeep(createUser)
+                createUserClone.email = 'u@1.com'
+                user1 = await factory.create('user', createUserClone)
+                createUserClone.email = 'u@2.com'
+                user2 = await factory.create('user', createUserClone)
+                createOfferClone = _.cloneDeep(createOffer)
+                for (let index = 0; index < 20; index++) {
+                    if (index < 15) {
+                        createOfferClone.userId = user1.id
+                    } else {
+                        createOfferClone.userId = user2.id
+                    }
+                    await factory.create('offer', createOfferClone)
+                }
+            })
+            it('Should get the offer list', async () => {
+                const res = await request.get(`/api/offers/user/${user1.id}`).expect(200)
+                expect(res.body.offers.length).to.exist('Not an array')
+                expect(res.body.offers.length).to.eq(15)
+            })
+            it('Should get the offer list', async () => {
+                const res = await request.get(`/api/offers/user/${user1.id}`).expect(200)
+                expect(res.body.offers.length).to.exist('Not an array')
+                expect(res.body.offers.length).to.eq(15)
+            })
+            it('Should get the offer list', async () => {
+                const res = await request.get(`/api/offers/user/${user2.id}`).expect(200)
+                expect(res.body.offers.length).to.exist('Not an array')
+                expect(res.body.offers.length).to.eq(5)
+            })
+        })
+    })
 })

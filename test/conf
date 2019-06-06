@@ -12,3 +12,6 @@ DB_NAME_TEST = coopifyTest
 DB_USER = postgres
 DB_PASSWORD = dontneedpassword
 DB_PORT = 5432
+
+BLOCKCHAIN_ROUTE = http://localhost
+BLOCKCHAIN_PORT = 3002
