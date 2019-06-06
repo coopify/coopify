@@ -9,8 +9,6 @@ jobs:
           NODE_ENV: 'test'
           REDIS_PORT: '16203'
           REDIS_HOST: 'redis-16203.c10.us-east-1-3.ec2.cloud.redislabs.com'
-          REDIS_PASSWORD: 'password'
-          REDIS_USERNAME: 'coopify-redis'
           PORT: 3001
           LOG_LEVEL: info
           BASE_PATH: /
