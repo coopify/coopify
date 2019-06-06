@@ -19,5 +19,6 @@ before(async () => {
 })
 
 beforeEach('cleanDatabase', async () => {
+    //this.timeout(5000)
     await rdb.sequelize.truncate({ cascade: true })
 })
