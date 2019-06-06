@@ -1,0 +1,57 @@
+version: 2
+jobs:
+  LintAndTest:
+    parallelism: 1
+    working_directory: ~/coopify
+    docker:
+      - image: circleci/node:10.15.3
+        environment:
+          NODE_ENV: 'test'
+          REDIS_PORT: '16203'
+          REDIS_HOST: 'redis-16203.c10.us-east-1-3.ec2.cloud.redislabs.com'
+          REDIS_PASSWORD: 'password'
+          REDIS_USERNAME: 'coopify-redis'
+          PORT: 3001
+          LOG_LEVEL: info
+          BASE_PATH: /
+          DB_HOST: localhost
+          DB_NAME: coopifyTest
+          DB_NAME_TEST: coopifyTest
+          DB_USER: coopify
+          DB_PASSWORD: ""
+          DB_PORT: 5432
+    steps:
+      - checkout
+      - run:
+          name: Install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Install apt-transport-https
+          command: sudo apt-get install apt-transport-https
+      - run:
+          name: Apt-get Update
+          command: sudo apt-get update
+      - run:
+          name: Install Yarn
+          command: sudo npm install -g yarn@1.3.2
+      - run:
+          name: Yarn install dependencies
+          command: yarn install
+      - run:
+          name: Run Lint
+          command: yarn lint
+      - run:
+          name: Run Test
+          command: yarn test
+
+
+workflows:
+  version: 2
+  test_and_deploy:
+    jobs:
+         - LintAndTest
