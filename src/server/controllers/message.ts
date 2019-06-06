@@ -3,7 +3,7 @@ import { MessageInterface, UserInterface } from '../interfaces'
 import { Message, Conversation, User } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { handleError } from './helpers'
-import { pusher, logger } from '../services';
+import { pusher, logger } from '../services'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
