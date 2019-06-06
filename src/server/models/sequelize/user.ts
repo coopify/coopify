@@ -7,7 +7,7 @@ import { UserGoal } from './userGoal'
 import * as bcrypt from 'bcrypt-nodejs'
 import { Goal } from './goal'
 import { logger } from '../../services'
-import { ErrorPayload } from '../../errorPayload';
+import { ErrorPayload } from '../../errorPayload'
 
 interface IAttributes {
     email: string

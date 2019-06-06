@@ -7,7 +7,7 @@ module.exports = {
             allowNull: false,
             defaultValue: 'default'
         }).then(() => {
-              queryInterface.addColumn('UserGoal', 'code', {
+            queryInterface.addColumn('UserGoal', 'code', {
                 type: Sequelize.STRING,
                 allowNull: false,
                 defaultValue: 'default'

@@ -1,8 +1,7 @@
-import { Proposal, ProposalAttributes, User, Conversation, ProposalUpdateAttributes } from '../models'
+import { Proposal, ProposalAttributes, User, ProposalUpdateAttributes } from '../models'
 import { validateProposalStatus, handleError } from './helpers'
 import { ErrorPayload } from '../errorPayload'
 import { OfferInterface, ConversationInterface } from '.'
-import { proposalStatusChangedEmail } from '../mailer';
 
 export async function getAsync(id: string): Promise<Proposal | null> {
     try {

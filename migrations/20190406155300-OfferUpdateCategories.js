@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 module.exports = {
     up: (queryInterface) => {
@@ -8,4 +8,4 @@ module.exports = {
     down: (queryInterface) => {
         return queryInterface.addColumn('Offer', 'category')
     }
-};
+}

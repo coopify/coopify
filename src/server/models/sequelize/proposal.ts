@@ -36,7 +36,7 @@ class Proposal extends Model<Proposal> {
                 { model: Offer, as: 'purchasedOffer' },
                 { model: Offer, as: 'proposedService', required: false },
                 { model: User },
-            ]
+            ],
         })
     }
 
