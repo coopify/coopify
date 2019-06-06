@@ -7,8 +7,10 @@ jobs:
       - image: circleci/node:10.15
         environment:
           NODE_ENV: 'test'
-          REDIS_PORT: '16203'
-          REDIS_HOST: 'redis-16203.c10.us-east-1-3.ec2.cloud.redislabs.com'
+          REDIS_PORT: 6379
+          REDIS_HOST: localhost
+          REDIS_PASSWORD: 'password'
+          REDIS_USERNAME: 'coopify-redis'
           PORT: 3001
           LOG_LEVEL: info
           BASE_PATH: /
@@ -24,8 +26,15 @@ jobs:
           PGUSER: coopify
           POSTGRES_DB: coopifyTest
           POSTGRES_PASSWORD: ""
+      - image: redis
+        environment:
+          PASSWORD: 'password'
+          USERNAME: 'coopify-redis'
     steps:
       - checkout
+      - run:
+          name: Wait for redis
+          command: dockerize -wait tcp://localhost:6379 -timeout 1m
       - run:
           name: Install apt-transport-https
           command: sudo apt-get install apt-transport-https
