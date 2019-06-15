@@ -70,9 +70,9 @@ export async function createAsync(body: OfferAttributes): Promise<Offer | null> 
     }
 }
 
-export async function updateAsync(offer: Offer, body: OfferUpdateAttributes): Promise<Offer | null> {
+export async function updateAsync(offer: Offer, body: OfferUpdateAttributes, transaction?): Promise<Offer | null> {
     try {
-        const userInstance = await Offer.updateAsync(offer, body)
+        const userInstance = await Offer.updateAsync(offer, body, transaction)
         return userInstance
     } catch (error) {
         logger.error(new Error(error))

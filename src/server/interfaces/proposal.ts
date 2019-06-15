@@ -3,9 +3,10 @@ import { validateProposalStatus, handleError } from './helpers'
 import { ErrorPayload } from '../errorPayload'
 import { OfferInterface, ConversationInterface } from '.'
 
-export async function getAsync(id: string): Promise<Proposal | null> {
+export async function getAsync(id: string): Promise<Proposal> {
     try {
         const proposalInstance = await Proposal.getAsync(id)
+        if (!proposalInstance) { throw new ErrorPayload(404, 'Failed to get proposal') }
 
         return proposalInstance
     } catch (error) {
@@ -76,6 +77,20 @@ export async function updateAsync(proposal: Proposal, body: ProposalUpdateAttrib
         const proposalInstance = await Proposal.updateAsync(proposal, body)
         if (!proposalInstance) { throw new ErrorPayload(500, 'Failed to update proposal') }
         return proposalInstance
+    } catch (error) {
+        throw handleError(error)
+    }
+}
+
+export async function validateReviewAsync(userId: string, offerId: string): Promise<Proposal | null> {
+    try {
+        const proposals = await findAsync({ proposerId: userId, offerId, status: 'Confirmed' })
+        if (!proposals) { throw new ErrorPayload(500, 'Failed to get proposals') }
+        if (proposals.length > 0) {
+            return proposals[0]
+        } else {
+            return null
+        }
     } catch (error) {
         throw handleError(error)
     }

@@ -1,7 +1,7 @@
 import { factory } from 'factory-girl'
 import { User, UserAttributes, Offer, OfferAttributes, Category, CategoryAttributes, Question, QuestionAttributes,
     Goal, GoalAttributes, Proposal, ProposalAttributes, UserGoal, UserGoalAttributes, ConversationAttributes, MessageAttributes,
-    Conversation, Message,
+    Conversation, Message, RateAttributes, Rate,
 } from '../../src/server/models'
 
 factory.define('user', User, {
@@ -61,6 +61,15 @@ factory.define('proposal', Proposal, {
     exchangeMethod: 'Coopy',
     exchangeInstance: 'Hour',
     proposedPrice: 50,
+})
+
+factory.define('rate', Rate, {
+    description: 'Description of a service review',
+    offerId: factory.assoc('proposal', 'id'),
+    proposalId: factory.assoc('proposal', 'id'),
+    rate: 2,
+    reviewedUserId: factory.assoc('user', 'id'),
+    reviewerUserId: factory.assoc('user', 'id'),
 })
 
 const createUser: UserAttributes = {
@@ -141,5 +150,15 @@ const createMessage: MessageAttributes = {
     text: 'Some text sent in the message',
 }
 
+const createRate: RateAttributes =  {
+    description: 'Description of a service',
+    offerId: 'someOfferId',
+    proposalId: 'someProposalId',
+    userRate: 2,
+    offerRate: 2,
+    reviewedUserId: 'reviewedUserId',
+    reviewerUserId: 'reviewerUserId',
+}
+
 export { factory, createUser, createUser2, createUser3, createOffer, createCategory, createQuestion, createConversation,
-    createMessage, createGoal, createUserGoal, createProposal }
+    createMessage, createGoal, createUserGoal, createProposal, createRate }

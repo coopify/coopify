@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt-nodejs'
 import { Goal } from './goal'
 import { logger } from '../../services'
 import { ErrorPayload } from '../../errorPayload'
+import { Transaction } from 'sequelize'
 
 interface IAttributes {
     email: string
@@ -57,7 +58,6 @@ class User extends Model<User> {
                     throw new ErrorPayload(500, 'Failed to generate password', err)
                 }
             })
-            logger.info(`Instance => ${JSON.stringify(instance)}`)
         } catch (error) {
             logger.error(`USER MODEL => encryptPassword() for ${instance.id} failed with error: ${JSON.stringify(error)}`)
         }
@@ -87,9 +87,13 @@ class User extends Model<User> {
         return user.save()
     }
 
-    public static async updateAsync(userToEdit: User, params: IUpdateAttributes): Promise<User> {
+    public static async updateAsync(userToEdit: User, params: IUpdateAttributes, seqTransaction?: Transaction): Promise<User> {
         const updateUser = await userToEdit.update(params)
-        return updateUser.save()
+        if (seqTransaction) {
+            return updateUser.save({ transaction: seqTransaction })
+        } else {
+            return updateUser.save()
+        }
     }
 
     public static toDTO(user: User) {
@@ -109,6 +113,8 @@ class User extends Model<User> {
             interests: user.interests,
             FBSync: user.FBId ? true : false,
             referalCode: user.referalCode,
+            rateCount: user.rateCount,
+            rateSum: user.rateSum,
             goals: user.goals && user.goals.length > 0 ? user.goals.map((g) => {
                 return { ...Goal.toDTO(g), quantity: g.UserGoal.quantity }
             }) : [],
@@ -184,6 +190,14 @@ class User extends Model<User> {
 
     @Column(DataType.STRING)
     public FBId
+
+    @Default(0)
+    @Column(DataType.INTEGER)
+    public rateCount
+
+    @Default(0)
+    @Column(DataType.INTEGER)
+    public rateSum
 
     @HasMany(() => Conversation, 'fromId')
     public fromConversations

@@ -3,6 +3,7 @@ import { User } from './user'
 import { OfferCategory } from './offerCategory'
 import { Category } from './category'
 import { Proposal } from '..'
+import { Transaction } from 'sequelize'
 
 interface IAttributes {
     userId: string
@@ -86,9 +87,13 @@ class Offer extends Model<Offer> {
         return offer.save()
     }
 
-    public static async updateAsync(offer: Offer, params: IUpdateAttributes): Promise<Offer> {
+    public static async updateAsync(offer: Offer, params: IUpdateAttributes, seqTransaction?: Transaction): Promise<Offer> {
         const updatedOffer = await offer.update(params)
-        return updatedOffer.save()
+        if (seqTransaction) {
+            return updatedOffer.save({ transaction: seqTransaction })
+        } else {
+            return updatedOffer.save()
+        }
     }
 
     public static toDTO(offer: Offer) {
@@ -107,6 +112,8 @@ class Offer extends Model<Offer> {
             hourPrice: offer.hourPrice,
             sessionPrice: offer.sessionPrice,
             finalProductPrice: offer.finalProductPrice,
+            ratingCount: offer.rateCount,
+            ratingSum: offer.rateSum,
         }
     }
     //tslint:disable:array-type
@@ -225,6 +232,14 @@ class Offer extends Model<Offer> {
 
     @Column(DataType.STRING)
     public status
+
+    @Default(0)
+    @Column(DataType.INTEGER)
+    public rateCount
+
+    @Default(0)
+    @Column(DataType.INTEGER)
+    public rateSum
 
     @BelongsTo(() => User)
     public by

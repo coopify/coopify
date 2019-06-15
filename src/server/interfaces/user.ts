@@ -79,11 +79,11 @@ export async function createFromGoogleAsync(body: GoogleUserData, tokens: { acce
     }
 }
 
-export async function updateAsync(user: User, body: UserUpateAttributes): Promise<User | null> {
+export async function updateAsync(user: User, body: UserUpateAttributes, transaction?): Promise<User | null> {
     try {
         if (body.gender) { validateGender(body.gender) }
         if (body.birthdate) { validateBirthdate(body.birthdate) } //TODO: validate 18 or older?
-        const userInstance = await User.updateAsync(user, body)
+        const userInstance = await User.updateAsync(user, body, transaction)
         return userInstance
     } catch (error) {
         logger.error(new Error(error))
