@@ -154,7 +154,8 @@ const createRate: RateAttributes =  {
     description: 'Description of a service',
     offerId: 'someOfferId',
     proposalId: 'someProposalId',
-    rate: 2,
+    userRate: 2,
+    offerRate: 2,
     reviewedUserId: 'reviewedUserId',
     reviewerUserId: 'reviewerUserId',
 }
