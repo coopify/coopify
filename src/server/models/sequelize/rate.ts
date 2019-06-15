@@ -52,7 +52,7 @@ class Rate extends Model<Rate> {
             id: rate.id,
             offerId: rate.offerId,
             proposalId: rate.proposalId,
-            reviwer: User.toDTO(rate.reviewerUser),
+            reviewer: User.toDTO(rate.reviewerUser),
             description: rate.description,
             rate: rate.rate,
         }

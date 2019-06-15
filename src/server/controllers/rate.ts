@@ -75,6 +75,7 @@ export async function createAsync(request: Request, response: Response) {
             reviewedUserId: offer.userId,
             reviewerUserId: loggedUser.id,
         })
+        dbRate.reviewerUser = loggedUser
 
         response.status(200).json({ rate: Rate.toDTO(dbRate) })
     } catch (error) {

@@ -116,7 +116,7 @@ describe('Rate Tests', async () => {
                 const res = await request.get(`/api/rates/${offer.id}/reviewable`).set('Authorization', `bearer ${token}`).expect(200)
                 expect(res.body.shouldReview).to.eq(false)
             })
-            it.only('Should get the rate list', async () => {
+            it('Should get the rate list', async () => {
                 const createUserClone = _.cloneDeep(createUser)
                 createUserClone.email = 'other@user.com'
                 const otherUser = await factory.create('user', createUserClone)
@@ -128,6 +128,60 @@ describe('Rate Tests', async () => {
                 await factory.create('proposal', createProposalClone)
                 const res = await request.get(`/api/rates/${offer.id}/reviewable`).set('Authorization', `bearer ${token}`).expect(200)
                 expect(res.body.shouldReview).to.eq(false)
+            })
+        })
+    })
+    describe('#POST /api/rate/', async () => {
+        context('Rates already created', async () => {
+            let reviewer, offer, conversation, token
+            beforeEach(async () =>  {
+                const createReviewerClone = _.cloneDeep(createUser)
+                createReviewerClone.email = 'reviewer@email.com'
+                reviewer = await factory.create('user', createReviewerClone)
+                token = (await logInUser(reviewer)).accessToken
+                const createReviewedClone = _.cloneDeep(createUser)
+                createReviewedClone.email = 'reviewed@email.com'
+                const reviewed = await factory.create('user', createReviewedClone)
+                const createOfferClone = _.cloneDeep(createOffer)
+                createOfferClone.userId = reviewed.id
+                offer = await factory.create('offer', createOfferClone)
+                const createConversationClone = _.cloneDeep(createConversation)
+                createConversationClone.fromId = reviewer.id
+                createConversationClone.toId = reviewed.id
+                conversation = await factory.create('conversation', createConversationClone)
+            })
+            it('Should get the rate list', async () => {
+                const createProposalClone = _.cloneDeep(createProposal)
+                createProposalClone.conversationId = conversation.id
+                createProposalClone.offerId = offer.id
+                createProposalClone.proposerId = reviewer.id
+                createProposalClone.status = 'Confirmed'
+                await factory.create('proposal', createProposalClone)
+                const res = await request.post(`/api/rates/${offer.id}`).send({ description: 'desc', rate: 2 }).set('Authorization', `bearer ${token}`).expect(200)
+                expect(res.body.rate).to.exist('Failed to create rate')
+                expect(res.body.rate.reviewer).to.exist('Failed to create rate')
+                expect(res.body.rate.reviewer.id).to.eq(reviewer.id)
+                expect(res.body.rate.rate).to.eq(2)
+            })
+            it('Should get the rate list', async () => {
+                const createProposalClone = _.cloneDeep(createProposal)
+                createProposalClone.conversationId = conversation.id
+                createProposalClone.offerId = offer.id
+                createProposalClone.proposerId = reviewer.id
+                createProposalClone.status = 'Rejected'
+                await factory.create('proposal', createProposalClone)
+                const res = await request.post(`/api/rates/${offer.id}`).send({ description: 'desc', rate: 2 }).set('Authorization', `bearer ${token}`).expect(400)
+                expect(res.body.message).to.eq('You need an accepted proposal to make a review')
+            })
+            it('Should get the rate list', async () => {
+                const createProposalClone = _.cloneDeep(createProposal)
+                createProposalClone.conversationId = conversation.id
+                createProposalClone.offerId = offer.id
+                createProposalClone.proposerId = reviewer.id
+                createProposalClone.status = 'Rejected'
+                await factory.create('proposal', createProposalClone)
+                const res = await request.post(`/api/rates/${offer.id}`).send({ rate: 2 }).set('Authorization', `bearer ${token}`).expect(400)
+                expect(res.body.message).to.eq('Missing required data')
             })
         })
     })
