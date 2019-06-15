@@ -2,7 +2,6 @@ import { Proposal, ProposalAttributes, User, ProposalUpdateAttributes } from '..
 import { validateProposalStatus, handleError } from './helpers'
 import { ErrorPayload } from '../errorPayload'
 import { OfferInterface, ConversationInterface } from '.'
-import { logger } from '../services';
 
 export async function getAsync(id: string): Promise<Proposal> {
     try {
