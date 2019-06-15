@@ -82,9 +82,11 @@ export async function createAsync(request: Request, response: Response) {
         offer.rateSum = offer.rateSum + parseInt(offerRate)
         loggedUser.rateCount++
         loggedUser.rateSum = loggedUser.rateSum + parseInt(userRate)
+        validProposal.status = 'Reviewed'
 
         await OfferInterface.updateAsync(offer, offer/*, transaction*/)
         await UserInterface.updateAsync(loggedUser, loggedUser/*, transaction*/)
+        await ProposalInterface.updateAsync(validProposal, validProposal/*, transaction*/)
 
         //transaction.commit()
 

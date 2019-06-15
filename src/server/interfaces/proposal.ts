@@ -2,6 +2,7 @@ import { Proposal, ProposalAttributes, User, ProposalUpdateAttributes } from '..
 import { validateProposalStatus, handleError } from './helpers'
 import { ErrorPayload } from '../errorPayload'
 import { OfferInterface, ConversationInterface } from '.'
+import { logger } from '../services';
 
 export async function getAsync(id: string): Promise<Proposal> {
     try {
@@ -84,13 +85,24 @@ export async function updateAsync(proposal: Proposal, body: ProposalUpdateAttrib
 
 export async function validateReviewAsync(userId: string, offerId: string): Promise<Proposal | null> {
     try {
-        const proposals = await findAsync({ proposerId: userId, offerId, status: 'Confirmed' })
+        let reviewProposal: Proposal | null = null
+        const proposals = await findAsync({ offerId, status: 'Confirmed' })
         if (!proposals) { throw new ErrorPayload(500, 'Failed to get proposals') }
-        if (proposals.length > 0) {
-            return proposals[0]
-        } else {
-            return null
-        }
+        //Si es por coopies y soy el proposer esta Ok
+        proposals.map((p) => {
+            if (p.exchangeMethod === 'Coopy' && p.proposerId === userId) {
+                reviewProposal = p
+            }
+        })
+        //Si es por exchange y soy el otro de la conversacion está ok
+        const exchangeProposals = proposals.filter((p) => p.exchangeMethod === 'Exchange')
+        await Promise.all(exchangeProposals.map(async (p) => {
+            const conversation = await ConversationInterface.getAsync(p.conversationId)
+            if (conversation && conversation.fromId === userId || conversation.toId === userId) {
+                reviewProposal = p
+            }
+        }))
+        return reviewProposal
     } catch (error) {
         throw handleError(error)
     }

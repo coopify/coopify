@@ -21,9 +21,17 @@ export function validateStatus(status: string) {
 }
 
 export function validateProposalStatus(status: string) {
-    //'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed'
-    if (status !== 'Waiting' && status !== 'Rejected' && status !== 'Confirmed' && status !== 'PaymentPending' && status !== 'PaymentFailed' && status !== 'Cancelled') {
-        throw new ErrorPayload(400, 'Invalid status')
+    switch (status) {
+        case 'Waiting':
+        case 'Rejected':
+        case 'Confirmed':
+        case 'PaymentPending':
+        case 'PaymentFailed':
+        case 'Cancelled':
+        case 'Reviewed':
+            return
+        default:
+            throw new ErrorPayload(400, 'Invalid status')
     }
 }
 
