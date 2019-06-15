@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { RateInterface, ProposalInterface } from '../interfaces'
+import { RateInterface, ProposalInterface, OfferInterface, UserInterface } from '../interfaces'
 import { Rate, Offer, User, Proposal } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { handleError } from './helpers'
@@ -75,11 +75,22 @@ export async function createAsync(request: Request, response: Response) {
             offerRate,
             reviewedUserId: offer.userId,
             reviewerUserId: loggedUser.id,
-        })
+        }/*, transaction*/)
         dbRate.reviewerUser = loggedUser
+
+        offer.rateCount++
+        offer.rateSum = offer.rateSum + parseInt(offerRate)
+        loggedUser.rateCount++
+        loggedUser.rateSum = loggedUser.rateSum + parseInt(userRate)
+
+        await OfferInterface.updateAsync(offer, offer/*, transaction*/)
+        await UserInterface.updateAsync(loggedUser, loggedUser/*, transaction*/)
+
+        //transaction.commit()
 
         response.status(200).json({ rate: Rate.toDTO(dbRate) })
     } catch (error) {
+        //transaction.rollback()
         handleError(error, response)
     }
 }

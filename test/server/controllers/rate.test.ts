@@ -157,7 +157,7 @@ describe('Rate Tests', async () => {
                 createProposalClone.proposerId = reviewer.id
                 createProposalClone.status = 'Confirmed'
                 await factory.create('proposal', createProposalClone)
-                const res = await request.post(`/api/rates/${offer.id}`).send({ description: 'desc', userRate: 2, offerRate: 5 }).set('Authorization', `bearer ${token}`).expect(200)
+                const res = await request.post(`/api/rates/${offer.id}`).send({ description: 'desc', userRate: '2', offerRate: '5' }).set('Authorization', `bearer ${token}`).expect(200)
                 expect(res.body.rate).to.exist('Failed to create rate')
                 expect(res.body.rate.reviewer).to.exist('Failed to create rate')
                 expect(res.body.rate.reviewer.id).to.eq(reviewer.id)

@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt-nodejs'
 import { Goal } from './goal'
 import { logger } from '../../services'
 import { ErrorPayload } from '../../errorPayload'
+import { Transaction } from 'sequelize'
 
 interface IAttributes {
     email: string
@@ -86,9 +87,13 @@ class User extends Model<User> {
         return user.save()
     }
 
-    public static async updateAsync(userToEdit: User, params: IUpdateAttributes): Promise<User> {
+    public static async updateAsync(userToEdit: User, params: IUpdateAttributes, seqTransaction?: Transaction): Promise<User> {
         const updateUser = await userToEdit.update(params)
-        return updateUser.save()
+        if (seqTransaction) {
+            return updateUser.save({ transaction: seqTransaction })
+        } else {
+            return updateUser.save()
+        }
     }
 
     public static toDTO(user: User) {

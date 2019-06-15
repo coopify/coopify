@@ -2,6 +2,7 @@ import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Foreign
 import { Offer } from './offer'
 import { User } from './user'
 import { Proposal } from './proposal'
+import { Transaction } from 'sequelize'
 
 interface IAttributes {
     offerId: string
@@ -43,9 +44,13 @@ class Rate extends Model<Rate> {
         })
     }
 
-    public static async createAsync(params: IAttributes): Promise<Rate> {
+    public static async createAsync(params: IAttributes, seqTransaction?: Transaction): Promise<Rate> {
         const rate: Rate = await new Rate(params)
-        return rate.save()
+        if (seqTransaction) {
+            return rate.save({ transaction: seqTransaction })
+        } else {
+            return rate.save({})
+        }
     }
 
     public static toDTO(rate: Rate) {
