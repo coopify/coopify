@@ -8,11 +8,12 @@ import { Conversation, IAttributes as ConversationAttributes } from './conversat
 import { Question, IAttributes as QuestionAttributes, IUpdateAttributes as QuestionUpdateAttributes } from './question'
 import { Goal, IAttributes as GoalAttributes, IUpdateAttributes as GoalUpdateAttributes } from './goal'
 import { UserGoal, IAttributes as UserGoalAttributes, IUpdateAttributes as UserGoalUpdatedAttributes } from './userGoal'
+import { Rate, IAttributes as RateAttributes } from './rate'
 
 export {
     User, UserAttributes, UserUpateAttributes, Offer, OfferAttributes, Category,
     CategoryAttributes, CategoryUpdateAttributes, OfferCategory, OfferCategoryAttributes, IServiceFilter, Message,
     MessageAttributes, Conversation, ConversationAttributes, Question, QuestionAttributes, QuestionUpdateAttributes,
     Proposal, ProposalAttributes, ProposalUpdateAttributes, Goal, GoalAttributes, GoalUpdateAttributes,
-    UserGoal, UserGoalAttributes, OfferUpdateAttributes, UserGoalUpdatedAttributes,
+    UserGoal, UserGoalAttributes, OfferUpdateAttributes, UserGoalUpdatedAttributes, Rate, RateAttributes,
 }

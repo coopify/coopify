@@ -6,8 +6,9 @@ import * as messageController from './message'
 import * as questionsController from './questions'
 import * as proposalController from './proposal'
 import * as goalsController from './goals'
+import * as ratesController from './rate'
 
 export {
     usersController, offersController, categoriesController, conversationController, messageController,
-    questionsController, proposalController, goalsController,
+    questionsController, proposalController, goalsController, ratesController,
 }

@@ -57,7 +57,6 @@ class User extends Model<User> {
                     throw new ErrorPayload(500, 'Failed to generate password', err)
                 }
             })
-            logger.info(`Instance => ${JSON.stringify(instance)}`)
         } catch (error) {
             logger.error(`USER MODEL => encryptPassword() for ${instance.id} failed with error: ${JSON.stringify(error)}`)
         }

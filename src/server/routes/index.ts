@@ -7,6 +7,7 @@ import messageRoutes from './message'
 import questionRoutes from './questions'
 import proposalRoutes from './proposal'
 import goalRoutes from './goals'
+import rateRoutes from './rate'
 import { loadLoggedUser } from '../controllers/users'
 
 const router = Router()
@@ -21,5 +22,6 @@ router.use('/messages', messageRoutes)
 router.use('/questions', questionRoutes)
 router.use('/proposals', proposalRoutes)
 router.use('/goals', goalRoutes)
+router.use('/rates', rateRoutes)
 
 export { router }
