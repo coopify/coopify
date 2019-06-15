@@ -62,6 +62,7 @@ class Rate extends Model<Rate> {
             description: rate.description,
             userRate: rate.userRate,
             offerRate: rate.offerRate,
+            createdAt: rate.createdAt,
         }
     }
 
