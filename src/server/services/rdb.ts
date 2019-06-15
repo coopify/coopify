@@ -6,6 +6,7 @@ import { server as config } from '../../../config'
 export interface IOptions {
     uri: string
     seqOptions?: {
+        host: string,
         database: string,
         username: string,
         password: string,
@@ -31,6 +32,7 @@ class RDB {
     public async initAsync(options: IOptions) {
         if (config.environment === 'test' && options.seqOptions) {
             this.sequelize = new Sequelize({
+                host: options.seqOptions.host,
                 database: options.seqOptions.database,
                 username: options.seqOptions.username,
                 password: options.seqOptions.password,
