@@ -20,7 +20,7 @@ interface IUpdateAttributes {
 class UserGoal extends Model<UserGoal> {
 
     public static async getAsync(id: string): Promise<UserGoal | null> {
-        return this.findById<UserGoal>(id)
+        return this.findByPk<UserGoal>(id)
     }
 
     public static async getManyAsync(where: any): Promise<UserGoal[] | null> {
@@ -32,7 +32,7 @@ class UserGoal extends Model<UserGoal> {
     }
 
     public static async createAsync(params: IAttributes): Promise<UserGoal> {
-        const userGoal: UserGoal = await new UserGoal(params)
+        const userGoal: UserGoal = await UserGoal.create(params)
         return userGoal.save()
     }
 

@@ -35,7 +35,7 @@ export async function getListAsync(request: Request, response: Response) {
         if (!loggedUser) { throw new ErrorPayload(403, 'You need to be logged in') }
         const conversations = await ConversationInterface.findAsync({ $or: [{ fromId: loggedUser.id }, { toId: loggedUser.id }] })
         if (!conversations) { throw new ErrorPayload(500, 'Failed to get conversations') }
-        const proposals = await ProposalInterface.findAsync({ conversationId: { $in: conversations.map((c) => c.id) } })
+        const proposals = await ProposalInterface.findAsync({ conversationId: conversations.map((c) => c.id) })
         if (!proposals) { throw new ErrorPayload(500, 'Failed to get offers') }
         response.status(200).json({ proposals: proposals.map((p) => Proposal.toDTO(p)) })
     } catch (error) {

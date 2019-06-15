@@ -31,7 +31,7 @@ interface IUpdateAttributes {
 class Proposal extends Model<Proposal> {
 
     public static async getAsync(id: string): Promise<Proposal | null> {
-        return this.findById<Proposal>(id, {
+        return this.findByPk<Proposal>(id, {
             include: [
                 { model: Offer, as: 'purchasedOffer' },
                 { model: Offer, as: 'proposedService', required: false },
@@ -63,7 +63,7 @@ class Proposal extends Model<Proposal> {
     }
 
     public static async createAsync(params: IAttributes): Promise<Proposal> {
-        const proposal: Proposal = await new Proposal(params)
+        const proposal: Proposal = await Proposal.create(params)
         return proposal.save()
     }
 

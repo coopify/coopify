@@ -12,7 +12,7 @@ interface IAttributes {
 class Message extends Model<Message> {
 
     public static async getAsync(id: string): Promise<Message | null> {
-        return this.findById<Message>(id)
+        return this.findByPk<Message>(id)
     }
 
     public static async getManyAsync(where: any): Promise<Message[] | null> {
@@ -24,7 +24,7 @@ class Message extends Model<Message> {
     }
 
     public static async createAsync(params: IAttributes): Promise<Message> {
-        const message: Message = await new Message(params)
+        const message: Message = await Message.create(params)
         return message.save()
     }
 

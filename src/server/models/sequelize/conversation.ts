@@ -14,7 +14,7 @@ interface IAttributes {
 class Conversation extends Model<Conversation> {
 
     public static async getAsync(id: string): Promise<Conversation | null> {
-        return this.findById<Conversation>(id, {
+        return this.findByPk<Conversation>(id, {
             include: [
                 { model: User, as: 'from' },
                 { model: User, as: 'to' },
@@ -38,7 +38,7 @@ class Conversation extends Model<Conversation> {
     }
 
     public static async createAsync(params: IAttributes): Promise<Conversation> {
-        const conversation: Conversation = await new Conversation(params)
+        const conversation: Conversation = await Conversation.create(params)
         return conversation.save()
     }
 

@@ -22,11 +22,11 @@ interface IUpdateAttributes {
 class Goal extends Model<Goal> {
 
     public static async getAsync(id: string): Promise<Goal | null> {
-        return this.findById<Goal>(id)
+        return this.findByPk<Goal>(id)
     }
 
     public static async getManyAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Goal[], count: number } | null> {
-        return this.findAndCount<Goal>({
+        return this.findAndCountAll<Goal>({
             where,
             limit,
             offset: skip,
@@ -34,7 +34,7 @@ class Goal extends Model<Goal> {
     }
 
     public static async getManyUserGoalsAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Goal[], count: number } | null> {
-        return this.findAndCount<Goal>({
+        return this.findAndCountAll<Goal>({
             where,
             limit,
             offset: skip,
@@ -46,7 +46,7 @@ class Goal extends Model<Goal> {
     }
 
     public static async createAsync(params: IAttributes): Promise<Goal> {
-        const goal: Goal = await new Goal(params)
+        const goal: Goal = await Goal.create(params)
         return goal.save()
     }
 

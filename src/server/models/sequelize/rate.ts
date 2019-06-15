@@ -18,7 +18,7 @@ interface IAttributes {
 class Rate extends Model<Rate> {
 
     public static async getAsync(id: string): Promise<Rate | null> {
-        return this.findById<Rate>(id, {
+        return this.findByPk<Rate>(id, {
             include: [
                 { model: User, as: 'reviewerUser' },
             ],
@@ -45,7 +45,7 @@ class Rate extends Model<Rate> {
     }
 
     public static async createAsync(params: IAttributes, seqTransaction?: Transaction): Promise<Rate> {
-        const rate: Rate = await new Rate(params)
+        const rate: Rate = await Rate.create(params)
         if (seqTransaction) {
             return rate.save({ transaction: seqTransaction })
         } else {

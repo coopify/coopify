@@ -18,11 +18,11 @@ interface IUpdateAttributes {
 class Question extends Model<Question> {
 
     public static async getAsync(id: string): Promise<Question | null> {
-        return this.findById<Question>(id)
+        return this.findByPk<Question>(id)
     }
 
     public static async getManyAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Question[], count: number } | null> {
-        return this.findAndCount<Question>({
+        return this.findAndCountAll<Question>({
             where,
             limit,
             offset: skip,
@@ -35,7 +35,7 @@ class Question extends Model<Question> {
     }
 
     public static async createAsync(params: IAttributes): Promise<Question> {
-        const question: Question = await new Question(params)
+        const question: Question = await Question.create(params)
         return question.save()
     }
 

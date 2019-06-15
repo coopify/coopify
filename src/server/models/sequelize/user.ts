@@ -64,7 +64,7 @@ class User extends Model<User> {
     }
 
     public static async getAsync(id: string): Promise<User | null> {
-        return this.findById<User>(id, {
+        return this.findByPk<User>(id, {
             include: [
                 { model: Goal },
             ],
@@ -83,7 +83,7 @@ class User extends Model<User> {
     }
 
     public static async createAsync(params: IAttributes): Promise<User> {
-        const user: User = await new User(params)
+        const user: User = await User.create(params)
         return user.save()
     }
 

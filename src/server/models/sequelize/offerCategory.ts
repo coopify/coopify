@@ -11,7 +11,7 @@ interface IAttributes {
 class OfferCategory extends Model<OfferCategory> {
 
     public static async getAsync(id: string): Promise<OfferCategory | null> {
-        return this.findById<OfferCategory>(id)
+        return this.findByPk<OfferCategory>(id)
     }
 
     public static async getManyAsync(where: any): Promise<OfferCategory[] | null> {
@@ -23,7 +23,7 @@ class OfferCategory extends Model<OfferCategory> {
     }
 
     public static async createAsync(params: IAttributes): Promise<OfferCategory> {
-        const offerCategory: OfferCategory = await new OfferCategory(params)
+        const offerCategory: OfferCategory = await OfferCategory.create(params)
         return offerCategory.save()
     }
 

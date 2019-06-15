@@ -159,7 +159,7 @@ export async function getTransactionsAsync(request: Request, response: Response,
         if (userTransactions) {
             //TODO: Get proposal based on the proposalId of the response
             const usersIds = userTransactions.map((t) => t.from !== response.locals.user.id ? t.from : t.to)
-            const users = await UserInterface.findAsync({ id: { $in: usersIds } })
+            const users = await UserInterface.findAsync({ id: usersIds })
             if (!users) { throw new ErrorPayload(500, 'No users found') }
             userTransactions.map((t) => {
                 const user = users.find((u) => u.id  === (response.locals.user.id !== t.from ? t.from : t.to))
