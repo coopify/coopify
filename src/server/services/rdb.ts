@@ -1,11 +1,16 @@
-import { Model, Sequelize, ISequelizeConfig } from 'sequelize-typescript'
+import { Model, Sequelize } from 'sequelize-typescript'
 import { logger } from '../services'
 import { seqModels } from '../models'
 import { server as config } from '../../../config'
 
 export interface IOptions {
     uri: string
-    seqOptions?: ISequelizeConfig
+    seqOptions?: {
+        database: string,
+        username: string,
+        password: string,
+        port: number,
+    }
 }
 
 /*
