@@ -39,7 +39,7 @@ class Rate extends Model<Rate> {
         return this.findOne<Rate>({
             where,
             include: [
-                { model: User, as: 'reviewerUserId' },
+                { model: User, as: 'reviewerUser' },
             ],
         })
     }
