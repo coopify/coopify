@@ -112,6 +112,8 @@ class Offer extends Model<Offer> {
             hourPrice: offer.hourPrice,
             sessionPrice: offer.sessionPrice,
             finalProductPrice: offer.finalProductPrice,
+            ratingCount: offer.rateCount,
+            ratingSum: offer.rateSum,
         }
     }
     //tslint:disable:array-type
