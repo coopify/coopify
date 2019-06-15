@@ -82,14 +82,14 @@ export async function updateAsync(proposal: Proposal, body: ProposalUpdateAttrib
     }
 }
 
-export async function validateReviewAsync(userId: string, offerId: string): Promise<Proposal> {
+export async function validateReviewAsync(userId: string, offerId: string): Promise<Proposal | null> {
     try {
-        const proposals = await findAsync({ userId, offerId, status: 'Confirmed' })
+        const proposals = await findAsync({ proposerId: userId, offerId, status: 'Confirmed' })
         if (!proposals) { throw new ErrorPayload(500, 'Failed to get proposals') }
         if (proposals.length > 0) {
             return proposals[0]
         } else {
-            throw new ErrorPayload(400, 'You need an accepted proposal to make a review')
+            return null
         }
     } catch (error) {
         throw handleError(error)

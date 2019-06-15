@@ -51,7 +51,7 @@ export async function reviewableAsync(request: Request, response: Response) {
     try {
         const loggedUser: User = response.locals.loggedUser
         const offer: Offer = response.locals.offer
-        const validProposal: Proposal = await ProposalInterface.validateReviewAsync(loggedUser.id, offer.id)
+        const validProposal = await ProposalInterface.validateReviewAsync(loggedUser.id, offer.id)
         response.status(200).json({ shouldReview: validProposal !== null })
     } catch (error) {
         handleError(error, response)
@@ -64,7 +64,8 @@ export async function createAsync(request: Request, response: Response) {
         const offer: Offer = response.locals.offer
         const { description, rate } = request.body
         if (!description || !rate) { throw new ErrorPayload(400, 'Missing required data') }
-        const validProposal: Proposal = await ProposalInterface.validateReviewAsync(loggedUser.id, offer.id)
+        const validProposal = await ProposalInterface.validateReviewAsync(loggedUser.id, offer.id)
+        if (!validProposal) { throw new ErrorPayload(400, 'You need an accepted proposal to make a review') }
 
         const dbRate = await RateInterface.createAsync({
             description,
