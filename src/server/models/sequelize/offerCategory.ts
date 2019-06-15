@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey, CreatedAt, UpdatedAt } from 'sequelize-typescript'
 import { Offer } from './offer'
 import { Category } from './category'
 
@@ -7,7 +7,7 @@ interface IAttributes {
     categoryId: string
 }
 
-@Table({ timestamps: true })
+@Table
 class OfferCategory extends Model<OfferCategory> {
 
     public static async getAsync(id: string): Promise<OfferCategory | null> {
@@ -49,6 +49,14 @@ class OfferCategory extends Model<OfferCategory> {
     @AllowNull(false)
     @Column(DataType.UUID)
     public categoryId
+
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 }
 
 export { IAttributes, OfferCategory }

@@ -1,6 +1,6 @@
 import {
     Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey,
-    BelongsTo, BelongsToMany,
+    BelongsTo, BelongsToMany, CreatedAt, UpdatedAt,
 } from 'sequelize-typescript'
 import { ErrorPayload } from '../../errorPayload'
 import { UserGoal } from './userGoal'
@@ -18,7 +18,7 @@ interface IUpdateAttributes {
     amount: number
 }
 
-@Table({ timestamps: true })
+@Table
 class Goal extends Model<Goal> {
 
     public static async getAsync(id: string): Promise<Goal | null> {
@@ -87,6 +87,14 @@ class Goal extends Model<Goal> {
     @AllowNull(false)
     @Column(DataType.STRING)
     public code
+
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 
     @BelongsToMany(() => User, () => UserGoal)
     public users

@@ -1,5 +1,5 @@
 import {
-    Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, AfterCreate,
+    Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, CreatedAt, UpdatedAt,
     HasMany, BelongsToMany, BeforeCreate,
 } from 'sequelize-typescript'
 import { Conversation } from './conversation'
@@ -45,7 +45,7 @@ interface IUpdateAttributes {
     interests?: Array<{ name: string, selected: boolean }>
 }
 
-@Table({ timestamps: true })
+@Table
 class User extends Model<User> {
 
     @BeforeCreate
@@ -208,7 +208,15 @@ class User extends Model<User> {
             return Math.round(rateSum / (rateCount > 0 ? rateCount : 1))
         },
     })
+
     public rating
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 
     @HasMany(() => Conversation, 'fromId')
     public fromConversations

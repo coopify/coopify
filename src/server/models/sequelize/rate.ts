@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey, BelongsTo } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey, BelongsTo, CreatedAt, UpdatedAt } from 'sequelize-typescript'
 import { Offer } from './offer'
 import { User } from './user'
 import { Proposal } from './proposal'
@@ -14,7 +14,7 @@ interface IAttributes {
     description: string
 }
 
-@Table({ timestamps: true })
+@Table
 class Rate extends Model<Rate> {
 
     public static async getAsync(id: string): Promise<Rate | null> {
@@ -102,6 +102,14 @@ class Rate extends Model<Rate> {
     @AllowNull(false)
     @Column(DataType.INTEGER)
     public offerRate
+
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 
     @BelongsTo(() => Offer)
     public ratedOffer

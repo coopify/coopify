@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo, BelongsToMany } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo, BelongsToMany, CreatedAt, UpdatedAt } from 'sequelize-typescript'
 import { User } from './user'
 import { OfferCategory } from './offerCategory'
 import { Category } from './category'
@@ -41,7 +41,7 @@ interface IServiceFilter {
     categories?: string[]
 }
 
-@Table({ timestamps: true })
+@Table
 class Offer extends Model<Offer> {
 
     public static async getAsync(id: string): Promise<Offer | null> {
@@ -251,6 +251,14 @@ class Offer extends Model<Offer> {
         },
     })
     public rating
+
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 
     @BelongsTo(() => User)
     public by

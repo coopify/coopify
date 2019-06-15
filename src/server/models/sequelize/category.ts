@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo, BelongsToMany } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, CreatedAt, UpdatedAt, BelongsToMany } from 'sequelize-typescript'
 import { Offer } from './offer'
 import { OfferCategory } from './offerCategory'
 import { ErrorPayload } from '../../errorPayload'
@@ -12,7 +12,7 @@ interface IUpdateAttributes {
     deleted: boolean
 }
 
-@Table({ timestamps: true })
+@Table
 class Category extends Model<Category> {
 
     public static async getAsync(id: string): Promise<Category | null> {
@@ -64,6 +64,14 @@ class Category extends Model<Category> {
     @AllowNull(false)
     @Column(DataType.BOOLEAN)
     public deleted
+
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 }
 
 export { IAttributes, IUpdateAttributes, Category }

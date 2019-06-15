@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey, HasMany, BelongsTo } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey, HasMany, BelongsTo, CreatedAt, UpdatedAt } from 'sequelize-typescript'
 import { User } from './user'
 import { Message } from './message'
 import { Proposal } from './proposal'
@@ -10,7 +10,7 @@ interface IAttributes {
     to?: User
 }
 
-@Table({ timestamps: true })
+@Table
 class Conversation extends Model<Conversation> {
 
     public static async getAsync(id: string): Promise<Conversation | null> {
@@ -65,6 +65,14 @@ class Conversation extends Model<Conversation> {
     @AllowNull(false)
     @Column(DataType.UUID)
     public toId
+
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 
     @BelongsTo(() => User, 'fromId')
     public from
