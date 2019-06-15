@@ -37,7 +37,8 @@ export async function findOneAsync(where: object): Promise<Rate> {
 
 export async function createAsync(body: RateAttributes): Promise<Rate> {
     try {
-        if (body.rate > 5 || body.rate < 1) { throw new ErrorPayload(400, 'Rate should be between 1 and 5') }
+        if (body.offerRate > 5 || body.offerRate < 1) { throw new ErrorPayload(400, 'Rate should be between 1 and 5') }
+        if (body.userRate > 5 || body.userRate < 1) { throw new ErrorPayload(400, 'Rate should be between 1 and 5') }
         const rateInstance = await Rate.createAsync(body)
         if (!rateInstance) { throw new ErrorPayload(500, 'Failed to create a rate') }
 

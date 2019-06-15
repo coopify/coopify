@@ -226,6 +226,14 @@ class Offer extends Model<Offer> {
     @Column(DataType.STRING)
     public status
 
+    @Default(0)
+    @Column(DataType.INTEGER)
+    public rateCount
+
+    @Default(0)
+    @Column(DataType.INTEGER)
+    public rateSum
+
     @BelongsTo(() => User)
     public by
 

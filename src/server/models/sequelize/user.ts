@@ -108,6 +108,8 @@ class User extends Model<User> {
             interests: user.interests,
             FBSync: user.FBId ? true : false,
             referalCode: user.referalCode,
+            rateCount: user.rateCount,
+            rateSum: user.rateSum,
             goals: user.goals && user.goals.length > 0 ? user.goals.map((g) => {
                 return { ...Goal.toDTO(g), quantity: g.UserGoal.quantity }
             }) : [],
@@ -183,6 +185,14 @@ class User extends Model<User> {
 
     @Column(DataType.STRING)
     public FBId
+
+    @Default(0)
+    @Column(DataType.INTEGER)
+    public rateCount
+
+    @Default(0)
+    @Column(DataType.INTEGER)
+    public rateSum
 
     @HasMany(() => Conversation, 'fromId')
     public fromConversations

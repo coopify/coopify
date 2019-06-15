@@ -8,7 +8,8 @@ interface IAttributes {
     proposalId: string
     reviewedUserId: string
     reviewerUserId: string
-    rate: number
+    userRate: number
+    offerRate: number
     description: string
 }
 
@@ -54,7 +55,8 @@ class Rate extends Model<Rate> {
             proposalId: rate.proposalId,
             reviewer: User.toDTO(rate.reviewerUser),
             description: rate.description,
-            rate: rate.rate,
+            userRate: rate.userRate,
+            offerRate: rate.offerRate,
         }
     }
 
@@ -89,7 +91,11 @@ class Rate extends Model<Rate> {
 
     @AllowNull(false)
     @Column(DataType.INTEGER)
-    public rate
+    public userRate
+
+    @AllowNull(false)
+    @Column(DataType.INTEGER)
+    public offerRate
 
     @BelongsTo(() => Offer)
     public ratedOffer

@@ -62,8 +62,8 @@ export async function createAsync(request: Request, response: Response) {
     try {
         const loggedUser: User = response.locals.loggedUser
         const offer: Offer = response.locals.offer
-        const { description, rate } = request.body
-        if (!description || !rate) { throw new ErrorPayload(400, 'Missing required data') }
+        const { description, userRate, offerRate } = request.body
+        if (!description || !userRate || !offerRate) { throw new ErrorPayload(400, 'Missing required data') }
         const validProposal = await ProposalInterface.validateReviewAsync(loggedUser.id, offer.id)
         if (!validProposal) { throw new ErrorPayload(400, 'You need an accepted proposal to make a review') }
 
@@ -71,7 +71,8 @@ export async function createAsync(request: Request, response: Response) {
             description,
             offerId: offer.id,
             proposalId: validProposal.id,
-            rate,
+            userRate,
+            offerRate,
             reviewedUserId: offer.userId,
             reviewerUserId: loggedUser.id,
         })
