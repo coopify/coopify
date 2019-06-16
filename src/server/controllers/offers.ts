@@ -1,14 +1,13 @@
 import { NextFunction, Request, Response } from 'express'
 import { OfferInterface, QuestionInterface } from '../interfaces'
-import { logger, facebook } from '../services'
+import { facebook } from '../services'
 import { IServiceFilter, Offer, Question, User } from '../models'
 import { ErrorPayload } from '../errorPayload'
+import { handleError } from './helpers'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
         const offer = await OfferInterface.getAsync(id)
-
-        if (!offer) { return response.status(404).json(new ErrorPayload(404, 'Offer not found')) }
 
         response.locals.offer = offer
         next()
@@ -20,7 +19,6 @@ export async function loadAsync(request: Request, response: Response, next: Next
 export async function getOneAsync(request: Request, response: Response) {
     try {
         const offer: Offer = response.locals.offer
-        if (!offer) { throw new ErrorPayload(404, 'Offer not found') }
 
         const bodyResponse = { offer: Offer.toDTO(offer) }
         response.status(200).json(bodyResponse)
@@ -37,9 +35,7 @@ export async function getListAsync(request: Request, response: Response) {
         if (limit && skip) { skip = limit * skip }
         const filterParams = processQueryInput(request.query)
         const offers = await OfferInterface.findFilteredAsync(filterParams, limit, skip)
-        if (!offers) { throw new ErrorPayload(500, 'Failed to get offers') }
-        const bodyResponse = { offers: offers.rows.map((o) => Offer.toDTO(o)), count: offers.count }
-        response.status(200).json(bodyResponse)
+        response.status(200).json({ offers: offers.rows.map((o) => Offer.toDTO(o)), count: offers.count })
     } catch (error) {
         handleError(error, response)
     }
@@ -47,16 +43,13 @@ export async function getListAsync(request: Request, response: Response) {
 
 export async function getFromUserAsync(request: Request, response: Response) {
     try {
-        const user: User | undefined = response.locals.user
-        if (!user) { throw new ErrorPayload(404, 'User not found') }
+        const user: User = response.locals.user
         let { limit, skip } = request.query
         if (limit) { limit = parseInt(limit) }
         if (skip) { skip = parseInt(skip) }
         if (limit && skip) { skip = limit * skip }
         const offers = await OfferInterface.findAsync({ userId: user.id }, limit, skip)
-        if (!offers) { throw new ErrorPayload(500, 'Failed to get offers') }
-        const bodyResponse = { offers: offers.rows.map((o) => Offer.toDTO(o)), count: offers.count }
-        response.status(200).json(bodyResponse)
+        response.status(200).json({ offers: offers.rows.map((o) => Offer.toDTO(o)), count: offers.count })
     } catch (error) {
         handleError(error, response)
     }
@@ -69,10 +62,7 @@ export async function getQuestionsListAsync(request: Request, response: Response
         if (skip) { skip = parseInt(skip) }
         if (limit && skip) { skip = limit * skip }
         const offerQuestions = await QuestionInterface.findAsync({ offerId: response.locals.offer.id }, limit, skip)
-        if (offerQuestions) {
-            const bodyResponse = { questions: offerQuestions.rows.map((q) => Question.toDTO(q)), count: offerQuestions.count }
-            response.status(200).json(bodyResponse)
-        }
+        response.status(200).json({ questions: offerQuestions.rows.map((q) => Question.toDTO(q)), count: offerQuestions.count })
     } catch (error) {
         handleError(error, response)
     }
@@ -114,21 +104,9 @@ export async function createAsync(request: Request, response: Response) {
             finalProductPrice: request.body.finalProductPrice ? parseInt(request.body.finalProductPrice) : request.body.finalProductPrice,
         })
 
-        if (!offerToCreate) { throw new ErrorPayload(500, 'Failed to create a new offer') }
-
-        const bodyResponse = { offer: Offer.toDTO(offerToCreate) }
-        response.status(200).json(bodyResponse)
+        response.status(200).json({ offer: Offer.toDTO(offerToCreate) })
     } catch (error) {
         handleError(error, response)
-    }
-}
-
-function handleError(error: ErrorPayload | Error, response: Response) {
-    logger.error(error + ' - ' + JSON.stringify(error))
-    if (error instanceof ErrorPayload) {
-        response.status(error.code).json(error)
-    } else {
-        response.status(500).json(new ErrorPayload(500, 'Something went wrong', error))
     }
 }
 
