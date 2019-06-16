@@ -15,7 +15,7 @@ interface IAttributes {
     proposedPrice?: number
     proposedServiceId?: string
     proposedService?: Offer
-    status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed' | 'Cancelled'
+    status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed' | 'Cancelled' | 'Reviewed'
 }
 
 interface IUpdateAttributes {
@@ -24,7 +24,7 @@ interface IUpdateAttributes {
     proposedPrice?: number
     proposedServiceId?: string
     proposedService?: Offer
-    status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed' | 'Cancelled'
+    status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed' | 'Cancelled' | 'Reviewed'
 }
 
 @Table({ timestamps: true })
