@@ -114,6 +114,7 @@ class Offer extends Model<Offer> {
             finalProductPrice: offer.finalProductPrice,
             ratingCount: offer.rateCount,
             ratingSum: offer.rateSum,
+            rating: offer.rating,
         }
     }
     //tslint:disable:array-type
@@ -163,9 +164,9 @@ class Offer extends Model<Offer> {
             case 'price':
                 where.order = where.order.concat([['hourPrice', 'DESC']])
                 break
-            /*case 'rating':
-                where.order = where.order.concat([['rating', 'DESC']])
-                break*/
+            case 'rate':
+                where.order = where.order.concat([['rateCount', 'DESC']])
+                break
             default:
                 where.order = where.order.concat([['createdAt', 'DESC']])
                 break
@@ -240,6 +241,16 @@ class Offer extends Model<Offer> {
     @Default(0)
     @Column(DataType.INTEGER)
     public rateSum
+
+    @Column({
+        type: DataType.VIRTUAL,
+        get(): number {
+            const rateCount = this.get('rateCount')
+            const rateSum = this.get('rateSum')
+            return Math.round(rateSum / (rateCount > 0 ? rateCount : 1))
+        },
+    })
+    public rating
 
     @BelongsTo(() => User)
     public by

@@ -115,6 +115,7 @@ class User extends Model<User> {
             referalCode: user.referalCode,
             rateCount: user.rateCount,
             rateSum: user.rateSum,
+            rating: user.rating,
             goals: user.goals && user.goals.length > 0 ? user.goals.map((g) => {
                 return { ...Goal.toDTO(g), quantity: g.UserGoal.quantity }
             }) : [],
@@ -198,6 +199,16 @@ class User extends Model<User> {
     @Default(0)
     @Column(DataType.INTEGER)
     public rateSum
+
+    @Column({
+        type: DataType.VIRTUAL,
+        get(): number {
+            const rateCount = this.get('rateCount')
+            const rateSum = this.get('rateSum')
+            return Math.round(rateSum / (rateCount > 0 ? rateCount : 1))
+        },
+    })
+    public rating
 
     @HasMany(() => Conversation, 'fromId')
     public fromConversations
