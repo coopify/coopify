@@ -328,6 +328,15 @@ export function validateOwner(request: Request, response: Response, next: NextFu
     }
 }
 
+export function getDetailOfOneAsync(request: Request, response: Response) {
+    try {
+        const user: User = response.locals.user
+        response.status(200).json({ user: User.toDTO(user) })
+    } catch (error) {
+        handleError(error, response)
+    }
+}
+
 function extractAuthBearerToken(request: Request): string {
     const authHeader = request.header('authorization') || ''
     const token = authHeader.split(' ')[1]
