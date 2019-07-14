@@ -247,7 +247,7 @@ class Offer extends Model<Offer> {
         get(): number {
             const rateCount = this.get('rateCount')
             const rateSum = this.get('rateSum')
-            return Math.round(rateSum / (rateCount > 0 ? rateCount : 1))
+            return parseFloat((rateSum / (rateCount > 0 ? rateCount : 1)).toFixed(2))
         },
     })
     public rating
