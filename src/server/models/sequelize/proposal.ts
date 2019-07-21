@@ -136,7 +136,7 @@ class Proposal extends Model<Proposal> {
 
     @UpdatedAt
     @Column(DataType.DATE)
-    public updatedAts
+    public updatedAt
 
     @BelongsTo(() => Offer, 'offerId')
     public purchasedOffer
