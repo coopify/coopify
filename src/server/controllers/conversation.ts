@@ -47,7 +47,7 @@ export async function createAsync(request: Request, response: Response) {
         if (toId === loggedUser.id) { throw new ErrorPayload(400, 'You cant start a conversation with your self') }
 
         const previousConversation = await ConversationInterface.findOneAsync({
-            $or: [
+            [Op.or]: [
                 { fromId: response.locals.loggedUser.id, toId },
                 { fromId: toId, toId: response.locals.loggedUser.id },
             ],
