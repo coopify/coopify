@@ -3,21 +3,23 @@ import { validateStatus, validatePaymentMethod } from './helpers'
 import { logger } from '../services'
 import { ErrorPayload } from '../errorPayload'
 import { CategoryInterface } from '.'
+import { handleError } from './helpers'
 
-export async function getAsync(id: string): Promise<Offer | null> {
+export async function getAsync(id: string): Promise<Offer> {
     try {
         const offerInstance = await Offer.getAsync(id)
+        if (!offerInstance) { throw new ErrorPayload(404, 'Offer not found') }
 
         return offerInstance
     } catch (error) {
-        logger.error(new Error(error))
-        throw error
+        throw handleError(error)
     }
 }
 
-export async function findFilteredAsync(where: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
+export async function findFilteredAsync(where: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number }> {
     try {
         const offerInstances = await Offer.getFilteredAsync(where, limit, skip)
+        if (!offerInstances) { throw new ErrorPayload(500, 'Failed to get filtered offers') }
 
         return offerInstances
     } catch (error) {
@@ -26,9 +28,10 @@ export async function findFilteredAsync(where: IServiceFilter, limit?: number, s
     }
 }
 
-export async function findAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
+export async function findAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number }> {
     try {
         const offerInstances = await Offer.getManyAsync(where, limit, skip)
+        if (!offerInstances) { throw new ErrorPayload(500, 'Failed to get offers') }
 
         return offerInstances
     } catch (error) {
@@ -39,20 +42,19 @@ export async function findAsync(where: any, limit?: number, skip?: number): Prom
 
 export async function findOneAsync(where: IServiceFilter): Promise<Offer | null> {
     try {
-        const offerInstances = await Offer.getOneAsync(where)
+        const offerInstance = await Offer.getOneAsync(where)
+        //if (!offerInstance) { throw new ErrorPayload(404, 'Offer not found') }
 
-        return offerInstances
+        return offerInstance
     } catch (error) {
-        logger.error(new Error(error))
-        throw error
+        throw handleError(error)
     }
 }
 
-export async function createAsync(body: OfferAttributes): Promise<Offer | null> {
+export async function createAsync(body: OfferAttributes): Promise<Offer> {
     try {
         if (body.paymentMethod) { validatePaymentMethod(body.paymentMethod) }
         if (body.status) { validateStatus(body.status) }
-        //TODO in future: validate categories
         body.shared = false
         const offerInstance = await Offer.createAsync(body)
         if (!offerInstance) { throw new ErrorPayload(500, 'Failed to create offer') }
@@ -65,19 +67,16 @@ export async function createAsync(body: OfferAttributes): Promise<Offer | null> 
         }
         return getAsync(offerInstance.id)
     } catch (error) {
-        logger.error(new Error(error))
-        throw error
+        throw handleError(error)
     }
 }
 
-export async function updateAsync(offer: Offer, body: OfferUpdateAttributes, transaction?): Promise<Offer | null> {
+export async function updateAsync(offer: Offer, body: OfferUpdateAttributes, transaction?): Promise<Offer> {
     try {
-        const userInstance = await Offer.updateAsync(offer, body, transaction)
-        return userInstance
+        const offerInstance = await Offer.updateAsync(offer, body, transaction)
+        if (!offerInstance) { throw new ErrorPayload(500, 'Failed to update offer') }
+        return offerInstance
     } catch (error) {
-        logger.error(new Error(error))
-        throw error
+        throw handleError(error)
     }
 }
-
-//In the Offer update use the paymentMethod validation and the status validation

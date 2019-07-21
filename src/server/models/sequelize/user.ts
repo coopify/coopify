@@ -12,7 +12,7 @@ import { Transaction } from 'sequelize'
 
 interface IAttributes {
     email: string
-    password: string
+    password?: string
     referalCode: string
     pictureURL?: string
     FBId?: string
@@ -127,7 +127,7 @@ class User extends Model<User> {
     @Column(DataType.UUID)
     public id
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column(DataType.STRING)
     public password
 

@@ -1,37 +1,38 @@
 import { Category, CategoryAttributes } from '../models'
 import { logger } from '../services'
 import { ErrorPayload } from '../errorPayload'
+import { handleError } from './helpers'
 
-export async function getAsync(id: string): Promise<Category | null> {
+export async function getAsync(id: string): Promise<Category> {
     try {
         const categoryInstance = await Category.getAsync(id)
+        if (!categoryInstance) { throw new ErrorPayload(404, 'Category not found') }
 
         return categoryInstance
     } catch (error) {
-        logger.error(new Error(error))
-        throw error
+        throw handleError(error)
     }
 }
 
-export async function findAsync(where: object): Promise<Category[] | null> {
+export async function findAsync(where: object): Promise<Category[]> {
     try {
         const categoryInstances = await Category.getManyAsync(where)
+        if (!categoryInstances) { throw new ErrorPayload(500, 'Could not get categories') }
 
         return categoryInstances
     } catch (error) {
-        logger.error(new Error(error))
-        throw error
+        throw handleError(error)
     }
 }
 
 export async function findOneAsync(where: object): Promise<Category | null> {
     try {
-        const categoryInstances = await Category.getOneAsync(where)
+        const categoryInstance = await Category.getOneAsync(where)
+        //if (!categoryInstance) { throw new ErrorPayload(404, 'Category not found') }
 
-        return categoryInstances
+        return categoryInstance
     } catch (error) {
-        logger.error(new Error(error))
-        throw error
+        throw handleError(error)
     }
 }
 
@@ -42,7 +43,6 @@ export async function createAsync(body: CategoryAttributes): Promise<Category> {
 
         return categoryInstance
     } catch (error) {
-        logger.error(new Error(error))
-        throw error
+        throw handleError(error)
     }
 }
