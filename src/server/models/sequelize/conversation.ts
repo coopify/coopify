@@ -10,7 +10,7 @@ interface IAttributes {
     to?: User
 }
 
-@Table
+@Table({ tableName: 'Conversation' })
 class Conversation extends Model<Conversation> {
 
     public static async getAsync(id: string): Promise<Conversation | null> {

@@ -14,7 +14,7 @@ interface IUpdateAttributes {
     response: string
 }
 
-@Table
+@Table({ tableName: 'Question' })
 class Question extends Model<Question> {
 
     public static async getAsync(id: string): Promise<Question | null> {

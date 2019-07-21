@@ -41,7 +41,7 @@ interface IServiceFilter {
     categories?: string[]
 }
 
-@Table
+@Table({ tableName: 'Offer' })
 class Offer extends Model<Offer> {
 
     public static async getAsync(id: string): Promise<Offer | null> {
@@ -114,7 +114,7 @@ class Offer extends Model<Offer> {
             finalProductPrice: offer.finalProductPrice,
             ratingCount: offer.rateCount,
             ratingSum: offer.rateSum,
-            rating: offer.rating,
+            rating: parseFloat((offer.rateSum / (offer.rateCount > 0 ? offer.rateCount : 1)).toFixed(2)),
         }
     }
     //tslint:disable:array-type
@@ -242,15 +242,15 @@ class Offer extends Model<Offer> {
     @Column(DataType.INTEGER)
     public rateSum
 
-    @Column({
+    /*@Column({
         type: DataType.VIRTUAL,
-        get(): number {
-            const rateCount = this.get('rateCount')
+        get: function(): number {
+            const rateCount = (this.getDataValue('rateCount') as any)
             const rateSum = this.get('rateSum')
             return parseFloat((rateSum / (rateCount > 0 ? rateCount : 1)).toFixed(2))
         },
     })
-    public rating
+    public rating*/
 
     @CreatedAt
     @Column(DataType.DATE)

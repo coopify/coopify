@@ -14,7 +14,7 @@ interface IAttributes {
     description: string
 }
 
-@Table
+@Table({ tableName: 'Rate' })
 class Rate extends Model<Rate> {
 
     public static async getAsync(id: string): Promise<Rate | null> {

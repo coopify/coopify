@@ -7,7 +7,7 @@ interface IAttributes {
     categoryId: string
 }
 
-@Table
+@Table({ tableName: 'OfferCategory' })
 class OfferCategory extends Model<OfferCategory> {
 
     public static async getAsync(id: string): Promise<OfferCategory | null> {

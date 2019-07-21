@@ -13,7 +13,7 @@ interface IUpdateAttributes {
     deleted: boolean
 }
 
-@Table
+@Table({ tableName: 'Category' })
 class Category extends Model<Category> {
 
     public static async getAsync(id: string): Promise<Category | null> {

@@ -8,7 +8,7 @@ interface IAttributes {
     text: string
 }
 
-@Table
+@Table({ tableName: 'Message' })
 class Message extends Model<Message> {
 
     public static async getAsync(id: string): Promise<Message | null> {

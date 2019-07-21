@@ -18,7 +18,7 @@ interface IUpdateAttributes {
     amount: number
 }
 
-@Table
+@Table({ tableName: 'Goal' })
 class Goal extends Model<Goal> {
 
     public static async getAsync(id: string): Promise<Goal | null> {

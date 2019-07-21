@@ -27,7 +27,7 @@ interface IUpdateAttributes {
     status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed' | 'Cancelled' | 'Reviewed'
 }
 
-@Table
+@Table({ tableName: 'Proposal' })
 class Proposal extends Model<Proposal> {
 
     public static async getAsync(id: string): Promise<Proposal | null> {

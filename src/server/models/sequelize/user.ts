@@ -45,7 +45,7 @@ interface IUpdateAttributes {
     interests?: Array<{ name: string, selected: boolean }>
 }
 
-@Table
+@Table({ tableName: 'User' })
 class User extends Model<User> {
 
     @BeforeCreate
@@ -115,7 +115,7 @@ class User extends Model<User> {
             referalCode: user.referalCode,
             rateCount: user.rateCount,
             rateSum: user.rateSum,
-            rating: user.rating,
+            rating: parseFloat((user.rateSum / (user.rateCount > 0 ? user.rateCount : 1)).toFixed(2)),
             goals: user.goals && user.goals.length > 0 ? user.goals.map((g) => {
                 return { ...Goal.toDTO(g), quantity: g.UserGoal.quantity }
             }) : [],
@@ -200,14 +200,14 @@ class User extends Model<User> {
     @Column(DataType.INTEGER)
     public rateSum
 
-    @Column({
+    /*@Column({
         type: DataType.VIRTUAL,
         get(): number {
-            const rateCount = this.get('rateCount')
+            /*const rateCount: number = this.
             const rateSum = this.get('rateSum')
             return Math.round(rateSum / (rateCount > 0 ? rateCount : 1))
         },
-    })
+    })*/
 
     public rating
     @CreatedAt
