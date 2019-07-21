@@ -1,5 +1,5 @@
 import {
-    Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, AfterCreate,
+    Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, Unique, CreatedAt, UpdatedAt,
     HasMany, BelongsToMany, BeforeCreate,
 } from 'sequelize-typescript'
 import { Conversation } from './conversation'
@@ -45,7 +45,7 @@ interface IUpdateAttributes {
     interests?: Array<{ name: string, selected: boolean }>
 }
 
-@Table({ timestamps: true })
+@Table({ tableName: 'User' })
 class User extends Model<User> {
 
     @BeforeCreate
@@ -64,7 +64,7 @@ class User extends Model<User> {
     }
 
     public static async getAsync(id: string): Promise<User | null> {
-        return this.findById<User>(id, {
+        return this.findByPk<User>(id, {
             include: [
                 { model: Goal },
             ],
@@ -83,7 +83,7 @@ class User extends Model<User> {
     }
 
     public static async createAsync(params: IAttributes): Promise<User> {
-        const user: User = await new User(params)
+        const user: User = await User.create(params)
         return user.save()
     }
 
@@ -115,7 +115,7 @@ class User extends Model<User> {
             referalCode: user.referalCode,
             rateCount: user.rateCount,
             rateSum: user.rateSum,
-            rating: user.rating,
+            rating: parseFloat((user.rateSum / (user.rateCount > 0 ? user.rateCount : 1)).toFixed(2)),
             goals: user.goals && user.goals.length > 0 ? user.goals.map((g) => {
                 return { ...Goal.toDTO(g), quantity: g.UserGoal.quantity }
             }) : [],
@@ -200,15 +200,23 @@ class User extends Model<User> {
     @Column(DataType.INTEGER)
     public rateSum
 
-    @Column({
+    /*@Column({
         type: DataType.VIRTUAL,
         get(): number {
-            const rateCount = this.get('rateCount')
+            /*const rateCount: number = this.
             const rateSum = this.get('rateSum')
             return Math.round(rateSum / (rateCount > 0 ? rateCount : 1))
         },
-    })
+    })*/
+
     public rating
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 
     @HasMany(() => Conversation, 'fromId')
     public fromConversations

@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey, BelongsTo } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey, BelongsTo, CreatedAt, UpdatedAt } from 'sequelize-typescript'
 import { Offer } from './offer'
 import { User } from './user'
 import { Conversation } from './conversation'
@@ -27,11 +27,11 @@ interface IUpdateAttributes {
     status: 'Waiting' | 'Rejected' | 'Confirmed' | 'PaymentPending' | 'PaymentFailed' | 'Cancelled' | 'Reviewed'
 }
 
-@Table({ timestamps: true })
+@Table({ tableName: 'Proposal' })
 class Proposal extends Model<Proposal> {
 
     public static async getAsync(id: string): Promise<Proposal | null> {
-        return this.findById<Proposal>(id, {
+        return this.findByPk<Proposal>(id, {
             include: [
                 { model: Offer, as: 'purchasedOffer' },
                 { model: Offer, as: 'proposedService', required: false },
@@ -63,7 +63,7 @@ class Proposal extends Model<Proposal> {
     }
 
     public static async createAsync(params: IAttributes): Promise<Proposal> {
-        const proposal: Proposal = await new Proposal(params)
+        const proposal: Proposal = await Proposal.create(params)
         return proposal.save()
     }
 
@@ -129,6 +129,14 @@ class Proposal extends Model<Proposal> {
     @AllowNull(false)
     @Column(DataType.STRING)
     public status
+
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAts
 
     @BelongsTo(() => Offer, 'offerId')
     public purchasedOffer

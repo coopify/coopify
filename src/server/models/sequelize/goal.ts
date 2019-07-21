@@ -1,6 +1,6 @@
 import {
     Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey,
-    BelongsTo, BelongsToMany,
+    BelongsTo, BelongsToMany, CreatedAt, UpdatedAt,
 } from 'sequelize-typescript'
 import { ErrorPayload } from '../../errorPayload'
 import { UserGoal } from './userGoal'
@@ -18,15 +18,15 @@ interface IUpdateAttributes {
     amount: number
 }
 
-@Table({ timestamps: true })
+@Table({ tableName: 'Goal' })
 class Goal extends Model<Goal> {
 
     public static async getAsync(id: string): Promise<Goal | null> {
-        return this.findById<Goal>(id)
+        return this.findByPk<Goal>(id)
     }
 
     public static async getManyAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Goal[], count: number } | null> {
-        return this.findAndCount<Goal>({
+        return this.findAndCountAll<Goal>({
             where,
             limit,
             offset: skip,
@@ -34,7 +34,7 @@ class Goal extends Model<Goal> {
     }
 
     public static async getManyUserGoalsAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Goal[], count: number } | null> {
-        return this.findAndCount<Goal>({
+        return this.findAndCountAll<Goal>({
             where,
             limit,
             offset: skip,
@@ -46,7 +46,7 @@ class Goal extends Model<Goal> {
     }
 
     public static async createAsync(params: IAttributes): Promise<Goal> {
-        const goal: Goal = await new Goal(params)
+        const goal: Goal = await Goal.create(params)
         return goal.save()
     }
 
@@ -87,6 +87,14 @@ class Goal extends Model<Goal> {
     @AllowNull(false)
     @Column(DataType.STRING)
     public code
+
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 
     @BelongsToMany(() => User, () => UserGoal)
     public users

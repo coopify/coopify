@@ -1,7 +1,8 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo, BelongsToMany } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, CreatedAt, UpdatedAt, BelongsToMany } from 'sequelize-typescript'
 import { Offer } from './offer'
 import { OfferCategory } from './offerCategory'
 import { ErrorPayload } from '../../errorPayload'
+import * as uuid from 'uuid'
 
 interface IAttributes {
     name: string
@@ -12,11 +13,11 @@ interface IUpdateAttributes {
     deleted: boolean
 }
 
-@Table({ timestamps: true })
+@Table({ tableName: 'Category' })
 class Category extends Model<Category> {
 
     public static async getAsync(id: string): Promise<Category | null> {
-        return this.findById<Category>(id)
+        return this.findByPk<Category>(id)
     }
 
     public static async getManyAsync(where: any): Promise<Category[] | null> {
@@ -28,7 +29,7 @@ class Category extends Model<Category> {
     }
 
     public static async createAsync(params: IAttributes): Promise<Category> {
-        const category: Category = await new Category(params)
+        const category: Category = await Category.create(params)
         return category.save()
     }
 
@@ -43,7 +44,7 @@ class Category extends Model<Category> {
     public static toDTO(category: Category) {
         return {
             id: category.id,
-            offers: category.offers ? category.offers.map((offer) => Offer.toDTO(offer)) : [],
+            //offers: category.offers ? category.offers.map((offer) => Offer.toDTO(offer)) : [],
             name: category.name,
             deleted: category.deleted,
         }
@@ -54,8 +55,8 @@ class Category extends Model<Category> {
     @Column(DataType.UUID)
     public id
 
-    @BelongsToMany(() => Offer, () => OfferCategory)
-    public offers
+    /*@BelongsToMany(() => Offer, () => OfferCategory)
+    public offers*/
 
     @AllowNull(false)
     @Column(DataType.TEXT)
@@ -64,6 +65,14 @@ class Category extends Model<Category> {
     @AllowNull(false)
     @Column(DataType.BOOLEAN)
     public deleted
+
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 }
 
 export { IAttributes, IUpdateAttributes, Category }

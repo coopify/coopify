@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey, CreatedAt, UpdatedAt } from 'sequelize-typescript'
 import { User } from './user'
 import { Goal } from './goal'
 
@@ -16,11 +16,11 @@ interface IUpdateAttributes {
     code: string
 }
 
-@Table({ timestamps: true })
+@Table({ tableName: 'UserGoal' })
 class UserGoal extends Model<UserGoal> {
 
     public static async getAsync(id: string): Promise<UserGoal | null> {
-        return this.findById<UserGoal>(id)
+        return this.findByPk<UserGoal>(id)
     }
 
     public static async getManyAsync(where: any): Promise<UserGoal[] | null> {
@@ -32,7 +32,7 @@ class UserGoal extends Model<UserGoal> {
     }
 
     public static async createAsync(params: IAttributes): Promise<UserGoal> {
-        const userGoal: UserGoal = await new UserGoal(params)
+        const userGoal: UserGoal = await UserGoal.create(params)
         return userGoal.save()
     }
 
@@ -73,6 +73,14 @@ class UserGoal extends Model<UserGoal> {
     @AllowNull(false)
     @Column(DataType.STRING)
     public code
+
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 }
 
 export { IAttributes, UserGoal, IUpdateAttributes }

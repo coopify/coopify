@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, ForeignKey, CreatedAt, UpdatedAt } from 'sequelize-typescript'
 import { Offer } from './offer'
 import { Category } from './category'
 
@@ -7,11 +7,11 @@ interface IAttributes {
     categoryId: string
 }
 
-@Table({ timestamps: true })
+@Table({ tableName: 'OfferCategory' })
 class OfferCategory extends Model<OfferCategory> {
 
     public static async getAsync(id: string): Promise<OfferCategory | null> {
-        return this.findById<OfferCategory>(id)
+        return this.findByPk<OfferCategory>(id)
     }
 
     public static async getManyAsync(where: any): Promise<OfferCategory[] | null> {
@@ -23,7 +23,7 @@ class OfferCategory extends Model<OfferCategory> {
     }
 
     public static async createAsync(params: IAttributes): Promise<OfferCategory> {
-        const offerCategory: OfferCategory = await new OfferCategory(params)
+        const offerCategory: OfferCategory = await OfferCategory.create(params)
         return offerCategory.save()
     }
 
@@ -49,6 +49,14 @@ class OfferCategory extends Model<OfferCategory> {
     @AllowNull(false)
     @Column(DataType.UUID)
     public categoryId
+
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 }
 
 export { IAttributes, OfferCategory }

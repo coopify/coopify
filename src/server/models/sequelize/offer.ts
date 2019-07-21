@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo, BelongsToMany } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, PrimaryKey, Default, AllowNull, HasMany, ForeignKey, BelongsTo, BelongsToMany, CreatedAt, UpdatedAt } from 'sequelize-typescript'
 import { User } from './user'
 import { OfferCategory } from './offerCategory'
 import { Category } from './category'
@@ -41,11 +41,11 @@ interface IServiceFilter {
     categories?: string[]
 }
 
-@Table({ timestamps: true })
+@Table({ tableName: 'Offer' })
 class Offer extends Model<Offer> {
 
     public static async getAsync(id: string): Promise<Offer | null> {
-        return this.findById<Offer>(id, {
+        return this.findByPk<Offer>(id, {
             include: [
                 { model: User },
                 { model: Category },
@@ -55,19 +55,19 @@ class Offer extends Model<Offer> {
 
     public static async getFilteredAsync(filter: IServiceFilter, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
         const seqFilter = this.transformFilter(filter)
-        return this.findAndCount<Offer>({
+        return this.findAndCountAll<Offer>({
             where: seqFilter.offer, include: [
                 { model: User },
                 { model: Category, where: seqFilter.categories, required: seqFilter.categories ? true : false },
             ],
             limit,
             offset: skip,
-            order: seqFilter.order,
+            //order: seqFilter.order,
         })
     }
 
     public static async getManyAsync(where: any, limit?: number, skip?: number): Promise<{ rows: Offer[], count: number } | null> {
-        return this.findAndCount<Offer>({
+        return this.findAndCountAll<Offer>({
             where, include: [
                 { model: User },
                 { model: Category },
@@ -83,7 +83,7 @@ class Offer extends Model<Offer> {
     }
 
     public static async createAsync(params: IAttributes): Promise<Offer> {
-        const offer: Offer = await new Offer(params)
+        const offer: Offer = await Offer.create(params)
         return offer.save()
     }
 
@@ -114,7 +114,7 @@ class Offer extends Model<Offer> {
             finalProductPrice: offer.finalProductPrice,
             ratingCount: offer.rateCount,
             ratingSum: offer.rateSum,
-            rating: offer.rating,
+            rating: parseFloat((offer.rateSum / (offer.rateCount > 0 ? offer.rateCount : 1)).toFixed(2)),
         }
     }
     //tslint:disable:array-type
@@ -159,7 +159,7 @@ class Offer extends Model<Offer> {
                 }
             }
         }
-        if (filter.categories) { where.categories.name = { $in: filter.categories } } else { delete where.categories }
+        if (filter.categories) { where.categories.name = filter.categories } else { delete where.categories }
         switch (filter.orderBy) {
             case 'price':
                 where.order = where.order.concat([['hourPrice', 'DESC']])
@@ -242,15 +242,23 @@ class Offer extends Model<Offer> {
     @Column(DataType.INTEGER)
     public rateSum
 
-    @Column({
+    /*@Column({
         type: DataType.VIRTUAL,
-        get(): number {
-            const rateCount = this.get('rateCount')
+        get: function(): number {
+            const rateCount = (this.getDataValue('rateCount') as any)
             const rateSum = this.get('rateSum')
             return parseFloat((rateSum / (rateCount > 0 ? rateCount : 1)).toFixed(2))
         },
     })
-    public rating
+    public rating*/
+
+    @CreatedAt
+    @Column(DataType.DATE)
+    public createdAt
+
+    @UpdatedAt
+    @Column(DataType.DATE)
+    public updatedAt
 
     @BelongsTo(() => User)
     public by
