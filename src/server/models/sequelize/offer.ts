@@ -4,7 +4,6 @@ import { OfferCategory } from './offerCategory'
 import { Category } from './category'
 import { Proposal } from '..'
 import { Transaction, Op } from 'sequelize'
-import { logger } from '../../services';
 
 interface IAttributes {
     userId: string
