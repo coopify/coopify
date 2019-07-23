@@ -133,7 +133,7 @@ class Offer extends Model<Offer> {
         if (filter.lowerPrice && filter.upperPrice) {
             if (hourSelected > -1) {
                 where.offer[Op.or] = where.offer[Op.or].concat([
-                    { hourPrice: { [Op.lt]: filter.upperPrice, [Op.gt]: filter.lowerPrice } }
+                    { hourPrice: { [Op.lt]: filter.upperPrice, [Op.gt]: filter.lowerPrice } },
                 ])
             }
             if (sessionSelected > -1) {
