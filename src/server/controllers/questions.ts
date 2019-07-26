@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { QuestionInterface } from '../interfaces'
+import { QuestionInterface, OfferInterface } from '../interfaces'
 import { handleError } from './helpers'
 import { Question, QuestionUpdateAttributes } from '../models'
 import { ErrorPayload } from '../errorPayload'
@@ -58,14 +58,16 @@ export async function createAsync(request: Request, response: Response) {
 export async function updateAsync(request: Request, response: Response, next: NextFunction) {
     try {
         const questionToUpdate = response.locals.question
-        const ownerQuestionUser = await QuestionInterface.getAsync(questionToUpdate.id)
+        const question = await QuestionInterface.getAsync(questionToUpdate.id)
+        if (!question) { throw new ErrorPayload(404, 'Question not found') }
+        const offer = await OfferInterface.getAsync(question.offerId)
 
-        if (ownerQuestionUser && response.locals.loggedUser.id === ownerQuestionUser.authorId) {
+        if (offer && response.locals.loggedUser.id === offer.userId) {
             const attributes: QuestionUpdateAttributes = request.body.attributes
             if (!attributes) { throw new ErrorPayload(403, 'Missing required data') }
             if (attributes.response === '') { throw new ErrorPayload(403, 'Should provide a response') }
-            const question = await QuestionInterface.updateAsync(questionToUpdate, attributes)
-            response.status(200).json({ question: Question.toDTO(question) })
+            const updatedQuestion = await QuestionInterface.updateAsync(questionToUpdate, attributes)
+            response.status(200).json({ question: Question.toDTO(updatedQuestion) })
         } else {
             throw new ErrorPayload(403, 'User does not own this offer')
         }

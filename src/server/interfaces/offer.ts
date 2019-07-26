@@ -56,6 +56,9 @@ export async function createAsync(body: OfferAttributes): Promise<Offer> {
         if (body.paymentMethod) { validatePaymentMethod(body.paymentMethod) }
         if (body.status) { validateStatus(body.status) }
         body.shared = false
+        if ( body.hourPrice && body.hourPrice < 0) { throw new ErrorPayload(400, 'Invalid price for hour') }
+        if ( body.sessionPrice && body.sessionPrice < 0) { throw new ErrorPayload(400, 'Invalid price for session') }
+        if ( body.finalProductPrice && body.finalProductPrice < 0) { throw new ErrorPayload(400, 'Invalid price for final product') }
         const offerInstance = await Offer.createAsync(body)
         if (!offerInstance) { throw new ErrorPayload(500, 'Failed to create offer') }
         if (body.categories) {
