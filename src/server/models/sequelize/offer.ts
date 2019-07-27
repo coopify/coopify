@@ -123,111 +123,42 @@ class Offer extends Model<Offer> {
         //tslint:enable:array-type
         if (filter.name) { where.offer[Op.or] = where.offer[Op.or].concat([ { title: { [Op.iLike]: `%${filter.name}%` } }, { description: { [Op.iLike]: `%${filter.name}%` } } ]) }
         if (filter.paymentMethods) { where.offer.paymentMethod = { [Op.in]: filter.paymentMethods } }
-        let hourSelected = -1
-        let sessionSelected = -1
-        let finalProductSelected = -1
+        const hourSelected = filter.exchangeMethods ? filter.exchangeMethods.findIndex((s) => s === 'Hour') >= 0 : false
+        const sessionSelected = filter.exchangeMethods ? filter.exchangeMethods.findIndex((s) => s === 'Session') >= 0 : false
+        const finalProductSelected = filter.exchangeMethods ? filter.exchangeMethods.findIndex((s) => s === 'FinalProduct') >= 0 : false
         const isOnlyExchange = filter.paymentMethods && filter.paymentMethods.findIndex((p) => p === 'Exchange') >= 0 && filter.paymentMethods.length === 1
         const isOnlyCoopy = filter.paymentMethods && filter.paymentMethods.findIndex((p) => p === 'Coopy') >= 0 && filter.paymentMethods.length === 1
         const isCoopyAndExchange = filter.paymentMethods && filter.paymentMethods.length === 2
-        if (filter.exchangeMethods) {
-            hourSelected = filter.exchangeMethods.findIndex((s) => s === 'Hour')
-            sessionSelected = filter.exchangeMethods.findIndex((s) => s === 'Session')
-            finalProductSelected = filter.exchangeMethods.findIndex((s) => s === 'FinalProduct')
-        }
         if (filter.lowerPrice && filter.upperPrice && (isCoopyAndExchange || isOnlyCoopy)) {
-            if (hourSelected > -1) {
-                if (isCoopyAndExchange) {
-                    where.offer[Op.or] = where.offer[Op.or].concat([
-                        {
-                            [Op.or] : {
-                                hourPrice: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice },
-                                paymentMethod: { [Op.in]: ['Exchange'] },
-                            },
-                        },
-                    ])
-                } else {
-                    where.offer[Op.or] = where.offer[Op.or].concat([
-                        { hourPrice: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice } },
-                    ])
-                }
-            }
-            if (sessionSelected > -1) {
-                if (isCoopyAndExchange) {
-                    where.offer[Op.or] = where.offer[Op.or].concat([
-                        {
-                            [Op.or] : {
-                                sessionPrice: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice },
-                                paymentMethod: { [Op.in]: ['Exchange'] },
-                            },
-                        },
-                    ])
-                } else {
-                    where.offer[Op.or] = where.offer[Op.or].concat([
-                        { sessionPrice: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice } },
-                    ])
-                }
-            }
-            if (finalProductSelected > -1) {
-                if (isCoopyAndExchange) {
-                    where.offer[Op.or] = where.offer[Op.or].concat([
-                        {
-                            [Op.or] : {
-                                finalProductPrice: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice },
-                                paymentMethod: { [Op.in]: ['Exchange'] },
-                            },
-                        },
-                    ])
-                } else {
-                    where.offer[Op.or] = where.offer[Op.or].concat([
-                        { finalProductPrice: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice } },
-                    ])
-                }
-            }
-            if (hourSelected === -1 && sessionSelected === -1 && finalProductSelected === -1) {
+            if (hourSelected) { this.getSelectedPaymentInstanceParams(where, filter, 'hourPrice', isCoopyAndExchange ? isCoopyAndExchange : false) }
+            if (sessionSelected) { this.getSelectedPaymentInstanceParams(where, filter, 'sessionPrice', isCoopyAndExchange ? isCoopyAndExchange : false) }
+            if (finalProductSelected) { this.getSelectedPaymentInstanceParams(where, filter, 'finalProductPrice', isCoopyAndExchange ? isCoopyAndExchange : false) }
+            if (hourSelected && sessionSelected && finalProductSelected) {
                 if (!isOnlyExchange) {
                     where.offer[Op.or] = where.offer[Op.or].concat([
-                        { [Op.or]:
-                            [
-                                { paymentMethod: { [Op.in]: ['Coopy'] }, hourPrice: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice } },
-                                { paymentMethod: { [Op.in]: ['Exchange'] } },
-                            ],
-                        },
-                        { [Op.or]:
-                            [
-                                { paymentMethod: { [Op.in]: ['Coopy'] }, sessionPrice: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice } },
-                                { paymentMethod: { [Op.in]: ['Exchange'] } },
-                            ],
-                        },
-                        { [Op.or]:
-                            [
-                                { paymentMethod: { [Op.in]: ['Coopy'] }, finalProductPrice: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice } },
-                                { paymentMethod: { [Op.in]: ['Exchange'] } },
-                            ],
-                        },
+                        this.getUnselectedPaymentInstanceParam(filter, 'hourPrice'),
+                        this.getUnselectedPaymentInstanceParam(filter, 'sessionPrice'),
+                        this.getUnselectedPaymentInstanceParam(filter, 'finalProductPrice'),
                     ])
                 } else {
-                    where.offer[Op.or] = where.offer[Op.or].concat([
-                        { hourPrice: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice } },
-                        { sessionPrice: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice } },
-                        { finalProductPrice: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice } ,
-                    }])
+                    this.getDefaultPaymentPriceParam(where, filter.upperPrice, filter.lowerPrice)
                 }
             }
         } else {
             if (filter.lowerPrice && (isCoopyAndExchange || isOnlyCoopy)) {
-                if (hourSelected > -1) { where.offer.hourPrice = { [Op.lte]: filter.lowerPrice } }
-                if (sessionSelected > -1) { where.offer.sessionPrice = { [Op.lte]: filter.lowerPrice } }
-                if (finalProductSelected > -1) { where.offer.finalProductPrice = { [Op.lte]: filter.lowerPrice } }
-                if (hourSelected === -1 && sessionSelected === -1 && finalProductSelected === -1) {
-                    where.offer[Op.or] = where.offer[Op.or].concat([{ hourPrice: { [Op.lte]: filter.lowerPrice } }, { sessionPrice: { [Op.lte]: filter.lowerPrice } }, { finalProductPrice: { [Op.gte]: filter.lowerPrice } }])
+                if (hourSelected) { where.offer.hourPrice = { [Op.lte]: filter.lowerPrice } }
+                if (sessionSelected) { where.offer.sessionPrice = { [Op.lte]: filter.lowerPrice } }
+                if (finalProductSelected) { where.offer.finalProductPrice = { [Op.lte]: filter.lowerPrice } }
+                if (hourSelected  && sessionSelected  && finalProductSelected ) {
+                    this.getDefaultPaymentPriceParam(where, filter.upperPrice, filter.lowerPrice)
                 }
             }
             if (filter.upperPrice && (isCoopyAndExchange || isOnlyCoopy)) {
-                if (hourSelected > -1) { where.offer.hourPrice = { [Op.lte]: filter.upperPrice } }
-                if (sessionSelected > -1) { where.offer.sessionPrice = { [Op.lte]: filter.upperPrice } }
-                if (finalProductSelected > -1) { where.offer.finalProductPrice = { [Op.lte]: filter.upperPrice } }
-                if (hourSelected === -1 && sessionSelected === -1 && finalProductSelected === -1) {
-                    where.offer[Op.or] = where.offer[Op.or].concat([{ hourPrice: { [Op.lte]: filter.upperPrice } }, { sessionPrice: { [Op.lte]: filter.upperPrice } }, { finalProductPrice: { [Op.lte]: filter.upperPrice } }])
+                if (hourSelected) { where.offer.hourPrice = { [Op.lte]: filter.upperPrice } }
+                if (sessionSelected) { where.offer.sessionPrice = { [Op.lte]: filter.upperPrice } }
+                if (finalProductSelected) { where.offer.finalProductPrice = { [Op.lte]: filter.upperPrice } }
+                if (hourSelected  && sessionSelected  && finalProductSelected ) {
+                    this.getDefaultPaymentPriceParam(where, filter.upperPrice, filter.lowerPrice)
                 }
             }
         }
@@ -245,6 +176,51 @@ class Offer extends Model<Offer> {
         }
         if (where.offer && where.offer[Op.or].length === 0) { delete where.offer[Op.or] }
         return where
+    }
+
+    private static getSelectedPaymentInstanceParams(where: any, filter: any, propName: string, isCoopyAndExchange: boolean) {
+        if (isCoopyAndExchange) {
+            where.offer[Op.or] = where.offer[Op.or].concat([
+                {
+                    [Op.or] : {
+                        [propName]: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice },
+                        paymentMethod: { [Op.in]: ['Exchange'] },
+                    },
+                },
+            ])
+        } else {
+            where.offer[Op.or] = where.offer[Op.or].concat([
+                { [propName]: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice } },
+            ])
+        }
+    }
+
+    private static getUnselectedPaymentInstanceParam(filter: any, propName: string) {
+        return { [Op.or]:
+            [
+                { paymentMethod: { [Op.in]: ['Coopy'] }, [propName]: { [Op.lte]: filter.upperPrice, [Op.gte]: filter.lowerPrice } },
+                { paymentMethod: { [Op.in]: ['Exchange'] } },
+            ],
+        }
+    }
+
+    private static getDefaultPaymentPriceParam(where: any, upperPrice?: number, lowerPrice?: number) {
+        let hourPrice, sessionPrice, finalProductPrice
+        if (upperPrice) {
+            hourPrice[Op.lte] = upperPrice
+            sessionPrice[Op.lte] = upperPrice
+            finalProductPrice[Op.lte] = upperPrice
+        }
+        if (lowerPrice) {
+            hourPrice[Op.gte] = lowerPrice
+            sessionPrice[Op.gte] = lowerPrice
+            finalProductPrice[Op.gte] = lowerPrice
+        }
+        where.offer[Op.or] = where.offer[Op.or].concat([
+            hourPrice,
+            sessionPrice,
+            finalProductPrice,
+        ])
     }
 
     @PrimaryKey
