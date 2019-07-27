@@ -5,6 +5,7 @@ import { Proposal, Conversation, User } from '../models'
 import { ErrorPayload } from '../errorPayload'
 import { blockchain, logger } from '../services'
 import { proposalStatusChangedEmail } from '../mailer'
+import { Op } from 'sequelize'
 
 export async function loadAsync(request: Request, response: Response, next: NextFunction, id: string) {
     try {
@@ -29,8 +30,7 @@ export async function getOneAsync(request: Request, response: Response) {
 export async function getListAsync(request: Request, response: Response) {
     try {
         const loggedUser = response.locals.loggedUser
-        if (!loggedUser) { throw new ErrorPayload(403, 'You need to be logged in') }
-        const conversations = await ConversationInterface.findAsync({ $or: [{ fromId: loggedUser.id }, { toId: loggedUser.id }] })
+        const conversations = await ConversationInterface.findAsync({ [Op.or]: [{ fromId: loggedUser.id }, { toId: loggedUser.id }] })
         const proposals = await ProposalInterface.findAsync({ conversationId: conversations.map((c) => c.id) })
         response.status(200).json({ proposals: proposals.map((p) => Proposal.toDTO(p)) })
     } catch (error) {
