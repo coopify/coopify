@@ -4,6 +4,7 @@ import { OfferCategory } from './offerCategory'
 import { Category } from './category'
 import { Proposal } from '..'
 import { Transaction, Op, OrderItem } from 'sequelize'
+import { logger } from '../../services';
 
 interface IAttributes {
     userId: string
@@ -133,7 +134,7 @@ class Offer extends Model<Offer> {
             if (hourSelected) { this.getSelectedPaymentInstanceParams(where, filter, 'hourPrice', isCoopyAndExchange ? isCoopyAndExchange : false) }
             if (sessionSelected) { this.getSelectedPaymentInstanceParams(where, filter, 'sessionPrice', isCoopyAndExchange ? isCoopyAndExchange : false) }
             if (finalProductSelected) { this.getSelectedPaymentInstanceParams(where, filter, 'finalProductPrice', isCoopyAndExchange ? isCoopyAndExchange : false) }
-            if (hourSelected && sessionSelected && finalProductSelected) {
+            if (!hourSelected && !sessionSelected && !finalProductSelected) {
                 if (!isOnlyExchange) {
                     where.offer[Op.or] = where.offer[Op.or].concat([
                         this.getUnselectedPaymentInstanceParam(filter, 'hourPrice'),
@@ -205,7 +206,9 @@ class Offer extends Model<Offer> {
     }
 
     private static getDefaultPaymentPriceParam(where: any, upperPrice?: number, lowerPrice?: number) {
-        let hourPrice, sessionPrice, finalProductPrice
+        const hourPrice = {}
+        const sessionPrice = {}
+        const finalProductPrice = {}
         if (upperPrice) {
             hourPrice[Op.lte] = upperPrice
             sessionPrice[Op.lte] = upperPrice
