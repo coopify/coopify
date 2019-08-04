@@ -34,7 +34,13 @@ class Conversation extends Model<Conversation> {
     }
 
     public static async getOneAsync(where: any): Promise<Conversation | null> {
-        return this.findOne<Conversation>({ where, include: [{ model: User, as: 'from' }, { model: User, as: 'to' }] })
+        return this.findOne<Conversation>({
+            where,
+            include: [
+                { model: User, as: 'from' },
+                { model: User, as: 'to' },
+            ],
+        })
     }
 
     public static async createAsync(params: IAttributes): Promise<Conversation> {

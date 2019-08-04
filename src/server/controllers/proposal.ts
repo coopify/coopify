@@ -87,8 +87,8 @@ export async function acceptAsync(request: Request, response: Response) {
         const conversation = await ConversationInterface.getAsync(proposal.conversationId)
         if (loggedUser.id !== conversation.fromId && loggedUser.id !== conversation.toId) { throw new ErrorPayload(400, 'Cant accept another user proposal') }
         if (proposal.proposerId === loggedUser.id) { throw new ErrorPayload(400, 'You cant propose and accept a proposal') }
-        const from = await UserInterface.getAsync(conversation.fromId)
-        const to = await UserInterface.getAsync(conversation.toId)
+        const from = await UserInterface.getAsync(proposal.proposerId)
+        const to = await UserInterface.getAsync(proposal.proposerId === conversation.toId ? conversation.fromId : conversation.toId)
         const offer = await OfferInterface.getAsync(proposal.offerId)
         if (offer.paymentMethod === 'Coopy') {
             await blockchain.transfer({ from, to, offer, proposal, amount: proposal.proposedPrice, concept: `Payment for ${offer.title}` })
