@@ -55,6 +55,8 @@ export async function createAsync(body: UserAttributes): Promise<User> {
 export async function createFromFBAsync(body: FBUserData, tokens: { access_token: string, refresh_token: string } ): Promise<User> {
     try {
         if (body.gender) { validateGender(body.gender) }
+        const user = await findOneAsync({ email: body.email })
+        if (user) { throw new ErrorPayload(400, 'This email is already in use, please sync your account') }
         const payload = { ...body, FBAccessToken: tokens.access_token, FBRefreshToken: tokens.refresh_token, referalCode: randomString(8) }
 
         const userInstance = await User.createAsync(payload)
@@ -69,6 +71,8 @@ export async function createFromFBAsync(body: FBUserData, tokens: { access_token
 export async function createFromGoogleAsync(body: GoogleUserData, tokens: { access_token: string, refresh_token: string }): Promise<User> {
     try {
         const params = { ...body, googleAccessToken: tokens.access_token, googleRefreshToken: tokens.refresh_token, isVerified: true, referalCode: randomString(8) }
+        const user = await findOneAsync({ email: body.email })
+        if (user) { throw new ErrorPayload(400, 'This email is already in use, please sync your account') }
         const userInstance = await User.createAsync(params)
         if (!userInstance) { throw new ErrorPayload(500, 'Failed to create user from Google') }
 

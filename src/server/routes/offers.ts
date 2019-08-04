@@ -4,7 +4,7 @@ import { offersController, usersController } from '../controllers'
 const offerRoutes = Router()
 
 offerRoutes.get('/', offersController.getListAsync)
-offerRoutes.get('/count', usersController.authenticate, offersController.countInteractionsAsync)
+offerRoutes.get('/count', offersController.countInteractionsAsync)
 offerRoutes.get('/:offerId', offersController.getOneAsync)
 offerRoutes.get('/user/:userId', offersController.getFromUserAsync)
 offerRoutes.get('/questions/:offerId', offersController.getQuestionsListAsync)

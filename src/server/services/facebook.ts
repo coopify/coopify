@@ -88,7 +88,7 @@ export class FacebookService {
         }
     }
 
-    public async getPostStatsAsync(token: string, uri: string): Promise<any> {
+    public async getPostStatsAsync(uri: string): Promise<any> {
         return new Promise((resolve, reject) => {
             FB.api(`/v3.2/?id=${uri}&fields=engagement&access_token=${this.options.apikey}|${this.options.secret}`, (res) => {
                 if (!res || res.error) {
