@@ -171,6 +171,9 @@ export async function getTransactionsAsync(request: Request, response: Response,
                 }
             })
         }
+        if (coopifyTransactions) {
+            coopifyTransactions.map((t) => t.from = response.locals.user.name)
+        }
         response.status(200).json(coopifyTransactions.concat(userTransactions))
         response.send()
     } catch (error) {
