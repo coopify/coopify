@@ -51,13 +51,15 @@ class User extends Model<User> {
     @BeforeCreate
     public static async encryptPassword(instance: User) {
         try {
-            bcrypt.hash(instance.password, null, null, (err, result) => {
-                if (!err) {
-                    instance.password = result
-                } else {
-                    throw new ErrorPayload(500, 'Failed to generate password', err)
-                }
-            })
+            if (instance.password) {
+                bcrypt.hash(instance.password, null, null, (err, result) => {
+                    if (!err) {
+                        instance.password = result
+                    } else {
+                        throw new ErrorPayload(500, 'Failed to generate password', err)
+                    }
+                })
+            }
         } catch (error) {
             logger.error(`USER MODEL => encryptPassword() for ${instance.id} failed with error: ${JSON.stringify(error)}`)
         }

@@ -56,6 +56,7 @@ export async function exchangeFacebookCodeAsync(request: Request, response: Resp
         const userDataRaw = await facebook.getUserDataAsync(tokens.access_token)
         const userData = facebook.transform(userDataRaw)
         const user = await UserInterface.createFromFBAsync(userData, tokens)
+        handleRequest('signup', user)
         response.locals.user = user
         next()
     } catch (error) {
@@ -189,6 +190,7 @@ export async function googleAPIExchangeCodeForTokenAsync(request: Request, respo
         const user = await UserInterface.createFromGoogleAsync(googleData, result)
         if (user == null) { throw new ErrorPayload(400, 'Could not create user from IP') }
         response.locals.user = user
+        handleRequest('signup', user)
         next()
 
     } catch (error) {
