@@ -54,7 +54,7 @@ export async function createAsync(body: UserAttributes): Promise<User> {
 
 export async function createFromFBAsync(body: FBUserData, tokens: { access_token: string, refresh_token: string } ): Promise<User> {
     try {
-        if (body.gender) { validateGender(body.gender) }
+        // if (body.gender) { validateGender(body.gender) }
         const user = await findOneAsync({ email: body.email })
         if (user) { throw new ErrorPayload(400, 'This email is already in use, please sync your account') }
         const payload = { ...body, FBAccessToken: tokens.access_token, FBRefreshToken: tokens.refresh_token, referalCode: randomString(8) }
